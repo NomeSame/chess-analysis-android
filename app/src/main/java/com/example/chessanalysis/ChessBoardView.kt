@@ -52,6 +52,12 @@ class ChessBoardView @JvmOverloads constructor(
         set(value) { field = value; invalidate() }
     var showBestMoveArrow: Boolean = true
 
+    var openingText: String? = null
+        set(value) { field = value; invalidate() }
+
+    var badgeTooltipText: String? = null
+    var onBadgeLongPress: ((MoveClass?, String?) -> Unit)? = null
+
     var boardTheme: BoardTheme = BoardThemes.DEFAULT
         set(value) { field = value; invalidate() }
     var pieceStyle: PieceStyle = PieceStyle.DEFAULT
@@ -323,6 +329,11 @@ class ChessBoardView @JvmOverloads constructor(
     private var dragFromBoard = false
     private var dragFromRow = 0
     private var dragFromCol = 0
+
+    // Long-press tracking
+    private var downX = 0f
+    private var downY = 0f
+    private var downTime = 0L
 
     // Setup mode: 2 tray rows top + half-square gap + 8 board rows + half-square gap + 2 tray rows = 13.
     private val setupGap = 0.5f
@@ -667,6 +678,18 @@ class ChessBoardView @JvmOverloads constructor(
             canvas.drawText(badge.symbol, bcx, bcy - (fm.ascent + fm.descent) / 2f, textPaint)
             textPaint.textSize = savedSize
             textPaint.color = savedColor
+
+            // Opening text below BOOK badge
+            if (badge == MoveClass.BOOK && openingText != null) {
+                val savedSize2 = textPaint.textSize
+                val savedColor2 = textPaint.color
+                textPaint.textSize = radius * 0.55f
+                textPaint.color = Color.WHITE
+                val fm2 = textPaint.fontMetrics
+                canvas.drawText(openingText!!, bcx, bcy + radius + radius * 0.6f - (fm2.ascent + fm2.descent) / 2f, textPaint)
+                textPaint.textSize = savedSize2
+                textPaint.color = savedColor2
+            }
         }
 
         // Best-move arrow (analysis mode)
@@ -686,7 +709,8 @@ class ChessBoardView @JvmOverloads constructor(
             }
 
             if (arrow.pieceType == 'N') {
-                // Knight L-path: 2 segments
+                // Knight L-path with dashed line
+                arrowPaint.pathEffect = DashPathEffect(floatArrayOf(sqSize * 0.1f, sqSize * 0.08f), 0f)
                 val dr = arrow.toRow - arrow.fromRow
                 val dc = arrow.toCol - arrow.fromCol
                 val midR: Int
@@ -705,9 +729,11 @@ class ChessBoardView @JvmOverloads constructor(
                 path.lineTo(midCx, midCy)
                 path.lineTo(toSqCx, toSqCy)
                 canvas.drawPath(path, arrowPaint)
+                arrowPaint.pathEffect = null
                 drawArrowHead(canvas, toSqCx, toSqCy, midCx, midCy, sqSize, arrow.color)
             } else {
                 // Straight arrow
+                arrowPaint.pathEffect = null
                 canvas.drawLine(fromSqCx, fromSqCy, toSqCx, toSqCy, arrowPaint)
                 drawArrowHead(canvas, toSqCx, toSqCy, fromSqCx, fromSqCy, sqSize, arrow.color)
             }
@@ -1031,8 +1057,16 @@ class ChessBoardView @JvmOverloads constructor(
     }
 
     private fun onPlayTouch(event: MotionEvent): Boolean {
+        if (event.action == MotionEvent.ACTION_DOWN) {
+            downX = event.x; downY = event.y; downTime = System.currentTimeMillis()
+        }
         if (event.action != MotionEvent.ACTION_UP) return true
         if (!interactionEnabled) return true
+
+        // Long-press on badge check
+        val elapsed = System.currentTimeMillis() - downTime
+        val dist = Math.hypot((event.x - downX).toDouble(), (event.y - downY).toDouble())
+        if (elapsed >= 400 && dist < 40.0 && checkBadgeLongPress(event.x, event.y)) return true
         val size = minOf(width, height)
         val barW = if (showEvalBar) maxOf(size / 24f, 20f) else 0f
         val boardStartX = barW + if (showEvalBar) 4f else 0f
@@ -1086,6 +1120,36 @@ class ChessBoardView @JvmOverloads constructor(
             }
         }
         return true
+    }
+
+    private fun checkBadgeLongPress(x: Float, y: Float): Boolean {
+        val size = minOf(width, height)
+        val barW = if (showEvalBar) maxOf(size / 24f, 20f) else 0f
+        val boardStartX = barW + if (showEvalBar) 4f else 0f
+        val sqSize = (size - boardStartX) / 8f
+
+        fun badgeHit(sq: Pair<Int, Int>?, radius: Float): Boolean {
+            if (sq == null) return false
+            val (r, c) = sq
+            val dr = if (flipBoard) 7 - r else r
+            val dc = if (flipBoard) 7 - c else c
+            val bcx = boardStartX + (dc + 1) * sqSize - radius
+            val bcy = dr * sqSize + radius
+            val dx = x - bcx; val dy = y - bcy
+            return (dx * dx + dy * dy) <= (radius * radius * 1.5f)
+        }
+
+        val badge = moveBadge; val badgeSq = moveBadgeSquare
+        if (badge != null && badgeSq != null && badgeHit(badgeSq, sqSize * 0.18f)) {
+            onBadgeLongPress?.invoke(badge, badgeTooltipText)
+            return true
+        }
+        val badge2 = moveBadge2; val badgeSq2 = moveBadgeSquare2
+        if (badge2 != null && badgeSq2 != null && badgeHit(badgeSq2, sqSize * 0.16f)) {
+            onBadgeLongPress?.invoke(badge2, badgeTooltipText)
+            return true
+        }
+        return false
     }
 
     private fun onSetupTouch(event: MotionEvent): Boolean {

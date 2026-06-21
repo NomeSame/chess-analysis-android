@@ -23,11 +23,17 @@ class EvalChartView @JvmOverloads constructor(
     private var moves: List<MoveClass> = emptyList()   // perPly: moves[i] produced position i+1
     private var marker: Int = -1
 
-    /** Tap on a marquant-move dot → callback with the POSITION index to jump to. */
+    /** Position indices (0-based) that have tactical chances shown as red rings. */
+    var tacticalPositions: Set<Int> = emptySet()
+
+    /** Tap on a marquant-move dot or tactic ring → callback with the POSITION index to jump to. */
     var onPlySelected: ((Int) -> Unit)? = null
 
     private val dotFill = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
     private val dotRing = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE; color = Color.WHITE; strokeWidth = 2f }
+    private val tacticPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE; color = Color.RED; strokeWidth = 3f * resources.displayMetrics.density
+    }
 
     private val whiteFill = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL; color = Color.rgb(0xEE, 0xEE, 0xEE) }
     private val darkFill = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL; color = Color.rgb(0x40, 0x40, 0x40) }
@@ -113,6 +119,13 @@ class EvalChartView @JvmOverloads constructor(
             canvas.drawCircle(cx, cy, r, dotFill)
             canvas.drawCircle(cx, cy, r, dotRing)
         }
+
+        // Tactic rings (red) for tactical chances.
+        for (pos in tacticalPositions) {
+            if (pos !in data.indices) continue
+            val cx = xAt(pos); val cy = yAt(data[pos])
+            canvas.drawCircle(cx, cy, r + 2f, tacticPaint)
+        }
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -124,6 +137,11 @@ class EvalChartView @JvmOverloads constructor(
             for (i in moves.indices) {
                 if (!isMarquant(moves[i])) continue
                 val pos = i + 1
+                if (pos !in data.indices) continue
+                val dx = abs(xAt(pos) - event.x)
+                if (dx < bestDx) { bestDx = dx; bestPos = pos }
+            }
+            for (pos in tacticalPositions) {
                 if (pos !in data.indices) continue
                 val dx = abs(xAt(pos) - event.x)
                 if (dx < bestDx) { bestDx = dx; bestPos = pos }

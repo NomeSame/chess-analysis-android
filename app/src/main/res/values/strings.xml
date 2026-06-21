@@ -63,6 +63,9 @@
     <string name="show_analysis_arrows">Show best-move arrows in analysis</string>
     <string name="game_history">Game History</string>
     <string name="game_saved">Game saved to history</string>
+    <string name="export_history">Export</string>
+    <string name="import_history">Import</string>
+    <string name="import_done">Import complete</string>
 
     <!-- Piece styles -->
     <string name="piece_original">Original</string>

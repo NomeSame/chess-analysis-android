@@ -99,6 +99,26 @@ object GameHistoryManager {
 
     fun clearAll(context: Context) { file(context).writeText("[]") }
 
+    fun exportGames(context: Context): File {
+        val exportFile = File(context.cacheDir, "chess_analysis_history.json")
+        val src = file(context)
+        if (src.exists()) src.copyTo(exportFile, overwrite = true)
+        else exportFile.writeText("[]")
+        return exportFile
+    }
+
+    fun importGames(context: Context, uri: android.net.Uri) {
+        val input = context.contentResolver.openInputStream(uri) ?: return
+        val json = input.bufferedReader().use { it.readText() }
+        val incoming = JSONArray(json)
+        val existing = loadJson(context)
+        for (i in 0 until incoming.length()) {
+            existing.put(incoming.get(i))
+        }
+        while (existing.length() > MAX_ENTRIES) existing.remove(0)
+        file(context).writeText(existing.toString(2))
+    }
+
     private fun loadJson(context: Context): JSONArray {
         val f = file(context)
         return if (f.exists()) { try { JSONArray(f.readText()) } catch (_: Exception) { JSONArray() } } else { JSONArray() }

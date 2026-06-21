@@ -312,6 +312,29 @@
             android:visibility="gone" />
 
         <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp">
+
+            <Button
+                android:id="@+id/btnExportHistory"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:text="@string/export_history" />
+
+            <Button
+                android:id="@+id/btnImportHistory"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:text="@string/import_history" />
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/lvGameHistory"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -630,12 +653,36 @@
                 android:textAllCaps="true"
                 android:letterSpacing="0.05" />
 
-            <RadioGroup
-                android:id="@+id/rgAnalysisDepth"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:orientation="horizontal" />
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/analysis_depth"
+                    android:textSize="15sp"
+                    android:textColor="#212121" />
+                <TextView
+                    android:id="@+id/tvDepthValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:textColor="#212121" />
+            </LinearLayout>
+            <SeekBar
+                android:id="@+id/sbAnalysisDepth"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="29"
+                android:progress="15"
+                android:paddingTop="14dp"
+                android:paddingBottom="14dp"
+                android:thumb="@drawable/seekbar_thumb" />
 
         </LinearLayout>
     </ScrollView>

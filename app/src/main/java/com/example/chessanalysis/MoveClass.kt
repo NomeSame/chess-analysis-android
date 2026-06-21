@@ -11,11 +11,14 @@ data class EvalInfo(
     val bestMoveUci: String?,
     val bestCp: Int?,
     val bestMate: Int?,
+    val bestAlternative: String? = null,
+    val bestAlternativeCp: Int? = null,
     val secondCp: Int?,
     val secondMate: Int?,
     val playedMoveUci: String?,
     val playedCp: Int?,
-    val playedMate: Int?
+    val playedMate: Int?,
+    val openingStats: OpeningStats? = null
 )
 
 /** Quality classification of a played move (ordered best to worst). */
@@ -42,6 +45,14 @@ enum class MoveClass(val symbol: String, val color: Int, val label: String) {
         fun evalToWinPct(cp: Int?, mate: Int?): Double {
             if (mate != null) return if (mate > 0) 100.0 else 0.0
             return cpToWinPct(cp ?: 0)
+        }
+
+        /** Classify by centipawn loss alone (0 = perfect, positive = loss for mover). */
+        fun cpLossClassify(cpLoss: Int): MoveClass = when {
+            cpLoss < 20 -> GOOD
+            cpLoss < 50 -> INACCURACY
+            cpLoss < 100 -> MISTAKE
+            else -> BLUNDER
         }
 
         /** Classify a played move by engine eval (BOOK handled by caller). */

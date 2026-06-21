@@ -1,6 +1,7 @@
 package com.example.chessanalysis
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
@@ -94,8 +95,11 @@ class MainActivity : AppCompatActivity() {
 
     private var analysisDepth = 16
     private var analysisArrowsEnabled = true
+
+    private var lichessExplorer: LichessExplorer? = null
     private lateinit var tvAnalysisDepthHeader: TextView
-    private lateinit var rgAnalysisDepth: RadioGroup
+    private lateinit var sbAnalysisDepth: SeekBar
+    private lateinit var tvDepthValue: TextView
     private lateinit var swAnalysisArrows: SwitchCompat
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -128,6 +132,16 @@ class MainActivity : AppCompatActivity() {
         initPromotionCallback()
 
         analyzer.onUpdate = { lines -> runOnUiThread { renderAnalysis(lines) } }
+
+        chessBoard.onBadgeLongPress = { cls, tooltipText ->
+            if (cls != null) {
+                AlertDialog.Builder(this)
+                    .setTitle(cls.label)
+                    .setMessage(tooltipText ?: cls.label)
+                    .setPositiveButton("OK", null)
+                    .show()
+            }
+        }
 
         chessBoard.onSquareTap = { row, col ->
             val sel = chessBoard.selectedSq
@@ -172,11 +186,15 @@ class MainActivity : AppCompatActivity() {
 
         refreshGameHistoryList()
 
+        findViewById<Button>(R.id.btnExportHistory).setOnClickListener { exportGameHistory() }
+        findViewById<Button>(R.id.btnImportHistory).setOnClickListener { importGameHistory() }
+
         findViewById<ImageButton>(R.id.btnSettings).setOnClickListener {
             drawerLayout.openDrawer(settingsDrawer)
         }
 
         lifecycleScope.launch { initEngine() }
+        lichessExplorer = LichessExplorer()
     }
 
     private fun setupSettingsDrawer() {
@@ -304,20 +322,22 @@ class MainActivity : AppCompatActivity() {
         })
 
         tvAnalysisDepthHeader = findViewById<TextView>(R.id.tvAnalysisDepthHeader)
-        rgAnalysisDepth = findViewById<RadioGroup>(R.id.rgAnalysisDepth)
+        tvDepthValue = findViewById(R.id.tvDepthValue)
+        sbAnalysisDepth = findViewById(R.id.sbAnalysisDepth)
         val currentDepth = prefs.getInt(KEY_ANALYSIS_DEPTH, 16)
-        for ((idx, d) in listOf(8, 16, 20).withIndex()) {
-            val rb = RadioButton(this).apply {
-                text = d.toString()
-                textSize = 15f
-                id = View.generateViewId()
-                isChecked = d == currentDepth
-                setOnClickListener {
-                    prefs.edit().putInt(KEY_ANALYSIS_DEPTH, d).apply()
+        sbAnalysisDepth.apply {
+            progress = currentDepth - 1
+            setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(sb: SeekBar?, p: Int, fromUser: Boolean) {
+                    tvDepthValue.text = (p + 1).toString()
                 }
-            }
-            rgAnalysisDepth.addView(rb)
+                override fun onStartTrackingTouch(sb: SeekBar?) {}
+                override fun onStopTrackingTouch(sb: SeekBar?) {
+                    prefs.edit().putInt(KEY_ANALYSIS_DEPTH, (sb?.progress ?: 15) + 1).apply()
+                }
+            })
         }
+        tvDepthValue.text = currentDepth.toString()
 
         swAnalysisArrows = findViewById<SwitchCompat>(R.id.swAnalysisArrows)
         analysisArrowsEnabled = prefs.getBoolean(KEY_ANALYSIS_ARROWS, true)
@@ -588,6 +608,7 @@ class MainActivity : AppCompatActivity() {
 
     /** ⟳: discard a variation (back to its branch) → leave analysis/review → jump to live. */
     private fun onResetView() {
+        chessBoard.openingText = null
         when {
             exploring -> {
                 exploring = false
@@ -642,21 +663,41 @@ class MainActivity : AppCompatActivity() {
                 chessBoard.moveBadge = null; chessBoard.moveBadgeSquare = null
             }
             chessBoard.moveBadge2 = null; chessBoard.moveBadgeSquare2 = null
+            chessBoard.openingText = null
+            chessBoard.badgeTooltipText = null
             return
         }
         val review = lastReview
         if (!analysisMode || review == null) {
             chessBoard.moveBadge = null; chessBoard.moveBadgeSquare = null
             chessBoard.moveBadge2 = null; chessBoard.moveBadgeSquare2 = null
+            chessBoard.openingText = null
+            chessBoard.badgeTooltipText = null
             return
         }
         // Badge1 = last move (viewIndex-1)
         if (viewIndex >= 1 && viewIndex - 1 <= review.perPly.lastIndex &&
             viewIndex <= positionHistory.lastIndex) {
-            chessBoard.moveBadge = review.perPly[viewIndex - 1]
+            val cls = review.perPly[viewIndex - 1]
+            chessBoard.moveBadge = cls
             chessBoard.moveBadgeSquare = destSquare(positionHistory[viewIndex - 1], positionHistory[viewIndex])
+            chessBoard.openingText = review.openingTexts[viewIndex - 1]
+            if (cls == MoveClass.BOOK) {
+                chessBoard.badgeTooltipText = chessBoard.openingText
+            } else {
+                val bestUci = review.bestMovePerPos.getOrNull(viewIndex - 1)
+                val playedUci = GameReviewer.playedUci(positionHistory[viewIndex - 1], positionHistory[viewIndex])
+                val bestEval = review.bestEvalPerPos.getOrNull(viewIndex - 1)
+                val playedEval = review.playedEvalPerPos.getOrNull(viewIndex - 1)
+                val bestPart = if (bestUci != null) "Best: $bestUci (${bestEval ?: "?"})" else ""
+                val playedPart = if (playedUci != null) "Played: $playedUci (${playedEval ?: "?"})" else ""
+                chessBoard.badgeTooltipText = if (bestPart.isNotEmpty() && playedPart.isNotEmpty())
+                    "$bestPart\n$playedPart" else null
+            }
         } else {
             chessBoard.moveBadge = null; chessBoard.moveBadgeSquare = null
+            chessBoard.openingText = null
+            chessBoard.badgeTooltipText = null
         }
         // Badge2 = second-to-last move (viewIndex-2), only in analysisMode
         if (analysisMode && viewIndex >= 2 && viewIndex - 2 <= review.perPly.lastIndex &&
@@ -683,25 +724,35 @@ class MainActivity : AppCompatActivity() {
             val info = EvalInfo(
                 ply = 0, fenBefore = fenBefore,
                 bestMoveUci = best?.firstMove, bestCp = best?.cp, bestMate = best?.mate,
+                bestAlternative = best?.firstMove, bestAlternativeCp = best?.cp,
                 secondCp = second?.cp, secondMate = second?.mate,
                 playedMoveUci = GameReviewer.playedUci(fenBefore, fenAfter),
                 playedCp = a1?.cp?.let { -it }, playedMate = a1?.mate?.let { -it }
             )
             val cls = MoveClass.classify(info)
+            val cpLoss = ((best?.cp ?: 0) - (info.playedCp ?: 0)).coerceAtLeast(0)
+            val cpCls = MoveClass.cpLossClassify(cpLoss)
+            val combined = if (cls.ordinal > cpCls.ordinal) cls else cpCls
             val dest = destSquare(fenBefore, fenAfter)
             runOnUiThread {
                 if (exploreIdx >= 0) {
-                    if (exploreIdx < explorationClass.size) explorationClass[exploreIdx] = cls
+                    if (exploreIdx < explorationClass.size) explorationClass[exploreIdx] = combined
                     if (exploreIdx < explorationBest.size) explorationBest[exploreIdx] = best?.firstMove
                     if (exploring && viewIndex - branchIndex - 1 == exploreIdx) {
-                        chessBoard.moveBadge = cls; chessBoard.moveBadgeSquare = dest
+                        chessBoard.moveBadge = combined; chessBoard.moveBadgeSquare = dest
                         updateBestMoveArrow()
                     }
                 } else if (!reviewMode && viewIndex == positionHistory.lastIndex) {
-                    chessBoard.moveBadge = cls; chessBoard.moveBadgeSquare = dest
+                    chessBoard.moveBadge = combined; chessBoard.moveBadgeSquare = dest
                 }
             }
         }
+    }
+
+    private fun formatEvalForTooltip(cp: Int?, mate: Int?): String = when {
+        mate != null -> if (mate > 0) "M$mate" else "-M${-mate}"
+        cp != null -> "%+.1f".format(cp / 100.0)
+        else -> "?"
     }
 
     /** Destination (row, col) of the move from [fenA] to [fenB], via placement-field diff (handles castling). */
@@ -816,7 +867,8 @@ class MainActivity : AppCompatActivity() {
                 tvAnalysisProgress.text = getString(R.string.analyzing_fmt, done, total)
             } },
             onDone = { lines ->
-                val review = GameReviewer.review(fens, lines)
+                val reviewer = GameReviewer(lichessExplorer)
+                val review = reviewer.review(fens, lines)
                 runOnUiThread {
                     llAnalysisProgress.visibility = View.GONE
                     lastReview = review
@@ -1081,6 +1133,37 @@ class MainActivity : AppCompatActivity() {
         tvStatus.text = "Loaded game from ${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.getDefault()).format(java.util.Date(rec.timestamp))}"
     }
 
+    private fun exportGameHistory() {
+        val file = GameHistoryManager.exportGames(this)
+        val uri = androidx.core.content.FileProvider.getUriForFile(this, "${packageName}.fileprovider", file)
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "application/json"
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        startActivity(Intent.createChooser(intent, getString(R.string.export_history)))
+    }
+
+    private fun importGameHistory() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            type = "application/json"
+            addCategory(Intent.CATEGORY_OPENABLE)
+        }
+        startActivityForResult(intent, REQ_IMPORT_HISTORY)
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQ_IMPORT_HISTORY && resultCode == RESULT_OK) {
+            data?.data?.let { uri ->
+                GameHistoryManager.importGames(this, uri)
+                refreshGameHistoryList()
+                android.widget.Toast.makeText(this, R.string.import_done, android.widget.Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     private fun autoSaveGame() {
         if (positionHistory.size < 2) return
         // Skip if already saved within the last 5 minutes (dedup)
@@ -1151,6 +1234,7 @@ class MainActivity : AppCompatActivity() {
         evalChart.visibility = View.VISIBLE
         evalChart.setData(review.evalWhitePov)
         evalChart.setMoves(review.perPly)
+        evalChart.tacticalPositions = review.tactics.map { it.ply + 1 }.toSet()
         evalChart.onPlySelected = { pos -> stopAutoPlay(); showPosition(pos) }
         countsPanel.visibility = View.VISIBLE
         populateCounts(review)
@@ -1170,6 +1254,8 @@ class MainActivity : AppCompatActivity() {
         chessBoard.moveBadge2 = null
         chessBoard.moveBadgeSquare2 = null
         chessBoard.bestMoveArrow = null
+        chessBoard.openingText = null
+        chessBoard.badgeTooltipText = null
     }
 
     /** Auto-step forward through the game (~900ms/move); cancels on user interaction or end of game. */
@@ -1364,5 +1450,6 @@ class MainActivity : AppCompatActivity() {
         private const val LIVE_EVAL_DEPTH = 14   // shallow per-move eval for live/what-if badges
         private const val KEY_ANALYSIS_DEPTH = "analysis_depth"
         private const val KEY_ANALYSIS_ARROWS = "show_analysis_arrows"
+        private const val REQ_IMPORT_HISTORY = 1001
     }
 }
