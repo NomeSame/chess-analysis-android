@@ -1,0 +1,44 @@
+# Built application files
+*.apk
+*.aar
+*.ap_
+*.aab
+
+# Files for the ART/Dalvik VM
+*.dex
+
+# Java class files
+*.class
+
+# Generated files
+bin/
+gen/
+out/
+release/
+
+# Gradle files
+.gradle/
+build/
+
+# Local configuration file (sdk path, etc) — machine specific, never commit
+local.properties
+
+# Log / OS / editor files
+*.log
+.DS_Store
+Thumbs.db
+
+# Android Studio / IntelliJ
+*.iml
+.idea/
+.cxx/
+
+# Keystore / signing — never commit secrets
+*.jks
+*.keystore
+
+# NDK
+obj/
+
+# Auto-downloaded big NNUE network (~70MB, fetched at build time by downloadBigNet)
+app/src/main/res/raw/nnue_big.nnue

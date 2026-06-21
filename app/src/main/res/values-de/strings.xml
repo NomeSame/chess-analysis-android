@@ -1,0 +1,49 @@
+<resources>
+    <string name="app_name">Schach-Analyse</string>
+
+    <!-- Main screen -->
+    <string name="initializing">Initialisierung…</string>
+    <string name="ready">Bereit</string>
+    <string name="engine_init_failed">Engine-Initialisierung fehlgeschlagen</string>
+    <string name="engine_thinking">Engine denkt…</string>
+    <string name="review_fmt">Rückblick  %1$d/%2$d</string>
+    <string name="check">Schach!</string>
+    <string name="stalemate">Patt!</string>
+    <string name="checkmate_fmt">Schachmatt! %1$s gewinnt!</string>
+    <string name="color_white">Weiß</string>
+    <string name="color_black">Schwarz</string>
+    <string name="new_game">Neues Spiel</string>
+    <string name="setup_board">Brett einrichten</string>
+    <string name="play_from_here">Von hier spielen</string>
+
+    <!-- Play-from-here dialog -->
+    <string name="engine_strength_fmt">Engine-Stärke: %1$d</string>
+    <string name="engine_plays">Engine spielt</string>
+    <string name="next_to_move">Am Zug</string>
+    <string name="vs_engine">Gegen Engine</string>
+    <string name="analyze_manually">Manuell analysieren</string>
+
+    <!-- Settings drawer -->
+    <string name="settings_title">Einstellungen</string>
+    <string name="gameplay">Spiel</string>
+    <string name="show_legal">Vorschau legaler Züge</string>
+    <string name="show_move_bars">Top-3-Zugleisten anzeigen</string>
+    <string name="show_eval_bar">Bewertungsleiste anzeigen</string>
+    <string name="board_theme">Brett-Design</string>
+    <string name="pieces">Figuren</string>
+    <string name="opponent_strength">Gegnerstärke (Gegen Engine)</string>
+    <string name="strength_elo">Stärke (ELO)</string>
+    <string name="elo_maximum">Maximum</string>
+
+    <!-- Board themes -->
+    <string name="theme_original">Original</string>
+    <string name="theme_classic_brown">Klassisch Braun</string>
+    <string name="theme_ocean_blue">Ozeanblau</string>
+
+    <!-- Piece styles -->
+    <string name="piece_original">Original</string>
+    <string name="piece_classic_outline">Klassische Kontur</string>
+    <string name="piece_svg">SVG-Figuren</string>
+    <string name="piece_staunty">Staunty</string>
+    <string name="piece_mpchess">MP Chess</string>
+</resources>

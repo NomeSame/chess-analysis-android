@@ -1,0 +1,49 @@
+<resources>
+    <string name="app_name">Chess Analysis</string>
+
+    <!-- Main screen -->
+    <string name="initializing">Initializing…</string>
+    <string name="ready">Ready</string>
+    <string name="engine_init_failed">Engine init failed</string>
+    <string name="engine_thinking">Engine thinking…</string>
+    <string name="review_fmt">Review  %1$d/%2$d</string>
+    <string name="check">Check!</string>
+    <string name="stalemate">Stalemate!</string>
+    <string name="checkmate_fmt">Checkmate! %1$s wins!</string>
+    <string name="color_white">White</string>
+    <string name="color_black">Black</string>
+    <string name="new_game">New Game</string>
+    <string name="setup_board">Setup Board</string>
+    <string name="play_from_here">Play from here</string>
+
+    <!-- Play-from-here dialog -->
+    <string name="engine_strength_fmt">Engine strength: %1$d</string>
+    <string name="engine_plays">Engine plays</string>
+    <string name="next_to_move">Next to move</string>
+    <string name="vs_engine">VS Engine</string>
+    <string name="analyze_manually">Analyze Manually</string>
+
+    <!-- Settings drawer -->
+    <string name="settings_title">Settings</string>
+    <string name="gameplay">Gameplay</string>
+    <string name="show_legal">Show legal move preview</string>
+    <string name="show_move_bars">Show top-3 move bars</string>
+    <string name="show_eval_bar">Show evaluation bar</string>
+    <string name="board_theme">Board Theme</string>
+    <string name="pieces">Pieces</string>
+    <string name="opponent_strength">Opponent Strength (VS Engine)</string>
+    <string name="strength_elo">Strength (ELO)</string>
+    <string name="elo_maximum">Maximum</string>
+
+    <!-- Board themes -->
+    <string name="theme_original">Original</string>
+    <string name="theme_classic_brown">Classic Brown</string>
+    <string name="theme_ocean_blue">Ocean Blue</string>
+
+    <!-- Piece styles -->
+    <string name="piece_original">Original</string>
+    <string name="piece_classic_outline">Classic Outline</string>
+    <string name="piece_svg">SVG Pieces</string>
+    <string name="piece_staunty">Staunty</string>
+    <string name="piece_mpchess">MP Chess</string>
+</resources>
