@@ -1072,19 +1072,12 @@ class MainActivity : AppCompatActivity() {
         btnSetup.text = getString(R.string.setup_board)
         vsEngine = false
         exitAnalysisView()
-        exitReviewMode()
         positionHistory.clear()
         moveFromHistory.clear()
         positionHistory.addAll(rec.fens)
         moveFromHistory.addAll(rec.moveFrom)
-        viewIndex = positionHistory.lastIndex
         gameOverShown = false
-        currentFen = positionHistory.last()
-        chessBoard.setFen(currentFen)
-        chessBoard.interactionEnabled = true
-        chessBoard.lastMoveFrom = moveFromHistory.lastOrNull()
-        requestAnalysis()
-        updateGameStatus()
+        enterReviewMode()
         tvStatus.text = "Loaded game from ${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.getDefault()).format(java.util.Date(rec.timestamp))}"
     }
 
