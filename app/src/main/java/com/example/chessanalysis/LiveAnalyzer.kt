@@ -24,11 +24,30 @@ class LiveAnalyzer(
     @Volatile private var running = false
     @Volatile private var forceRestart = false
     @Volatile private var moveReq: MoveReq? = null
+    @Volatile private var reviewReq: ReviewReq? = null
     private var worker: Thread? = null
 
     private class MoveReq(
         val fen: String, val elo: Int, val restoreElo: Int, val onResult: (String?) -> Unit
     )
+
+    private class ReviewReq(
+        val fens: List<String>, val depth: Int, val multiPv: Int,
+        val onProgress: (Int, Int) -> Unit, val onDone: (List<List<PvLine>>) -> Unit
+    )
+
+    /**
+     * Batch-evaluate each FEN to [depth] at full strength with [multiPv] lines (for game review).
+     * Runs sequentially on the worker thread (the only response-queue consumer), so live analysis
+     * pauses for the duration. [onProgress] = (done, total), [onDone] = per-position rank-sorted lines.
+     * Callbacks fire on the worker thread; marshal to UI yourself.
+     */
+    fun evaluatePositions(
+        fens: List<String>, depth: Int = 16, multiPv: Int = 2,
+        onProgress: (Int, Int) -> Unit = { _, _ -> }, onDone: (List<List<PvLine>>) -> Unit
+    ) {
+        reviewReq = ReviewReq(fens, depth, multiPv, onProgress, onDone)
+    }
 
     /**
      * Ask the engine to pick a move on [fen] at strength [elo] (a one-off, ELO-limited search),
@@ -78,6 +97,35 @@ class LiveAnalyzer(
         var searching = false
         val lines = TreeMap<Int, PvLine>()
         while (running) {
+            val rv = reviewReq
+            if (rv != null) {
+                reviewReq = null
+                if (searching) { engine.stop(); drainUntilBestmove(); searching = false }
+                engine.setElo(StockfishEngine.MAX_ELO)
+                engine.setMultiPv(rv.multiPv)
+                val out = ArrayList<List<PvLine>>(rv.fens.size)
+                for ((idx, fen) in rv.fens.withIndex()) {
+                    if (!running) break
+                    engine.setPosition(fen)
+                    engine.startSearch(rv.depth)
+                    val bl = TreeMap<Int, PvLine>()
+                    while (running) {
+                        val resp = engine.getResponse()
+                        if (resp.isBlank()) { try { Thread.sleep(2) } catch (_: InterruptedException) {}; continue }
+                        when {
+                            resp.startsWith("info") && resp.contains(" multipv ") -> parseInfo(resp)?.let { bl[it.rank] = it }
+                            resp.startsWith("bestmove") -> break
+                        }
+                    }
+                    out.add(bl.values.toList())
+                    rv.onProgress(idx + 1, rv.fens.size)
+                }
+                engine.setMultiPv(multiPv)
+                analyzing = null
+                lines.clear()
+                rv.onDone(out)
+                continue
+            }
             val mv = moveReq
             if (mv != null) {
                 moveReq = null

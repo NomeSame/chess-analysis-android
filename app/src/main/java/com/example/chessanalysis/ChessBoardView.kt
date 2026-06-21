@@ -38,6 +38,11 @@ class ChessBoardView @JvmOverloads constructor(
         set(value) { field = value; invalidate() }
     var lastMoveFrom: Pair<Int, Int>? = null // origin square of the most recent move (yellow tint)
         set(value) { field = value; invalidate() }
+    // Analysis move-quality badge: a colored circle with the class symbol on the move's destination square.
+    var moveBadge: MoveClass? = null
+        set(value) { field = value; invalidate() }
+    var moveBadgeSquare: Pair<Int, Int>? = null // (row, col) of the badge's destination square
+        set(value) { field = value; invalidate() }
 
     var boardTheme: BoardTheme = BoardThemes.DEFAULT
         set(value) { field = value; invalidate() }
@@ -598,6 +603,34 @@ class ChessBoardView @JvmOverloads constructor(
             paint.color = Color.argb(220, 40, 160, 230)
             canvas.drawCircle(cx, cy, sqSize / 2f - paint.strokeWidth / 2f, paint)
             paint.style = Paint.Style.FILL
+        }
+
+        // Analysis move-quality badge — colored circle + symbol at the top-right of the destination square
+        val badge = moveBadge
+        val badgeSq = moveBadgeSquare
+        if (badge != null && badgeSq != null) {
+            val (r, c) = badgeSq
+            val dr = if (flipBoard) 7 - r else r
+            val dc = if (flipBoard) 7 - c else c
+            val radius = sqSize * 0.18f
+            val bcx = boardStartX + (dc + 1) * sqSize - radius
+            val bcy = dr * sqSize + radius
+            paint.style = Paint.Style.FILL
+            paint.color = badge.color
+            canvas.drawCircle(bcx, bcy, radius, paint)
+            paint.style = Paint.Style.STROKE
+            paint.strokeWidth = radius * 0.18f
+            paint.color = Color.WHITE
+            canvas.drawCircle(bcx, bcy, radius, paint)
+            paint.style = Paint.Style.FILL
+            val savedSize = textPaint.textSize
+            val savedColor = textPaint.color
+            textPaint.textSize = radius * 1.1f
+            textPaint.color = Color.WHITE
+            val fm = textPaint.fontMetrics
+            canvas.drawText(badge.symbol, bcx, bcy - (fm.ascent + fm.descent) / 2f, textPaint)
+            textPaint.textSize = savedSize
+            textPaint.color = savedColor
         }
 
         // Promotion picker — full-square cells stacked over/under the promotion square

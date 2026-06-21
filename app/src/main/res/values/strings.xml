@@ -6,6 +6,8 @@
     <string name="ready">Ready</string>
     <string name="engine_init_failed">Engine init failed</string>
     <string name="engine_thinking">Engine thinking…</string>
+    <string name="analyzing_fmt">Analyzing… %1$d/%2$d</string>
+    <string name="analysis_percent_fmt">Analyzing… %1$d%%</string>
     <string name="review_fmt">Review  %1$d/%2$d</string>
     <string name="check">Check!</string>
     <string name="stalemate">Stalemate!</string>
@@ -13,6 +15,20 @@
     <string name="color_white">White</string>
     <string name="color_black">Black</string>
     <string name="new_game">New Game</string>
+
+    <!-- Game-over popup -->
+    <string name="reason_checkmate">checkmate</string>
+    <string name="reason_resignation">resignation</string>
+    <string name="reason_timeout">timeout</string>
+    <string name="won_by_fmt">%1$s won by %2$s</string>
+    <string name="start_analyzation">Start analyzation</string>
+    <string name="review_board">Review board</string>
+    <string name="analysis_complete">Analysis complete</string>
+    <string name="accuracy_fmt">%1$.1f%%</string>
+    <string name="analysis_review_fmt">Analysis  %1$d/%2$d</string>
+    <string name="analyze_game">Analyze game</string>
+    <string name="variation_fmt">Variation  %1$d</string>
+    <string name="review_exited">Back to live position</string>
     <string name="setup_board">Setup Board</string>
     <string name="play_from_here">Play from here</string>
 
@@ -29,6 +45,7 @@
     <string name="show_legal">Show legal move preview</string>
     <string name="show_move_bars">Show top-3 move bars</string>
     <string name="show_eval_bar">Show evaluation bar</string>
+    <string name="live_eval">Show live move quality</string>
     <string name="board_theme">Board Theme</string>
     <string name="pieces">Pieces</string>
     <string name="opponent_strength">Opponent Strength (VS Engine)</string>

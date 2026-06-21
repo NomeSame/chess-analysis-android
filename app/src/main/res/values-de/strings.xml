@@ -6,6 +6,8 @@
     <string name="ready">Bereit</string>
     <string name="engine_init_failed">Engine-Initialisierung fehlgeschlagen</string>
     <string name="engine_thinking">Engine denkt…</string>
+    <string name="analyzing_fmt">Analysiere… %1$d/%2$d</string>
+    <string name="analysis_percent_fmt">Analysiere… %1$d%%</string>
     <string name="review_fmt">Rückblick  %1$d/%2$d</string>
     <string name="check">Schach!</string>
     <string name="stalemate">Patt!</string>
@@ -13,6 +15,20 @@
     <string name="color_white">Weiß</string>
     <string name="color_black">Schwarz</string>
     <string name="new_game">Neues Spiel</string>
+
+    <!-- Game-over popup -->
+    <string name="reason_checkmate">Schachmatt</string>
+    <string name="reason_resignation">Aufgabe</string>
+    <string name="reason_timeout">Zeitüberschreitung</string>
+    <string name="won_by_fmt">%1$s gewinnt durch %2$s</string>
+    <string name="start_analyzation">Analyse starten</string>
+    <string name="review_board">Brett durchgehen</string>
+    <string name="analysis_complete">Analyse fertig</string>
+    <string name="accuracy_fmt">%1$.1f%%</string>
+    <string name="analysis_review_fmt">Analyse  %1$d/%2$d</string>
+    <string name="analyze_game">Partie analysieren</string>
+    <string name="variation_fmt">Variante  %1$d</string>
+    <string name="review_exited">Zurück zur Live-Stellung</string>
     <string name="setup_board">Brett einrichten</string>
     <string name="play_from_here">Von hier spielen</string>
 
@@ -29,6 +45,7 @@
     <string name="show_legal">Vorschau legaler Züge</string>
     <string name="show_move_bars">Top-3-Zugleisten anzeigen</string>
     <string name="show_eval_bar">Bewertungsleiste anzeigen</string>
+    <string name="live_eval">Zugqualität live anzeigen</string>
     <string name="board_theme">Brett-Design</string>
     <string name="pieces">Figuren</string>
     <string name="opponent_strength">Gegnerstärke (Gegen Engine)</string>

@@ -45,6 +45,24 @@
                 android:contentDescription="Settings" />
         </LinearLayout>
 
+        <!-- Analysis progress: fills left→right, 0–100% (visible only while analyzing). -->
+        <ProgressBar
+            android:id="@+id/pbAnalysis"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="100"
+            android:progress="0"
+            android:visibility="gone" />
+
+        <!-- Eval curve (analysis view only) — sits above the board, Chess.com style. -->
+        <com.example.chessanalysis.EvalChartView
+            android:id="@+id/evalChart"
+            android:layout_width="match_parent"
+            android:layout_height="90dp"
+            android:layout_marginTop="8dp"
+            android:visibility="gone" />
+
         <!-- Board + eval bar, pushed down below the top bar. Height hugs the (square) board. -->
         <LinearLayout
             android:layout_width="match_parent"
@@ -103,6 +121,20 @@
                 android:contentDescription="Jump to current position" />
 
             <TextView
+                android:id="@+id/btnReviewAnalyze"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_gravity="center_vertical"
+                android:gravity="center"
+                android:text="▶"
+                android:textColor="#FFFFFFFF"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:background="@drawable/bg_review_analyze"
+                android:visibility="gone"
+                android:contentDescription="@string/analyze_game" />
+
+            <TextView
                 android:id="@+id/btnUndo"
                 android:layout_width="0dp"
                 android:layout_height="52dp"
@@ -151,6 +183,78 @@
                 android:layout_width="match_parent"
                 android:layout_height="34dp"
                 android:layout_marginTop="4dp" />
+        </LinearLayout>
+
+        <!-- Analysis counts panel (per-class tally + accuracy per side); populated in code, GONE by default. -->
+        <LinearLayout
+            android:id="@+id/countsPanel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="10dp"
+            android:padding="10dp"
+            android:background="#FF2E2E2E"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="@string/color_white"
+                    android:textColor="#FFFFFFFF"
+                    android:textStyle="bold"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="@string/color_black"
+                    android:textColor="#FFFFFFFF"
+                    android:textStyle="bold"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="2dp">
+
+                <TextView
+                    android:id="@+id/tvAccWhite"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:textColor="#FF81B64C"
+                    android:textStyle="bold"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tvAccBlack"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:textColor="#FF81B64C"
+                    android:textStyle="bold"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/countsRows"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="6dp" />
         </LinearLayout>
 
         <LinearLayout
@@ -318,6 +422,28 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checked="true" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/live_eval"
+                    android:textSize="15sp"
+                    android:textColor="#212121" />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/swLiveEval"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="false" />
             </LinearLayout>
 
             <View
