@@ -45,15 +45,34 @@
                 android:contentDescription="Settings" />
         </LinearLayout>
 
-        <!-- Analysis progress: fills left→right, 0–100% (visible only while analyzing). -->
-        <ProgressBar
-            android:id="@+id/pbAnalysis"
-            style="?android:attr/progressBarStyleHorizontal"
+        <!-- Analysis progress: bar + x/y text side by side (visible only while analyzing). -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:max="100"
-            android:progress="0"
-            android:visibility="gone" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="gone"
+            android:id="@+id/llAnalysisProgress">
+
+            <ProgressBar
+                android:id="@+id/pbAnalysis"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:max="100"
+                android:progress="0" />
+
+            <TextView
+                android:id="@+id/tvAnalysisProgress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:textSize="13sp"
+                android:textColor="#2196F3"
+                android:minWidth="60dp"
+                android:gravity="center" />
+        </LinearLayout>
 
         <!-- Eval curve (analysis view only) — sits above the board, Chess.com style. -->
         <com.example.chessanalysis.EvalChartView
@@ -279,6 +298,27 @@
                 android:layout_marginStart="4dp"
                 android:text="@string/setup_board" />
         </LinearLayout>
+
+        <!-- Game History (inline list, visible only when entries exist) -->
+        <TextView
+            android:id="@+id/tvGameHistoryHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/game_history"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFFFF"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/lvGameHistory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:visibility="gone"
+            android:background="#FF3A3A3A"
+            android:orientation="vertical" />
 
     </LinearLayout>
     </ScrollView>
@@ -549,6 +589,59 @@
                 android:paddingBottom="14dp"
                 android:thumb="@drawable/seekbar_thumb"
                 android:max="40" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="16dp"
+                android:background="#E0E0E0" />
+
+            <TextView
+                android:id="@+id/tvAnalysisDepthHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Analysis Depth"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="#757575"
+                android:textAllCaps="true"
+                android:letterSpacing="0.05" />
+
+            <RadioGroup
+                android:id="@+id/rgAnalysisDepth"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:orientation="horizontal" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="16dp"
+                android:background="#E0E0E0" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Show best-move arrows in analysis"
+                    android:textSize="15sp"
+                    android:textColor="#212121" />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/swAnalysisArrows"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true" />
+            </LinearLayout>
 
         </LinearLayout>
     </ScrollView>

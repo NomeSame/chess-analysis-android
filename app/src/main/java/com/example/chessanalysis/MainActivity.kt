@@ -65,6 +65,7 @@ class MainActivity : AppCompatActivity() {
     private val explorationLine = mutableListOf<String>()
     private val explorationFrom = mutableListOf<Pair<Int, Int>?>()
     private val explorationClass = mutableListOf<MoveClass?>()   // quality of each explored ("what if") move
+    private val explorationBest = mutableListOf<String?>()       // engine's best UCI move at each explored move's pre-position
     private var exploring = false
     // viewIndex into the real game line where the current exploration branched off.
     private var branchIndex = 0
@@ -81,11 +82,21 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvAccWhite: TextView
     private lateinit var tvAccBlack: TextView
     private lateinit var pbAnalysis: android.widget.ProgressBar
+    private lateinit var llAnalysisProgress: LinearLayout
+    private lateinit var tvAnalysisProgress: TextView
+    private lateinit var lvGameHistory: LinearLayout
+    private lateinit var tvGameHistoryHeader: TextView
     private var analysisMode = false
     private val autoPlayHandler = android.os.Handler(android.os.Looper.getMainLooper())
     private var autoPlayRunnable: Runnable? = null
 
     private val prefs by lazy { getSharedPreferences("settings", Context.MODE_PRIVATE) }
+
+    private var analysisDepth = 16
+    private var analysisArrowsEnabled = true
+    private lateinit var tvAnalysisDepthHeader: TextView
+    private lateinit var rgAnalysisDepth: RadioGroup
+    private lateinit var swAnalysisArrows: SwitchCompat
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -105,6 +116,11 @@ class MainActivity : AppCompatActivity() {
         tvAccWhite = findViewById(R.id.tvAccWhite)
         tvAccBlack = findViewById(R.id.tvAccBlack)
         pbAnalysis = findViewById(R.id.pbAnalysis)
+        llAnalysisProgress = findViewById(R.id.llAnalysisProgress)
+        tvAnalysisProgress = findViewById(R.id.tvAnalysisProgress)
+        lvGameHistory = findViewById(R.id.lvGameHistory)
+        tvGameHistoryHeader = findViewById(R.id.tvGameHistoryHeader)
+        // lvGameHistory populated dynamically in refreshGameHistoryList()
 
         setupSettingsDrawer()
 
@@ -153,6 +169,8 @@ class MainActivity : AppCompatActivity() {
                 showPlayDialog()
             }
         }
+
+        refreshGameHistoryList()
 
         findViewById<ImageButton>(R.id.btnSettings).setOnClickListener {
             drawerLayout.openDrawer(settingsDrawer)
@@ -213,8 +231,8 @@ class MainActivity : AppCompatActivity() {
                 liveEvalEnabled = checked
                 prefs.edit().putBoolean(KEY_LIVE_EVAL, checked).apply()
                 if (!checked && !analysisMode) {   // hide any live badge immediately
-                    chessBoard.moveBadge = null
-                    chessBoard.moveBadgeSquare = null
+                    chessBoard.moveBadge = null; chessBoard.moveBadgeSquare = null
+                    chessBoard.moveBadge2 = null; chessBoard.moveBadgeSquare2 = null
                 }
             }
         }
@@ -284,6 +302,31 @@ class MainActivity : AppCompatActivity() {
                 prefs.edit().putInt(KEY_GAME_ELO, gameElo).apply()
             }
         })
+
+        tvAnalysisDepthHeader = findViewById<TextView>(R.id.tvAnalysisDepthHeader)
+        rgAnalysisDepth = findViewById<RadioGroup>(R.id.rgAnalysisDepth)
+        val currentDepth = prefs.getInt(KEY_ANALYSIS_DEPTH, 16)
+        for ((idx, d) in listOf(8, 16, 20).withIndex()) {
+            val rb = RadioButton(this).apply {
+                text = d.toString()
+                textSize = 15f
+                id = View.generateViewId()
+                isChecked = d == currentDepth
+                setOnClickListener {
+                    prefs.edit().putInt(KEY_ANALYSIS_DEPTH, d).apply()
+                }
+            }
+            rgAnalysisDepth.addView(rb)
+        }
+
+        swAnalysisArrows = findViewById<SwitchCompat>(R.id.swAnalysisArrows)
+        analysisArrowsEnabled = prefs.getBoolean(KEY_ANALYSIS_ARROWS, true)
+        swAnalysisArrows.isChecked = analysisArrowsEnabled
+        swAnalysisArrows.setOnCheckedChangeListener { _, checked ->
+            analysisArrowsEnabled = checked
+            prefs.edit().putBoolean(KEY_ANALYSIS_ARROWS, checked).apply()
+            if (!checked && ::chessBoard.isInitialized) chessBoard.bestMoveArrow = null
+        }
     }
 
     /** EN/DE segmented toggle (top of drawer). Persists via AppCompat per-app locales; recreates on change. */
@@ -509,7 +552,10 @@ class MainActivity : AppCompatActivity() {
         chessBoard.lastMoveFrom = from
         requestAnalysis()
         if (liveEvalEnabled && positionHistory.size >= 2) {
-            chessBoard.moveBadge = null   // clear the previous move's badge until the new one is computed
+            // shift current badge to badge2 before clearing for the new move
+            chessBoard.moveBadge2 = chessBoard.moveBadge
+            chessBoard.moveBadgeSquare2 = chessBoard.moveBadgeSquare
+            chessBoard.moveBadge = null
             chessBoard.moveBadgeSquare = null
             classifyMoveAsync(positionHistory[positionHistory.size - 2], currentFen)
         }
@@ -545,11 +591,16 @@ class MainActivity : AppCompatActivity() {
         when {
             exploring -> {
                 exploring = false
-                explorationLine.clear(); explorationFrom.clear(); explorationClass.clear()
+                explorationLine.clear(); explorationFrom.clear(); explorationClass.clear(); explorationBest.clear()
                 currentFen = positionHistory.last()
                 showPosition(branchIndex)
             }
-            analysisMode -> { exitAnalysisView(); exitReviewMode() }
+            analysisMode -> {
+                analyzer.idle()
+                llAnalysisProgress.visibility = View.GONE
+                exitAnalysisView()
+                exitReviewMode()
+            }
             reviewMode -> exitReviewMode()
             else -> showPosition(positionHistory.lastIndex)
         }
@@ -575,12 +626,12 @@ class MainActivity : AppCompatActivity() {
             else -> tvStatus.text = getString(R.string.review_fmt, viewIndex, positionHistory.lastIndex)
         }
         updateMoveBadge()
+        updateBestMoveArrow()
         if (analysisMode) evalChart.setMarker(if (exploring) -1 else viewIndex)
     }
 
     /** Show the move-quality badge for the move that produced the viewed position; else clear it. */
     private fun updateMoveBadge() {
-        // Exploration ("what if"): show the stored class of the current explored move.
         if (exploring) {
             val idx = viewIndex - branchIndex - 1
             val cls = explorationClass.getOrNull(idx)
@@ -590,17 +641,31 @@ class MainActivity : AppCompatActivity() {
             } else {
                 chessBoard.moveBadge = null; chessBoard.moveBadgeSquare = null
             }
+            chessBoard.moveBadge2 = null; chessBoard.moveBadgeSquare2 = null
             return
         }
         val review = lastReview
-        if (!analysisMode || review == null || viewIndex < 1 ||
-            viewIndex > positionHistory.lastIndex || viewIndex - 1 > review.perPly.lastIndex) {
-            chessBoard.moveBadge = null
-            chessBoard.moveBadgeSquare = null
+        if (!analysisMode || review == null) {
+            chessBoard.moveBadge = null; chessBoard.moveBadgeSquare = null
+            chessBoard.moveBadge2 = null; chessBoard.moveBadgeSquare2 = null
             return
         }
-        chessBoard.moveBadge = review.perPly[viewIndex - 1]
-        chessBoard.moveBadgeSquare = destSquare(positionHistory[viewIndex - 1], positionHistory[viewIndex])
+        // Badge1 = last move (viewIndex-1)
+        if (viewIndex >= 1 && viewIndex - 1 <= review.perPly.lastIndex &&
+            viewIndex <= positionHistory.lastIndex) {
+            chessBoard.moveBadge = review.perPly[viewIndex - 1]
+            chessBoard.moveBadgeSquare = destSquare(positionHistory[viewIndex - 1], positionHistory[viewIndex])
+        } else {
+            chessBoard.moveBadge = null; chessBoard.moveBadgeSquare = null
+        }
+        // Badge2 = second-to-last move (viewIndex-2), only in analysisMode
+        if (analysisMode && viewIndex >= 2 && viewIndex - 2 <= review.perPly.lastIndex &&
+            viewIndex <= positionHistory.lastIndex) {
+            chessBoard.moveBadge2 = review.perPly[viewIndex - 2]
+            chessBoard.moveBadgeSquare2 = destSquare(positionHistory[viewIndex - 2], positionHistory[viewIndex - 1])
+        } else {
+            chessBoard.moveBadge2 = null; chessBoard.moveBadgeSquare2 = null
+        }
     }
 
     /**
@@ -627,8 +692,10 @@ class MainActivity : AppCompatActivity() {
             runOnUiThread {
                 if (exploreIdx >= 0) {
                     if (exploreIdx < explorationClass.size) explorationClass[exploreIdx] = cls
+                    if (exploreIdx < explorationBest.size) explorationBest[exploreIdx] = best?.firstMove
                     if (exploring && viewIndex - branchIndex - 1 == exploreIdx) {
                         chessBoard.moveBadge = cls; chessBoard.moveBadgeSquare = dest
+                        updateBestMoveArrow()
                     }
                 } else if (!reviewMode && viewIndex == positionHistory.lastIndex) {
                     chessBoard.moveBadge = cls; chessBoard.moveBadgeSquare = dest
@@ -675,7 +742,7 @@ class MainActivity : AppCompatActivity() {
         gameOverShown = false
         reviewMode = false
         exploring = false
-        explorationLine.clear(); explorationFrom.clear(); explorationClass.clear()
+        explorationLine.clear(); explorationFrom.clear(); explorationClass.clear(); explorationBest.clear()
         if (::evalChart.isInitialized) exitAnalysisView()
         if (::btnReviewAnalyze.isInitialized) btnReviewAnalyze.visibility = View.GONE
         chessBoard.interactionEnabled = !chessBoard.setupMode
@@ -700,6 +767,8 @@ class MainActivity : AppCompatActivity() {
         chessBoard.hintSquare = null
         chessBoard.moveBadge = null
         chessBoard.moveBadgeSquare = null
+        chessBoard.moveBadge2 = null
+        chessBoard.moveBadgeSquare2 = null
         chessBoard.lastMoveFrom = moveFromHistory.last()
         chessBoard.setFen(currentFen)
         chessBoard.interactionEnabled = !chessBoard.setupMode
@@ -735,20 +804,21 @@ class MainActivity : AppCompatActivity() {
         val fens = positionHistory.toList()
         if (fens.size < 2) return
         analyzer.idle()
-        pbAnalysis.visibility = View.VISIBLE
+        llAnalysisProgress.visibility = View.VISIBLE
         pbAnalysis.progress = 0
-        tvStatus.text = getString(R.string.analysis_percent_fmt, 0)
+        tvAnalysisProgress.text = getString(R.string.analyzing_fmt, 0, fens.size)
+        tvStatus.text = getString(R.string.analyzing)
         analyzer.evaluatePositions(
-            fens, depth = 16, multiPv = 2,
+            fens, depth = prefs.getInt(KEY_ANALYSIS_DEPTH, 16), multiPv = 2,
             onProgress = { done, total -> runOnUiThread {
                 val pct = done * 100 / total.coerceAtLeast(1)
                 pbAnalysis.progress = pct
-                tvStatus.text = getString(R.string.analysis_percent_fmt, pct)
+                tvAnalysisProgress.text = getString(R.string.analyzing_fmt, done, total)
             } },
             onDone = { lines ->
                 val review = GameReviewer.review(fens, lines)
                 runOnUiThread {
-                    pbAnalysis.visibility = View.GONE
+                    llAnalysisProgress.visibility = View.GONE
                     lastReview = review
                     Log.d("Review", "accuracy W=${"%.1f".format(review.accuracy[true] ?: 0.0)} " +
                         "B=${"%.1f".format(review.accuracy[false] ?: 0.0)} " +
@@ -885,7 +955,7 @@ class MainActivity : AppCompatActivity() {
         if (!exploring || viewIndex <= branchIndex) {
             // Start a fresh variation from the currently viewed (real-line) position.
             branchIndex = viewIndex
-            explorationLine.clear(); explorationFrom.clear(); explorationClass.clear()
+            explorationLine.clear(); explorationFrom.clear(); explorationClass.clear(); explorationBest.clear()
             exploring = true
         } else if (viewIndex < lastViewIndex()) {
             // Viewing mid-variation → drop the forward part before branching anew.
@@ -894,12 +964,14 @@ class MainActivity : AppCompatActivity() {
                 explorationLine.removeAt(explorationLine.lastIndex)
                 explorationFrom.removeAt(explorationFrom.lastIndex)
                 explorationClass.removeAt(explorationClass.lastIndex)
+                explorationBest.removeAt(explorationBest.lastIndex)
             }
         }
         currentFen = chessBoard.getFen()
         explorationLine.add(currentFen)
         explorationFrom.add(from)
         explorationClass.add(null)
+        explorationBest.add(null)
         viewIndex = lastViewIndex()
         chessBoard.hintSquare = null
         chessBoard.lastMoveFrom = from
@@ -954,11 +1026,123 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+    private fun refreshGameHistoryList() {
+        val records = GameHistoryManager.loadAll(this)
+        if (records.isEmpty()) {
+            tvGameHistoryHeader.visibility = View.GONE
+            lvGameHistory.visibility = View.GONE
+            return
+        }
+        tvGameHistoryHeader.visibility = View.VISIBLE
+        lvGameHistory.visibility = View.VISIBLE
+        lvGameHistory.removeAllViews()
+        records.forEachIndexed { pos, rec ->
+            val date = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.getDefault())
+                .format(java.util.Date(rec.timestamp))
+            val result = rec.result ?: "\u2014"
+            val tv = TextView(this).apply {
+                text = "${date}  |  ${result}  |  ${rec.fens.size - 1} moves"
+                setTextColor(android.graphics.Color.WHITE)
+                textSize = 14f
+                setPadding(16, 12, 16, 12)
+                setOnClickListener { loadGame(records[pos]) }
+                setOnLongClickListener {
+                    AlertDialog.Builder(this@MainActivity)
+                        .setTitle("Delete game?")
+                        .setMessage("${date} — ${result}")
+                        .setPositiveButton("Delete") { _, _ -> GameHistoryManager.deleteGame(this@MainActivity, rec.id); refreshGameHistoryList() }
+                        .setNegativeButton("Cancel", null)
+                        .show()
+                    true
+                }
+            }
+            lvGameHistory.addView(tv)
+            if (pos < records.lastIndex) {
+                val divider = View(this).apply {
+                    setBackgroundColor(android.graphics.Color.parseColor("#FF555555"))
+                    layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1)
+                }
+                lvGameHistory.addView(divider)
+            }
+        }
+    }
+
+    private fun loadGame(rec: GameRecord) {
+        chessBoard.setupMode = false
+        btnSetup.text = getString(R.string.setup_board)
+        vsEngine = false
+        exitAnalysisView()
+        exitReviewMode()
+        positionHistory.clear()
+        moveFromHistory.clear()
+        positionHistory.addAll(rec.fens)
+        moveFromHistory.addAll(rec.moveFrom)
+        viewIndex = positionHistory.lastIndex
+        gameOverShown = false
+        currentFen = positionHistory.last()
+        chessBoard.setFen(currentFen)
+        chessBoard.interactionEnabled = true
+        chessBoard.lastMoveFrom = moveFromHistory.lastOrNull()
+        requestAnalysis()
+        updateGameStatus()
+        tvStatus.text = "Loaded game from ${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.getDefault()).format(java.util.Date(rec.timestamp))}"
+    }
+
+    private fun autoSaveGame() {
+        if (positionHistory.size < 2) return
+        // Skip if already saved within the last 5 minutes (dedup)
+        val recent = GameHistoryManager.loadAll(this)
+        val fiveMinAgo = System.currentTimeMillis() - 300_000
+        for (r in recent) {
+            if (r.timestamp > fiveMinAgo && r.fens.size == positionHistory.size) {
+                var same = true
+                for (i in positionHistory.indices) {
+                    if (r.fens.getOrNull(i) != positionHistory[i]) { same = false; break }
+                }
+                if (same) return  // already saved
+            }
+        }
+        val result = when {
+            chessBoard.isCheckmate() -> {
+                val winner = chessBoard.sideToMove != 'w'
+                if (winner) "1-0" else "0-1"
+            }
+            chessBoard.isStalemate() -> "\u00BD-\u00BD"
+            else -> null
+        }
+        val review = lastReview
+        val accuracy = review?.let {
+            mapOf("white" to (it.accuracy[true] ?: 0.0), "black" to (it.accuracy[false] ?: 0.0))
+        }
+        val counts = review?.let {
+            fun Map<MoveClass, Int>.toStrMap(): Map<String, Int> = mapKeys { it.key.name }
+            mapOf(
+                "white" to (it.counts[true]?.toStrMap() ?: emptyMap()),
+                "black" to (it.counts[false]?.toStrMap() ?: emptyMap())
+            )
+        }
+        val depth = prefs.getInt("analysis_depth", 16)
+        GameHistoryManager.saveGame(
+            context = this,
+            fens = positionHistory.toList(),
+            moveFrom = moveFromHistory.toList(),
+            depth = depth,
+            result = result,
+            accuracy = accuracy,
+            counts = counts
+        )
+        // Toast "Game saved"
+        android.widget.Toast.makeText(this, R.string.game_saved, android.widget.Toast.LENGTH_SHORT).show()
+        refreshGameHistoryList()
+    }
+
     /** Run a full-game review, then show the Chess.com-style analysis view (chart + counts + auto-play). */
     private fun startAnalysis() {
         runGameReview { review ->
             lastReview = review
             enterAnalysisView()
+            // Auto-save after analysis
+            autoSaveGame()
         }
     }
 
@@ -969,7 +1153,7 @@ class MainActivity : AppCompatActivity() {
         // Analysis is a superset of review (enables board interaction / variations on any position).
         reviewMode = true
         exploring = false
-        explorationLine.clear(); explorationFrom.clear(); explorationClass.clear()
+        explorationLine.clear(); explorationFrom.clear(); explorationClass.clear(); explorationBest.clear()
         btnReviewAnalyze.visibility = View.GONE
         evalChart.visibility = View.VISIBLE
         evalChart.setData(review.evalWhitePov)
@@ -990,6 +1174,9 @@ class MainActivity : AppCompatActivity() {
         countsPanel.visibility = View.GONE
         chessBoard.moveBadge = null
         chessBoard.moveBadgeSquare = null
+        chessBoard.moveBadge2 = null
+        chessBoard.moveBadgeSquare2 = null
+        chessBoard.bestMoveArrow = null
     }
 
     /** Auto-step forward through the game (~900ms/move); cancels on user interaction or end of game. */
@@ -1023,8 +1210,7 @@ class MainActivity : AppCompatActivity() {
         for (cls in MoveClass.entries) {
             val w = white[cls] ?: 0
             val b = black[cls] ?: 0
-            // Always surface Brilliant & Great (even at 0); hide other empty categories.
-            if (w == 0 && b == 0 && cls != MoveClass.BRILLIANT && cls != MoveClass.GREAT) continue
+            // Show every category even at 0.
             val row = LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
@@ -1064,7 +1250,7 @@ class MainActivity : AppCompatActivity() {
     private fun enterReviewMode() {
         reviewMode = true
         exploring = false
-        explorationLine.clear(); explorationFrom.clear(); explorationClass.clear()
+        explorationLine.clear(); explorationFrom.clear(); explorationClass.clear(); explorationBest.clear()
         btnReviewAnalyze.visibility = View.VISIBLE
         showPosition(0)
     }
@@ -1073,7 +1259,7 @@ class MainActivity : AppCompatActivity() {
     private fun exitReviewMode() {
         reviewMode = false
         exploring = false
-        explorationLine.clear(); explorationFrom.clear(); explorationClass.clear()
+        explorationLine.clear(); explorationFrom.clear(); explorationClass.clear(); explorationBest.clear()
         if (analysisMode) exitAnalysisView()
         btnReviewAnalyze.visibility = View.GONE
         currentFen = positionHistory.last()
@@ -1090,6 +1276,57 @@ class MainActivity : AppCompatActivity() {
         requestAnalysis()
         updateGameStatus()
     }
+
+    /**
+     * Draw the "better move" arrow for the move that produced the viewed position. Uses the engine's
+     * best move at the position BEFORE that move (from the review / exploration data — deterministic,
+     * no live-analysis race), so the arrow is the alternative to the played move, not a later reply.
+     */
+    private fun updateBestMoveArrow() {
+        chessBoard.bestMoveArrow = null
+        if (!analysisArrowsEnabled) return
+        val (bestUci, beforeFen, cls) = arrowData() ?: return
+        if (!isMarquantForArrow(cls)) return
+        if (bestUci.length < 4) return
+        // Don't draw if the engine's best move IS the move that was played.
+        val afterFen = effectiveLine().getOrNull(viewIndex) ?: return
+        val played = GameReviewer.playedUci(beforeFen, afterFen)
+        if (played != null && played.take(4) == bestUci.take(4)) return
+        val fromCol = bestUci[0] - 'a'
+        val fromRow = '8' - bestUci[1]
+        val toCol = bestUci[2] - 'a'
+        val toRow = '8' - bestUci[3]
+        if (fromRow !in 0..7 || fromCol !in 0..7 || toRow !in 0..7 || toCol !in 0..7) return
+        // Piece type from the pre-move board (the move starts there; the from-square may be empty now).
+        val pieceType = fenPieceAt(beforeFen, fromRow, fromCol) ?: ' '
+        chessBoard.bestMoveArrow = BestMoveArrow(fromRow, fromCol, toRow, toCol, pieceType, cls.color)
+    }
+
+    /** (bestUci, pre-move FEN, played-move class) for the move that produced the viewed position. */
+    private fun arrowData(): Triple<String, String, MoveClass>? = when {
+        exploring -> {
+            val idx = viewIndex - branchIndex - 1
+            val cls = explorationClass.getOrNull(idx)
+            val best = explorationBest.getOrNull(idx)
+            val before = effectiveLine().getOrNull(viewIndex - 1)
+            if (idx >= 0 && cls != null && best != null && before != null) Triple(best, before, cls) else null
+        }
+        analysisMode -> {
+            val review = lastReview
+            val cls = review?.perPly?.getOrNull(viewIndex - 1)
+            val best = review?.bestMovePerPos?.getOrNull(viewIndex - 1)
+            val before = positionHistory.getOrNull(viewIndex - 1)
+            if (viewIndex >= 1 && cls != null && best != null && before != null) Triple(best, before, cls) else null
+        }
+        else -> null
+    }
+
+    /** Piece type (uppercase letter) at [row]/[col] in [fen], or null if empty. */
+    private fun fenPieceAt(fen: String, row: Int, col: Int): Char? =
+        fenBoard(fen).getOrNull(row * 8 + col)?.uppercaseChar()
+
+    private fun isMarquantForArrow(cls: MoveClass): Boolean =
+        cls != MoveClass.BEST && cls != MoveClass.EXCELLENT && cls != MoveClass.GOOD
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
@@ -1132,5 +1369,7 @@ class MainActivity : AppCompatActivity() {
         private const val KEY_LIVE_EVAL = "live_eval"
         private const val AUTO_PLAY_MS = 900L
         private const val LIVE_EVAL_DEPTH = 14   // shallow per-move eval for live/what-if badges
+        private const val KEY_ANALYSIS_DEPTH = "analysis_depth"
+        private const val KEY_ANALYSIS_ARROWS = "show_analysis_arrows"
     }
 }

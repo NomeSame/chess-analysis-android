@@ -3,6 +3,7 @@
 
     <!-- Main screen -->
     <string name="initializing">Initialisierung…</string>
+    <string name="analyzing">Analysiere…</string>
     <string name="ready">Bereit</string>
     <string name="engine_init_failed">Engine-Initialisierung fehlgeschlagen</string>
     <string name="engine_thinking">Engine denkt…</string>
@@ -56,6 +57,12 @@
     <string name="theme_original">Original</string>
     <string name="theme_classic_brown">Klassisch Braun</string>
     <string name="theme_ocean_blue">Ozeanblau</string>
+
+    <!-- Analysis settings -->
+    <string name="analysis_depth">Analysetiefe</string>
+    <string name="show_analysis_arrows">Best-Move-Pfeile in Analyse anzeigen</string>
+    <string name="game_history">Partieverlauf</string>
+    <string name="game_saved">Partie im Verlauf gespeichert</string>
 
     <!-- Piece styles -->
     <string name="piece_original">Original</string>

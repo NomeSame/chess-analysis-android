@@ -12,7 +12,8 @@ object GameReviewer {
         val perPly: List<MoveClass>,
         val evalWhitePov: List<Int>,                       // one per position (0..n), cp from White's POV
         val counts: Map<Boolean, Map<MoveClass, Int>>,     // key: mover-is-white
-        val accuracy: Map<Boolean, Double>                 // key: mover-is-white, 0..100
+        val accuracy: Map<Boolean, Double>,                // key: mover-is-white, 0..100
+        val bestMovePerPos: List<String?>                  // best UCI move available at each position (0..n)
     )
 
     private const val MATE_CP = 2000  // chart magnitude for a mate score
@@ -30,11 +31,13 @@ object GameReviewer {
         val accCnt = hashMapOf(true to 0, false to 0)
 
         // White-POV eval curve (carry the last known value across terminal/empty positions).
+        val bestMovePerPos = ArrayList<String?>(n)
         var lastWhite = 0
         for (i in 0 until n) {
             val top = lines[i].firstOrNull { it.rank == 1 }
             lastWhite = top?.let { whitePov(fens[i], it.cp, it.mate) } ?: lastWhite
             evalWhitePov.add(lastWhite)
+            bestMovePerPos.add(top?.firstMove)
         }
 
         for (i in 0 until n - 1) {
@@ -77,7 +80,7 @@ object GameReviewer {
             true to (accSum[true]!! / accCnt[true]!!.coerceAtLeast(1)),
             false to (accSum[false]!! / accCnt[false]!!.coerceAtLeast(1))
         )
-        return GameReview(perPly, evalWhitePov, counts.mapValues { it.value.toMap() }, accuracy)
+        return GameReview(perPly, evalWhitePov, counts.mapValues { it.value.toMap() }, accuracy, bestMovePerPos)
     }
 
     /** Per-move accuracy from win% loss (lichess-style curve), clamped to [0,100]. */

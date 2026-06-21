@@ -43,6 +43,14 @@ class ChessBoardView @JvmOverloads constructor(
         set(value) { field = value; invalidate() }
     var moveBadgeSquare: Pair<Int, Int>? = null // (row, col) of the badge's destination square
         set(value) { field = value; invalidate() }
+    var moveBadge2: MoveClass? = null
+        set(value) { field = value; invalidate() }
+    var moveBadgeSquare2: Pair<Int, Int>? = null
+        set(value) { field = value; invalidate() }
+
+    var bestMoveArrow: BestMoveArrow? = null
+        set(value) { field = value; invalidate() }
+    var showBestMoveArrow: Boolean = true
 
     var boardTheme: BoardTheme = BoardThemes.DEFAULT
         set(value) { field = value; invalidate() }
@@ -605,6 +613,34 @@ class ChessBoardView @JvmOverloads constructor(
             paint.style = Paint.Style.FILL
         }
 
+        // Second analysis badge (vorletzter Zug, analysis mode only)
+        val badge2 = moveBadge2
+        val badgeSq2 = moveBadgeSquare2
+        if (badge2 != null && badgeSq2 != null) {
+            val (r2, c2) = badgeSq2
+            val dr2 = if (flipBoard) 7 - r2 else r2
+            val dc2 = if (flipBoard) 7 - c2 else c2
+            val radius2 = sqSize * 0.16f
+            val bcx2 = boardStartX + (dc2 + 1) * sqSize - radius2
+            val bcy2 = dr2 * sqSize + radius2
+            paint.style = Paint.Style.FILL
+            paint.color = badge2.color
+            canvas.drawCircle(bcx2, bcy2, radius2, paint)
+            paint.style = Paint.Style.STROKE
+            paint.strokeWidth = radius2 * 0.18f
+            paint.color = Color.WHITE
+            canvas.drawCircle(bcx2, bcy2, radius2, paint)
+            paint.style = Paint.Style.FILL
+            val savedSize = textPaint.textSize
+            val savedColor = textPaint.color
+            textPaint.textSize = radius2 * 1.0f
+            textPaint.color = Color.WHITE
+            val fm = textPaint.fontMetrics
+            canvas.drawText(badge2.symbol, bcx2, bcy2 - (fm.ascent + fm.descent) / 2f, textPaint)
+            textPaint.textSize = savedSize
+            textPaint.color = savedColor
+        }
+
         // Analysis move-quality badge — colored circle + symbol at the top-right of the destination square
         val badge = moveBadge
         val badgeSq = moveBadgeSquare
@@ -631,6 +667,50 @@ class ChessBoardView @JvmOverloads constructor(
             canvas.drawText(badge.symbol, bcx, bcy - (fm.ascent + fm.descent) / 2f, textPaint)
             textPaint.textSize = savedSize
             textPaint.color = savedColor
+        }
+
+        // Best-move arrow (analysis mode)
+        val arrow = bestMoveArrow
+        if (showBestMoveArrow && arrow != null) {
+            val fromSqCx = boardStartX + (if (flipBoard) 7 - arrow.fromCol else arrow.fromCol) * sqSize + sqSize / 2f
+            val fromSqCy = (if (flipBoard) 7 - arrow.fromRow else arrow.fromRow) * sqSize + sqSize / 2f
+            val toSqCx = boardStartX + (if (flipBoard) 7 - arrow.toCol else arrow.toCol) * sqSize + sqSize / 2f
+            val toSqCy = (if (flipBoard) 7 - arrow.toRow else arrow.toRow) * sqSize + sqSize / 2f
+
+            val arrowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = arrow.color
+                strokeWidth = sqSize * 0.06f
+                style = Paint.Style.STROKE
+                strokeCap = Paint.Cap.ROUND
+                strokeJoin = Paint.Join.ROUND
+            }
+
+            if (arrow.pieceType == 'N') {
+                // Knight L-path: 2 segments
+                val dr = arrow.toRow - arrow.fromRow
+                val dc = arrow.toCol - arrow.fromCol
+                val midR: Int
+                val midC: Int
+                if (Math.abs(dr) > Math.abs(dc)) {
+                    midR = arrow.fromRow + (if (dr > 0) 2 else -2)
+                    midC = arrow.fromCol
+                } else {
+                    midR = arrow.fromRow
+                    midC = arrow.fromCol + (if (dc > 0) 2 else -2)
+                }
+                val midCx = boardStartX + (if (flipBoard) 7 - midC else midC) * sqSize + sqSize / 2f
+                val midCy = (if (flipBoard) 7 - midR else midR) * sqSize + sqSize / 2f
+                val path = Path()
+                path.moveTo(fromSqCx, fromSqCy)
+                path.lineTo(midCx, midCy)
+                path.lineTo(toSqCx, toSqCy)
+                canvas.drawPath(path, arrowPaint)
+                drawArrowHead(canvas, toSqCx, toSqCy, midCx, midCy, sqSize, arrow.color)
+            } else {
+                // Straight arrow
+                canvas.drawLine(fromSqCx, fromSqCy, toSqCx, toSqCy, arrowPaint)
+                drawArrowHead(canvas, toSqCx, toSqCy, fromSqCx, fromSqCy, sqSize, arrow.color)
+            }
         }
 
         // Promotion picker — full-square cells stacked over/under the promotion square
@@ -1402,4 +1482,36 @@ class ChessBoardView @JvmOverloads constructor(
         return if (pawnUnits > 0f) "+%.2f".format(pawnUnits)
         else "%.2f".format(pawnUnits)
     }
+
+    private fun drawArrowHead(canvas: Canvas, tipX: Float, tipY: Float, fromX: Float, fromY: Float, sqSize: Float, color: Int) {
+        val headLen = sqSize * 0.25f
+        val headAngle = Math.toRadians(25.0)
+        val dx = tipX - fromX
+        val dy = tipY - fromY
+        val len = Math.sqrt((dx * dx + dy * dy).toDouble()).toFloat()
+        if (len < 1f) return
+        val ux = dx / len
+        val uy = dy / len
+        val p1x = tipX - headLen * (ux * Math.cos(headAngle).toFloat() - uy * Math.sin(headAngle).toFloat())
+        val p1y = tipY - headLen * (uy * Math.cos(headAngle).toFloat() + ux * Math.sin(headAngle).toFloat())
+        val p2x = tipX - headLen * (ux * Math.cos(headAngle).toFloat() + uy * Math.sin(headAngle).toFloat())
+        val p2y = tipY - headLen * (uy * Math.cos(headAngle).toFloat() - ux * Math.sin(headAngle).toFloat())
+        val headPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            this.color = color
+            style = Paint.Style.FILL
+        }
+        val path = Path()
+        path.moveTo(tipX, tipY)
+        path.lineTo(p1x, p1y)
+        path.lineTo(p2x, p2y)
+        path.close()
+        canvas.drawPath(path, headPaint)
+    }
 }
+
+data class BestMoveArrow(
+    val fromRow: Int, val fromCol: Int,
+    val toRow: Int, val toCol: Int,
+    val pieceType: Char,
+    val color: Int
+)

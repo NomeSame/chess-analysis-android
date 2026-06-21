@@ -3,6 +3,7 @@
 
     <!-- Main screen -->
     <string name="initializing">Initializing…</string>
+    <string name="analyzing">Analyzing…</string>
     <string name="ready">Ready</string>
     <string name="engine_init_failed">Engine init failed</string>
     <string name="engine_thinking">Engine thinking…</string>
@@ -56,6 +57,12 @@
     <string name="theme_original">Original</string>
     <string name="theme_classic_brown">Classic Brown</string>
     <string name="theme_ocean_blue">Ocean Blue</string>
+
+    <!-- Analysis settings -->
+    <string name="analysis_depth">Analysis Depth</string>
+    <string name="show_analysis_arrows">Show best-move arrows in analysis</string>
+    <string name="game_history">Game History</string>
+    <string name="game_saved">Game saved to history</string>
 
     <!-- Piece styles -->
     <string name="piece_original">Original</string>
