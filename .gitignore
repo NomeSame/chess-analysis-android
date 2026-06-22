@@ -42,3 +42,7 @@ obj/
 
 # Auto-downloaded big NNUE network (~70MB, fetched at build time by downloadBigNet)
 app/src/main/res/raw/nnue_big.nnue
+
+# Documentation / status files — removed from history
+SVG_IMPLEMENTATION.md
+status.md
