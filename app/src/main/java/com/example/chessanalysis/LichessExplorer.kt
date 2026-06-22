@@ -31,8 +31,8 @@ class LichessExplorer {
             val encoded = URLEncoder.encode(fen, "UTF-8")
             val url = URL("https://explorer.lichess.ovh/masters?fen=$encoded")
             val conn = url.openConnection() as HttpURLConnection
-            conn.connectTimeout = 5000
-            conn.readTimeout = 5000
+            conn.connectTimeout = 2500
+            conn.readTimeout = 2500
             conn.requestMethod = "GET"
             val response = conn.inputStream.bufferedReader().use { it.readText() }
             conn.disconnect()

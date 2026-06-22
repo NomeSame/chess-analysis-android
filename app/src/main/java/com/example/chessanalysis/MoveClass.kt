@@ -47,16 +47,26 @@ enum class MoveClass(val symbol: String, val color: Int, val label: String) {
             return cpToWinPct(cp ?: 0)
         }
 
-        /** Classify by centipawn loss alone (0 = perfect, positive = loss for mover). */
+        /** Classify by centipawn loss alone (0 = perfect, positive = loss for mover).
+         *  Scale is aligned with the win%-drop tiers (mildest = EXCELLENT) so the two can be combined. */
         fun cpLossClassify(cpLoss: Int): MoveClass = when {
+            cpLoss < 10 -> EXCELLENT
             cpLoss < 20 -> GOOD
             cpLoss < 50 -> INACCURACY
             cpLoss < 100 -> MISTAKE
             else -> BLUNDER
         }
 
-        /** Classify a played move by engine eval (BOOK handled by caller). */
-        fun classify(e: EvalInfo, materialSacrificed: Boolean = false, ply: Int = e.ply): MoveClass {
+        /** The worse (lower-quality) of two classes. */
+        private fun worseOf(a: MoveClass, b: MoveClass): MoveClass = if (a.ordinal >= b.ordinal) a else b
+
+        /**
+         * Classify a played move (BOOK handled by caller). Chess.com-style:
+         * positive special cases (engine's own best move → Best/Great/Brilliant) win outright and are
+         * never downgraded; for everything else the class is the WORSE of the win%-drop tier and the
+         * cp-loss tier ([cpLoss], pass null on mate lines where cp-loss is meaningless).
+         */
+        fun classify(e: EvalInfo, materialSacrificed: Boolean = false, cpLoss: Int? = null, ply: Int = e.ply): MoveClass {
             val bestWin = evalToWinPct(e.bestCp, e.bestMate)
             val playedWin = evalToWinPct(e.playedCp, e.playedMate)
             val secondWin = evalToWinPct(e.secondCp, e.secondMate)
@@ -65,16 +75,21 @@ enum class MoveClass(val symbol: String, val color: Int, val label: String) {
             val isBest = e.playedMoveUci != null && e.playedMoveUci == e.bestMoveUci
             val onlyMove = (bestWin - secondWin) >= 12.0
 
-            return when {
-                isBest && materialSacrificed && playedWin >= 50.0 -> BRILLIANT
-                isBest && onlyMove -> GREAT
-                isBest -> BEST
+            // Positive special cases — the move IS the engine's best; cp-loss must not downgrade it.
+            if (isBest && materialSacrificed && playedWin >= 50.0) return BRILLIANT
+            if (isBest && onlyMove) return GREAT
+            if (isBest) return BEST
+
+            // Error tiers from the win%-drop.
+            val winCls = when {
                 drop < 2.0 -> EXCELLENT
                 drop < 5.0 -> GOOD
                 drop < 10.0 -> INACCURACY
                 drop < 20.0 -> if (bestWin >= 75.0 && playedWin < 55.0) MISS else MISTAKE
                 else -> if (bestWin >= 75.0 && playedWin < 55.0) MISS else BLUNDER
             }
+            // Combine conservatively with the cp-loss tier (catches "threw away a won game" where win% barely moves).
+            return if (cpLoss != null) worseOf(winCls, cpLossClassify(cpLoss)) else winCls
         }
     }
 }

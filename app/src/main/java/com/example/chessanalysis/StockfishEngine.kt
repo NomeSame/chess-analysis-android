@@ -153,9 +153,15 @@ class StockfishEngine {
         sendCommand("setoption name MultiPV value $n")
     }
 
-    /** Start a depth-limited search without blocking (used by the live analyzer). */
-    fun startSearch(depth: Int) {
-        sendCommand("go depth $depth")
+    /**
+     * Start a depth-limited search without blocking (used by the live analyzer).
+     * With [movetimeMs] set, the search also gets a time budget (`go depth D movetime T`): Stockfish
+     * stops at whichever bound it hits first — used to give each per-move review eval a ~0.5s think.
+     */
+    fun startSearch(depth: Int, movetimeMs: Long? = null) {
+        var cmd = "go depth $depth"
+        movetimeMs?.let { cmd += " movetime $it" }
+        sendCommand(cmd)
     }
 
     fun shutdown() {

@@ -56,6 +56,7 @@ class ChessBoardView @JvmOverloads constructor(
         set(value) { field = value; invalidate() }
 
     var badgeTooltipText: String? = null
+    var badgeTooltipText2: String? = null
     var onBadgeLongPress: ((MoveClass?, String?) -> Unit)? = null
 
     var boardTheme: BoardTheme = BoardThemes.DEFAULT
@@ -1146,7 +1147,7 @@ class ChessBoardView @JvmOverloads constructor(
         }
         val badge2 = moveBadge2; val badgeSq2 = moveBadgeSquare2
         if (badge2 != null && badgeSq2 != null && badgeHit(badgeSq2, sqSize * 0.16f)) {
-            onBadgeLongPress?.invoke(badge2, badgeTooltipText)
+            onBadgeLongPress?.invoke(badge2, badgeTooltipText2)
             return true
         }
         return false
@@ -1299,16 +1300,17 @@ class ChessBoardView @JvmOverloads constructor(
             'P' -> {
                 val dir = if (us) -1 else 1
                 val startRow = if (us) 6 else 1
-                if (board[row + dir][col] == null) {
-                    moves.add(Pair(row + dir, col))
+                val fwd = row + dir
+                if (fwd in 0..7 && board[fwd][col] == null) {      // bounds-guard: a pawn on the last rank
+                    moves.add(Pair(fwd, col))                       // would index board[-1]/board[8] otherwise
                     if (row == startRow && board[row + 2 * dir][col] == null)
                         moves.add(Pair(row + 2 * dir, col))
                 }
-                for (dc in listOf(-1, 1)) {
+                if (fwd in 0..7) for (dc in listOf(-1, 1)) {
                     val nc = col + dc
                     if (nc in 0..7) {
-                        val t = board[row + dir][nc]
-                        if (enemy(t)) moves.add(Pair(row + dir, nc))
+                        val t = board[fwd][nc]
+                        if (enemy(t)) moves.add(Pair(fwd, nc))
                     }
                 }
 

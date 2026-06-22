@@ -66,6 +66,20 @@
     <string name="export_history">Exportieren</string>
     <string name="import_history">Importieren</string>
     <string name="import_done">Import abgeschlossen</string>
+    <string name="import_how_title">Importieren — wie?</string>
+    <string name="import_pgn_manual">PGN manuell eingeben</string>
+    <string name="import_upload_data">Datei hochladen (PGN / FEN / Screenshot)</string>
+    <string name="import_pgn_hint">PGN hier einfügen…</string>
+    <string name="import_load">Laden</string>
+    <string name="import_pgn_none">Keine Züge im PGN gefunden.</string>
+    <string name="import_pgn_failed_fmt">Zug %1$d \"%2$s\" nicht lesbar — Import abgebrochen.</string>
+    <string name="import_pgn_ok_fmt">%1$d Züge importiert.</string>
+    <string name="import_pgn_error">PGN konnte nicht importiert werden.</string>
+    <string name="import_fen_ok">Stellung importiert.</string>
+    <string name="import_read_error">Datei konnte nicht gelesen werden.</string>
+    <string name="import_screenshot_working">Brett wird aus Bild gelesen…</string>
+    <string name="import_screenshot_none">Kein Schachbrett gefunden — Bild auf das Brett zuschneiden und erneut versuchen.</string>
+    <string name="import_screenshot_ok_fmt">%1$d Figuren erkannt — im Setup prüfen &amp; korrigieren, dann \"Von hier spielen\".</string>
 
     <!-- Piece styles -->
     <string name="piece_original">Original</string>
@@ -73,4 +87,73 @@
     <string name="piece_svg">SVG-Figuren</string>
     <string name="piece_staunty">Staunty</string>
     <string name="piece_mpchess">MP Chess</string>
+
+    <!-- AI Coach Einstellungen -->
+    <string name="ai_coach">AI Coach</string>
+    <string name="ai_coach_subtitle">Wähle wie der Coach deine Züge erklärt</string>
+    <string name="ai_coach_gemma_1b_title">Gemma 3 1B (Auf dem Gerät)</string>
+    <string name="ai_coach_gemma_1b_badge">Empfohlen · Läuft auf fast allen Geräten</string>
+    <string name="ai_coach_gemma_1b_desc">~600 MB Download · ~1,5 GB RAM zur Laufzeit</string>
+    <string name="ai_coach_gemma_3b_title">Gemma 3 4B (Auf dem Gerät)</string>
+    <string name="ai_coach_gemma_3b_badge">Beste On-Device Qualität · Nur Flaggschiffe</string>
+    <string name="ai_coach_gemma_3b_desc">~2,5 GB Download · ~5 GB RAM zur Laufzeit</string>
+    <string name="ai_coach_gemma_3b_warning">Dein Gerät könnte zu schwach sein</string>
+    <string name="ai_coach_gemma_3b_tooltip">Empfohlen ab Snapdragon 8 Gen 3 oder vergleichbar mit mindestens 12 GB RAM. Bitte prüfe deine Gerätespezifikationen bevor du diese Option wählst.</string>
+    <string name="ai_coach_api_title">Eigener API Schlüssel</string>
+    <string name="ai_coach_api_badge">Beste Qualität · Minimale Kosten</string>
+    <string name="ai_coach_api_desc">Kein Download · Kein RAM · Benötigt Internet</string>
+    <string name="ai_coach_api_get_key">API Schlüssel erhalten →</string>
+    <string name="ai_coach_api_test">Verbindung testen</string>
+    <string name="ai_coach_api_test_success">✓ Verbindung erfolgreich</string>
+    <string name="ai_coach_api_test_fail">Verbindung fehlgeschlagen: %1$s</string>
+    <string name="ai_coach_api_hint">API-Schlüssel / Token</string>
+    <string name="ai_coach_api_base_hint">Basis-URL (z.B. http://YOUR_IP_HERE:1234/v1)</string>
+    <string name="ai_coach_api_model_hint">Modellname</string>
+    <string name="ai_coach_api_save">Speichern</string>
+    <string name="ai_coach_api_testing">Verbindung wird getestet…</string>
+    <string name="ai_coach_api_example_fmt">Beispiel (%1$s):\nBasis-URL: %2$s\nModell: %3$s\nKey: %4$s</string>
+    <string name="ai_coach_api_key_lmstudio">beliebig, oder dein LM-Studio-Token</string>
+    <string name="ai_coach_api_key_secret">dein geheimer Schlüssel</string>
+    <string name="ai_coach_lichess_title">Lichess Analyse</string>
+    <string name="ai_coach_lichess_badge">Kostenlos · Kein Download</string>
+    <string name="ai_coach_lichess_desc">Extern gehostet · Keine Registrierung nötig</string>
+    <string name="ai_coach_lichess_info">Lichess Analysis liefert technische Engine-Kommentare ohne natürlichsprachige Erklärungen — weniger Coach-like, aber zuverlässig und kostenlos.</string>
+    <string name="ai_coach_lichess_got_it">Verstanden</string>
+    <string name="ai_coach_download_dialog_title">%1$s herunterladen</string>
+    <string name="ai_coach_download_dialog_msg">%1$s wird heruntergeladen (~%2$s MB). Stelle sicher dass du im WLAN bist. Das Modell wird lokal gespeichert, läuft komplett auf dem Gerät und ist offline verfügbar. Es wird nach dem Download automatisch geladen — kein Neustart nötig.</string>
+    <string name="ai_coach_download_dialog_download">Jetzt herunterladen</string>
+    <string name="ai_coach_download_dialog_cancel">Abbrechen</string>
+    <string name="ai_coach_downloading_fmt">Lade herunter… %1$d%%</string>
+    <string name="ai_coach_installed">✓ Installiert</string>
+    <string name="ai_coach_download_complete">Modell installiert und einsatzbereit.</string>
+    <string name="ai_coach_fallback_snackbar">Gemma noch nicht installiert — Lichess wird als Fallback verwendet.</string>
+    <string name="coach_title">KI-Coach</string>
+    <string name="coach_thinking">Coach denkt nach…</string>
+    <string name="coach_disabled">KI-Coach ist aus — in den Einstellungen aktivieren.</string>
+    <string name="coach_copied">Coach-Text kopiert</string>
+    <string name="display_options">Anzeige-Optionen</string>
+    <!-- Coach factual comment (localized) -->
+    <string name="coach_white">Weiß</string>
+    <string name="coach_black">Schwarz</string>
+    <string name="coach_better_was_fmt">Besser war %1$s (%2$s)</string>
+    <string name="coach_gives_up_fmt"> — verschenkt %1$s Bauern</string>
+    <string name="coach_missed_fmt">Verpasst: %1$s</string>
+    <string name="mc_brilliant">Brillant</string>
+    <string name="mc_great">Stark</string>
+    <string name="mc_best">Bester</string>
+    <string name="mc_excellent">Exzellent</string>
+    <string name="mc_good">Gut</string>
+    <string name="mc_book">Eröffnung</string>
+    <string name="mc_inaccuracy">Ungenau</string>
+    <string name="mc_mistake">Fehler</string>
+    <string name="mc_miss">Verpasst</string>
+    <string name="mc_blunder">Patzer</string>
+    <!-- Tactic descriptions (localized) -->
+    <string name="tactic_check_prefix">Schach: </string>
+    <string name="tactic_mate_fmt">Matt in %1$d</string>
+    <string name="tactic_win_queen">Gewinnt eine Dame</string>
+    <string name="tactic_win_rook">Gewinnt einen Turm</string>
+    <string name="tactic_win_minor">Gewinnt eine Leichtfigur</string>
+    <string name="tactic_win_pawn">Gewinnt einen Bauern</string>
+    <string name="tactic_missed_cp_fmt">+%1$s Bauern</string>
 </resources>

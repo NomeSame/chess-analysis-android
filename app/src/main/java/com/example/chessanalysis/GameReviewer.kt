@@ -49,6 +49,9 @@ class GameReviewer(private val explorer: LichessExplorer? = null) {
         }
 
         val openingTexts = mutableMapOf<Int, String>()
+        // Openings are contiguous from the start: once a position is out of book (or the network is
+        // unavailable → null), stop querying so an offline review doesn't stall on 16 timeouts.
+        var bookEnded = false
         val bestEvalPerPly = ArrayList<String?>(n - 1)
         val playedEvalPerPly = ArrayList<String?>(n - 1)
 
@@ -81,10 +84,12 @@ class GameReviewer(private val explorer: LichessExplorer? = null) {
             playedEvalPerPly.add(formatEval(playedCp, playedMate))
 
             val sacrifice = isSacrifice(fens, i, moverWhite)
-            val cls = MoveClass.classify(info, materialSacrificed = sacrifice)
+            // cp-loss for the chart/tactics (lenient); for classification only when both sides are non-mate cp.
             val cpLoss = ((best?.cp ?: 0) - (playedCp ?: 0)).coerceAtLeast(0)
-            val cpCls = MoveClass.cpLossClassify(cpLoss)
-            val combined = if (cls.ordinal > cpCls.ordinal) cls else cpCls
+            val cpLossForClass = if (info.bestMate == null && info.playedMate == null &&
+                info.bestCp != null && info.playedCp != null)
+                (info.bestCp - info.playedCp).coerceAtLeast(0) else null
+            val combined = MoveClass.classify(info, materialSacrificed = sacrifice, cpLoss = cpLossForClass)
             cpLosses.add(cpLoss)
             perPly.add(combined)
             counts[moverWhite]!!.merge(combined, 1, Int::plus)
@@ -94,8 +99,8 @@ class GameReviewer(private val explorer: LichessExplorer? = null) {
             accSum[moverWhite] = accSum[moverWhite]!! + moveAccuracy(drop)
             accCnt[moverWhite] = accCnt[moverWhite]!! + 1
 
-            // Opening book check: for early plies, query Lichess Masters Explorer
-            if (i <= 15 && explorer != null) {
+            // Opening book check: for early plies, query Lichess Masters Explorer (until out of book).
+            if (i <= 15 && explorer != null && !bookEnded) {
                 val stats = explorer.query(fens[i])
                 if (stats != null && stats.totalGames > 0) {
                     counts[moverWhite]!!.merge(combined, -1, Int::plus)
@@ -105,6 +110,8 @@ class GameReviewer(private val explorer: LichessExplorer? = null) {
                     openingTexts[i] = "GMs: " + top3.joinToString(", ") {
                         "${it.san} ${"%.0f".format(it.playedPct)}%"
                     }
+                } else {
+                    bookEnded = true  // out of book or offline → don't query the remaining plies
                 }
             }
         }
@@ -170,25 +177,38 @@ class GameReviewer(private val explorer: LichessExplorer? = null) {
             if (bestCp < 150) continue
             val bestMove = before.firstMove ?: continue
             val playedUci = playedMoveUci(fens[i], fens[i + 1], whiteToMove(fens[i]))
-            val desc = describeTactic(cpLoss, before.mate, bestCp)
-            val checkPrefix = if (givesCheck(fens[i], bestMove)) "Check: " else ""
+            val kind = tacticKind(cpLoss, before.mate)
+            val check = givesCheck(fens[i], bestMove)
+            val desc = describeTactic(kind, before.mate, cpLoss)
             tactics.add(TacticalChance(
                 ply = i, fen = fens[i],
                 missedMove = playedUci, bestMove = bestMove,
                 cpLoss = cpLoss,
-                description = "$checkPrefix$desc"
+                kind = kind, mateIn = before.mate?.takeIf { it > 0 }, givesCheck = check,
+                description = if (check) "Check: $desc" else desc
             ))
         }
         return tactics
     }
 
-    private fun describeTactic(cpLoss: Int, bestMate: Int?, bestCp: Int): String = when {
-        bestMate != null && bestMate > 0 -> "Mate in $bestMate"
-        bestCp >= 1300 -> "Wins a queen"
-        bestCp >= 900 -> "Wins a rook"
-        bestCp >= 500 -> "Wins a minor piece"
-        bestCp >= 300 -> "Wins a pawn"
-        else -> "Missed +$bestCp cp"
+    /** Classify a missed chance by the size of the swing given up (cp-loss ≈ material missed). */
+    private fun tacticKind(cpLoss: Int, bestMate: Int?): TacticKind = when {
+        bestMate != null && bestMate > 0 -> TacticKind.MATE
+        cpLoss >= 900 -> TacticKind.WIN_QUEEN
+        cpLoss >= 500 -> TacticKind.WIN_ROOK
+        cpLoss >= 300 -> TacticKind.WIN_MINOR
+        cpLoss >= 100 -> TacticKind.WIN_PAWN
+        else -> TacticKind.MISSED_CP
+    }
+
+    /** English fallback description (UI localizes from [TacticalChance.kind] instead). */
+    private fun describeTactic(kind: TacticKind, bestMate: Int?, cpLoss: Int): String = when (kind) {
+        TacticKind.MATE -> "Mate in ${bestMate ?: 0}"
+        TacticKind.WIN_QUEEN -> "Wins a queen"
+        TacticKind.WIN_ROOK -> "Wins a rook"
+        TacticKind.WIN_MINOR -> "Wins a minor piece"
+        TacticKind.WIN_PAWN -> "Wins a pawn"
+        TacticKind.MISSED_CP -> "Missed +$cpLoss cp"
     }
 
     private fun givesCheck(fen: String, uci: String): Boolean {
@@ -206,7 +226,9 @@ class GameReviewer(private val explorer: LichessExplorer? = null) {
         val enemyKing = if (piece.isUpperCase()) 'k' else 'K'
         val kingIdx = board.indexOf(enemyKing)
         if (kingIdx < 0) return false
-        return isAttacked(board.toTypedArray(), kingIdx, piece.isUpperCase())
+        // isAttacked(sq, byWhite) checks attacks by the ENEMY of byWhite; the king's defender color
+        // is the opposite of the mover, so pass !mover to ask "attacked by the mover?".
+        return isAttacked(board.toTypedArray(), kingIdx, !piece.isUpperCase())
     }
 
     private fun isAttacked(board: Array<Char?>, sqIdx: Int, byWhite: Boolean): Boolean {

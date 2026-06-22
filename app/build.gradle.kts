@@ -4,9 +4,25 @@ plugins {
     id("kotlin-android")
 }
 
+// AI Coach: toggle the on-device llama.cpp GGUF runner. OFF = fast builds, no native llama compile,
+// app still runs (Gemma cards show "disabled in this build"). Flip via -PaiCoachLlama=true or gradle.properties.
+val llamaEnabled = (project.findProperty("aiCoachLlama") as String?)?.toBoolean() ?: false
+
+// Pinned llama.cpp tag, passed to CMake (-DLLAMA_TAG) which clones the source at configure time.
+// Constraints:
+//  - >= Jan-2025 vocab refactor (b4404 too old → "unknown type name 'llama_vocab'" at compile).
+//  - >= Gemma 3 support (PR #12343, merged 2025-03-12 ~b4875): otherwise nativeLoad() fails on the
+//    gemma-3-1B GGUF ("unknown model architecture") → model never loads → coach falls back, no "thinking".
+// NOTE: must be a REAL tag — llama.cpp only tags actual CI builds, not every bNNNN integer (b5000 doesn't exist).
+val llamaTag = "b5050"
+
 android {
     namespace = "com.example.chessanalysis"
     compileSdk = 34
+
+    buildFeatures {
+        buildConfig = true
+    }
 
     defaultConfig {
         applicationId = "com.example.chessanalysis"
@@ -14,6 +30,8 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
+
+        buildConfigField("boolean", "LLAMA_ENABLED", llamaEnabled.toString())
 
         ndk {
             abiFilters.addAll(listOf("arm64-v8a"))
@@ -25,6 +43,8 @@ android {
                 cppFlags.add("-O3")
                 cppFlags.add("-DNNUE_EMBEDDING_OFF")
                 arguments.add("-DANDROID_STL=c++_shared")
+                arguments.add("-DLLAMA_ENABLED=${if (llamaEnabled) "ON" else "OFF"}")
+                arguments.add("-DLLAMA_TAG=$llamaTag")
             }
         }
     }
@@ -68,6 +88,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
+    // NOTE: on-device LLM runs via the bundled llama.cpp native runner (GGUF), not MediaPipe.
 }
 
 // --- Stockfish 18 big NNUE network ---
@@ -94,3 +116,6 @@ val downloadBigNet = tasks.register("downloadBigNet") {
 }
 
 tasks.named("preBuild") { dependsOn(downloadBigNet) }
+
+// NOTE: llama.cpp source is cloned by CMake at configure time (see cpp/CMakeLists.txt, -DLLAMA_TAG=$llamaTag),
+// not by a Gradle task — Android Studio's CMake sync runs before preBuild, so the dir must exist by then.

@@ -2,19 +2,27 @@ package com.example.chessanalysis
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.SeekBar
+import android.widget.Spinner
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SwitchCompat
@@ -23,6 +31,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -38,6 +47,8 @@ class MainActivity : AppCompatActivity() {
         get() = EngineHolder.ready
         set(v) { EngineHolder.ready = v }
     private var currentFen = START_FEN
+    /** FEN last handed to the live analyzer (= which position its streamed updates belong to). */
+    private var analyzedFen: String? = null
 
     private lateinit var chessBoard: ChessBoardView
     private lateinit var tvStatus: TextView
@@ -87,6 +98,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvAnalysisProgress: TextView
     private lateinit var lvGameHistory: LinearLayout
     private lateinit var tvGameHistoryHeader: TextView
+    private lateinit var coachPanel: View
+    private lateinit var tvCoachBody: TextView
+    private var coachToken = 0
+    private val coachHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private var coachRunnable: Runnable? = null
     private var analysisMode = false
     private val autoPlayHandler = android.os.Handler(android.os.Looper.getMainLooper())
     private var autoPlayRunnable: Runnable? = null
@@ -101,6 +117,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var sbAnalysisDepth: SeekBar
     private lateinit var tvDepthValue: TextView
     private lateinit var swAnalysisArrows: SwitchCompat
+    private var gemmaDownloading = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -124,6 +141,18 @@ class MainActivity : AppCompatActivity() {
         tvAnalysisProgress = findViewById(R.id.tvAnalysisProgress)
         lvGameHistory = findViewById(R.id.lvGameHistory)
         tvGameHistoryHeader = findViewById(R.id.tvGameHistoryHeader)
+        coachPanel = findViewById(R.id.coachPanel)
+        tvCoachBody = findViewById(R.id.tvCoachBody)
+        // Long-press the coach text to copy it to the clipboard.
+        tvCoachBody.setOnLongClickListener {
+            val t = tvCoachBody.text?.toString().orEmpty()
+            if (t.isNotBlank()) {
+                (getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager)
+                    .setPrimaryClip(android.content.ClipData.newPlainText("coach", t))
+                android.widget.Toast.makeText(this, R.string.coach_copied, android.widget.Toast.LENGTH_SHORT).show()
+            }
+            true
+        }
         // lvGameHistory populated dynamically in refreshGameHistoryList()
 
         setupSettingsDrawer()
@@ -131,7 +160,7 @@ class MainActivity : AppCompatActivity() {
         chessBoard.setFen(currentFen)
         initPromotionCallback()
 
-        analyzer.onUpdate = { lines -> runOnUiThread { renderAnalysis(lines) } }
+        analyzer.onUpdate = { fen, lines -> runOnUiThread { renderAnalysis(fen, lines) } }
 
         chessBoard.onBadgeLongPress = { cls, tooltipText ->
             if (cls != null) {
@@ -187,12 +216,19 @@ class MainActivity : AppCompatActivity() {
         refreshGameHistoryList()
 
         findViewById<Button>(R.id.btnExportHistory).setOnClickListener { exportGameHistory() }
-        findViewById<Button>(R.id.btnImportHistory).setOnClickListener { importGameHistory() }
+        findViewById<Button>(R.id.btnImportHistory).setOnClickListener { showImportChooser() }
 
         findViewById<ImageButton>(R.id.btnSettings).setOnClickListener {
             drawerLayout.openDrawer(settingsDrawer)
         }
 
+        AiCoachManager.init(this)
+        if (AiCoachManager.isFallbackActive(this)) {
+            Snackbar.make(findViewById(R.id.drawerLayout), R.string.ai_coach_fallback_snackbar, Snackbar.LENGTH_LONG)
+                .setDuration(5000).show()
+        }
+        // Load the active on-device model (if any) so the coach is ready without a restart.
+        lifecycleScope.launch(Dispatchers.IO) { AiCoachManager.ensureModelLoaded(this@MainActivity) }
         lifecycleScope.launch { initEngine() }
         lichessExplorer = LichessExplorer()
     }
@@ -291,6 +327,11 @@ class MainActivity : AppCompatActivity() {
             rgPiece.addView(rb)
         }
 
+        // Collapsible "Display options" / "Board design" / "Pieces" sections (start collapsed).
+        setupCollapsibleHeader(findViewById(R.id.tvTogglesHeader), findViewById(R.id.llToggles), getString(R.string.display_options))
+        setupCollapsibleHeader(findViewById(R.id.tvBoardThemeHeader), rgBoard, getString(R.string.board_theme))
+        setupCollapsibleHeader(findViewById(R.id.tvPiecesHeader), rgPiece, getString(R.string.pieces))
+
         // Eval bars always analyze at full strength.
         engine.setElo(StockfishEngine.MAX_ELO)
 
@@ -347,6 +388,7 @@ class MainActivity : AppCompatActivity() {
             prefs.edit().putBoolean(KEY_ANALYSIS_ARROWS, checked).apply()
             if (!checked && ::chessBoard.isInitialized) chessBoard.bestMoveArrow = null
         }
+        setupAiCoachSection()
     }
 
     /** EN/DE segmented toggle (top of drawer). Persists via AppCompat per-app locales; recreates on change. */
@@ -639,7 +681,7 @@ class MainActivity : AppCompatActivity() {
         // In review mode the user may try variation moves from any position.
         chessBoard.interactionEnabled = !chessBoard.setupMode && (reviewMode || liveReal)
         chessBoard.lastMoveFrom = effectiveFrom().getOrNull(viewIndex)
-        if (engineReady) analyzer.analyze(fen)
+        if (engineReady) { analyzedFen = fen; analyzer.analyze(fen) }
         when {
             exploring && viewIndex > branchIndex -> tvStatus.text = getString(R.string.variation_fmt, viewIndex - branchIndex)
             analysisMode && !exploring -> tvStatus.text = getString(R.string.analysis_review_fmt, viewIndex, positionHistory.lastIndex)
@@ -648,6 +690,7 @@ class MainActivity : AppCompatActivity() {
         }
         updateMoveBadge()
         updateBestMoveArrow()
+        requestCoachComment()
         if (analysisMode) evalChart.setMarker(if (exploring) -1 else viewIndex)
     }
 
@@ -702,11 +745,157 @@ class MainActivity : AppCompatActivity() {
         // Badge2 = second-to-last move (viewIndex-2), only in analysisMode
         if (analysisMode && viewIndex >= 2 && viewIndex - 2 <= review.perPly.lastIndex &&
             viewIndex <= positionHistory.lastIndex) {
-            chessBoard.moveBadge2 = review.perPly[viewIndex - 2]
+            val cls2 = review.perPly[viewIndex - 2]
+            chessBoard.moveBadge2 = cls2
             chessBoard.moveBadgeSquare2 = destSquare(positionHistory[viewIndex - 2], positionHistory[viewIndex - 1])
+            chessBoard.badgeTooltipText2 = buildBadgeTooltip(review, viewIndex - 2)
         } else {
             chessBoard.moveBadge2 = null; chessBoard.moveBadgeSquare2 = null
+            chessBoard.badgeTooltipText2 = null
         }
+    }
+
+    /** Build the long-press tooltip for the move at [ply] (book text for BOOK, else Best/Played evals). */
+    private fun buildBadgeTooltip(review: GameReviewer.GameReview, ply: Int): String? {
+        if (ply < 0 || ply > review.perPly.lastIndex) return null
+        if (review.perPly[ply] == MoveClass.BOOK) return review.openingTexts[ply]
+        val bestUci = review.bestMovePerPos.getOrNull(ply) ?: return null
+        val playedUci = GameReviewer.playedUci(positionHistory[ply], positionHistory[ply + 1])
+        val bestEval = review.bestEvalPerPos.getOrNull(ply)
+        val playedEval = review.playedEvalPerPos.getOrNull(ply)
+        val bestPart = "Best: $bestUci (${bestEval ?: "?"})"
+        val playedPart = if (playedUci != null) "Played: $playedUci (${playedEval ?: "?"})" else ""
+        return if (playedPart.isNotEmpty()) "$bestPart\n$playedPart" else null
+    }
+
+    /**
+     * Auto-comment the viewed move in the analysis view. On-device Gemma generates a sentence;
+     * Lichess/API or "model not loaded" fall back to a deterministic factual line. Hidden when the
+     * coach is off or there's no move to comment. Debounced via [coachToken] (paging cancels stale results).
+     */
+    /** Make [header] toggle [content]'s visibility, with a ▸/▾ disclosure prefix. */
+    private fun setupCollapsibleHeader(header: TextView, content: View, label: String) {
+        fun render() {
+            val expanded = content.visibility == View.VISIBLE
+            header.text = (if (expanded) "▾  " else "▸  ") + label
+        }
+        render()
+        header.setOnClickListener {
+            content.visibility = if (content.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            render()
+        }
+    }
+
+    private fun requestCoachComment() {
+        if (!analysisMode) { coachPanel.visibility = View.GONE; return }
+        val review = lastReview ?: run { coachPanel.visibility = View.GONE; return }
+        val ply = viewIndex - 1
+        if (exploring || ply < 0 || ply > review.perPly.lastIndex || viewIndex > positionHistory.lastIndex) {
+            coachPanel.visibility = View.GONE; return
+        }
+        val mode = AiCoachManager.getActiveMode(this)
+        if (mode == AiCoachMode.NONE) { coachPanel.visibility = View.GONE; return }
+
+        val ctx = CoachManager.Ctx(
+            fenBefore = positionHistory[ply],
+            fullmove = ply / 2 + 1,
+            moverWhite = positionHistory[ply].split(" ").getOrNull(1) != "b",
+            playedUci = GameReviewer.playedUci(positionHistory[ply], positionHistory[ply + 1]),
+            cls = review.perPly[ply],
+            bestUci = review.bestMovePerPos.getOrNull(ply),
+            bestEval = review.bestEvalPerPos.getOrNull(ply),
+            playedEval = review.playedEvalPerPos.getOrNull(ply),
+            openingText = review.openingTexts[ply],
+            cpLoss = review.cpLosses.getOrNull(ply) ?: 0,
+            tacticDesc = review.tactics.firstOrNull { it.ply == ply }?.let { tacticDescLocalized(it) }
+        )
+        coachPanel.visibility = View.VISIBLE
+        val token = ++coachToken
+
+        // Instant local text first — also the final text for Lichess / unavailable model.
+        tvCoachBody.text = localizedFactualComment(ctx)
+
+        // Cancel any pending generation; only fire after the user pauses on a move (debounce),
+        // so rapid paging through many moves does NOT flood the LLM/API queue.
+        coachRunnable?.let { coachHandler.removeCallbacks(it) }
+        val wantLlm = (mode == AiCoachMode.GEMMA_1B || mode == AiCoachMode.GEMMA_3B) && LlamaRunner.isModelLoaded
+        val wantApi = mode == AiCoachMode.API_KEY
+        if (wantLlm || wantApi) {
+            val german = isGerman()
+            val system = CoachManager.systemPrompt(german)
+            val user = CoachManager.buildUser(ctx)
+            val r = Runnable {
+                if (token != coachToken) return@Runnable
+                tvCoachBody.text = getString(R.string.coach_thinking)
+                lifecycleScope.launch(Dispatchers.IO) {
+                    val out = (if (wantLlm) LlamaRunner.generate(CoachManager.buildPrompt(ctx, german), maxTokens = 64)
+                               else AiCoachManager.apiChat(this@MainActivity, system, user, maxTokens = 600))?.trim()
+                    withContext(Dispatchers.Main) {
+                        if (token == coachToken) {
+                            tvCoachBody.text = if (out.isNullOrBlank()) localizedFactualComment(ctx) else capCoach(out)
+                        }
+                    }
+                }
+            }
+            coachRunnable = r
+            coachHandler.postDelayed(r, COACH_DEBOUNCE_MS)
+        }
+    }
+
+    /** Cap a coach answer to keep it short/readable (rambly reasoning models). */
+    private fun capCoach(s: String): String =
+        if (s.length <= 400) s else s.take(399).trimEnd() + "…"
+
+    private fun isGerman(): Boolean =
+        resources.configuration.locales.get(0).language == "de"
+
+    /** "e2e4" → "e2 → e4" (promotion suffix kept on the target, e.g. "e7e8q" → "e7 → e8q"). */
+    private fun formatUciMoveArrow(uci: String): String =
+        if (uci.length >= 4) "${uci.substring(0, 2)} → ${uci.substring(2)}" else uci
+
+    private fun moveClassLabel(cls: MoveClass): String = getString(when (cls) {
+        MoveClass.BRILLIANT -> R.string.mc_brilliant
+        MoveClass.GREAT -> R.string.mc_great
+        MoveClass.BEST -> R.string.mc_best
+        MoveClass.EXCELLENT -> R.string.mc_excellent
+        MoveClass.GOOD -> R.string.mc_good
+        MoveClass.BOOK -> R.string.mc_book
+        MoveClass.INACCURACY -> R.string.mc_inaccuracy
+        MoveClass.MISTAKE -> R.string.mc_mistake
+        MoveClass.MISS -> R.string.mc_miss
+        MoveClass.BLUNDER -> R.string.mc_blunder
+    })
+
+    /** Localized tactic line, e.g. "Schach: Matt in 2" / "Check: Wins a rook". */
+    private fun tacticDescLocalized(t: TacticalChance): String {
+        val body = when (t.kind) {
+            TacticKind.MATE -> getString(R.string.tactic_mate_fmt, t.mateIn ?: 0)
+            TacticKind.WIN_QUEEN -> getString(R.string.tactic_win_queen)
+            TacticKind.WIN_ROOK -> getString(R.string.tactic_win_rook)
+            TacticKind.WIN_MINOR -> getString(R.string.tactic_win_minor)
+            TacticKind.WIN_PAWN -> getString(R.string.tactic_win_pawn)
+            TacticKind.MISSED_CP -> getString(R.string.tactic_missed_cp_fmt, "%.1f".format(t.cpLoss / 100.0))
+        }
+        return if (t.givesCheck) getString(R.string.tactic_check_prefix) + body else body
+    }
+
+    /** Localized deterministic coach comment (Lichess mode / fallback); moves shown as "from → to". */
+    private fun localizedFactualComment(c: CoachManager.Ctx): String {
+        val side = getString(if (c.moverWhite) R.string.coach_white else R.string.coach_black)
+        val b = StringBuilder()
+        b.append("$side · ${moveClassLabel(c.cls)}")
+        c.playedUci?.let { b.append(" (${formatUciMoveArrow(it)})") }
+        val positive = c.cls == MoveClass.BEST || c.cls == MoveClass.BRILLIANT ||
+            c.cls == MoveClass.GREAT || c.cls == MoveClass.BOOK || c.cls == MoveClass.EXCELLENT
+        when {
+            c.tacticDesc != null -> b.append(". ").append(getString(R.string.coach_missed_fmt, c.tacticDesc))
+            !positive && c.bestUci != null -> {
+                b.append(". ").append(getString(R.string.coach_better_was_fmt, formatUciMoveArrow(c.bestUci), c.bestEval ?: "?"))
+                if (c.cpLoss >= 50) b.append(getString(R.string.coach_gives_up_fmt, "%.1f".format(c.cpLoss / 100.0)))
+            }
+        }
+        c.openingText?.let { b.append(". $it") }
+        return b.toString()
     }
 
     /**
@@ -729,10 +918,10 @@ class MainActivity : AppCompatActivity() {
                 playedMoveUci = GameReviewer.playedUci(fenBefore, fenAfter),
                 playedCp = a1?.cp?.let { -it }, playedMate = a1?.mate?.let { -it }
             )
-            val cls = MoveClass.classify(info)
-            val cpLoss = ((best?.cp ?: 0) - (info.playedCp ?: 0)).coerceAtLeast(0)
-            val cpCls = MoveClass.cpLossClassify(cpLoss)
-            val combined = if (cls.ordinal > cpCls.ordinal) cls else cpCls
+            val cpLossForClass = if (info.bestMate == null && info.playedMate == null &&
+                info.bestCp != null && info.playedCp != null)
+                (info.bestCp - info.playedCp).coerceAtLeast(0) else null
+            val combined = MoveClass.classify(info, cpLoss = cpLossForClass)
             val dest = destSquare(fenBefore, fenAfter)
             runOnUiThread {
                 if (exploreIdx >= 0) {
@@ -840,6 +1029,7 @@ class MainActivity : AppCompatActivity() {
     /** Trigger live analysis of the current position (no-op during board setup). */
     private fun requestAnalysis() {
         if (!engineReady || chessBoard.setupMode) return
+        analyzedFen = currentFen
         analyzer.analyze(currentFen)
     }
 
@@ -867,10 +1057,22 @@ class MainActivity : AppCompatActivity() {
                 tvAnalysisProgress.text = getString(R.string.analyzing_fmt, done, total)
             } },
             onDone = { lines ->
-                val reviewer = GameReviewer(lichessExplorer)
-                val review = reviewer.review(fens, lines)
+                // This callback runs on the LiveAnalyzer daemon worker thread. An uncaught exception
+                // here would kill the whole process (Android crashes on uncaught non-UI-thread errors),
+                // so the review build is wrapped — a bad engine line / odd position degrades gracefully.
+                val review = try {
+                    GameReviewer(lichessExplorer).review(fens, lines)
+                } catch (e: Exception) {
+                    Log.e("Review", "review() failed", e)
+                    null
+                }
                 runOnUiThread {
                     llAnalysisProgress.visibility = View.GONE
+                    if (review == null) {
+                        tvStatus.text = getString(R.string.ready)
+                        Snackbar.make(chessBoard, R.string.import_pgn_error, Snackbar.LENGTH_LONG).show()
+                        return@runOnUiThread
+                    }
                     lastReview = review
                     Log.d("Review", "accuracy W=${"%.1f".format(review.accuracy[true] ?: 0.0)} " +
                         "B=${"%.1f".format(review.accuracy[false] ?: 0.0)} " +
@@ -882,12 +1084,16 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    private fun renderAnalysis(lines: List<LiveAnalyzer.PvLine>) {
-        val whiteToMove = chessBoard.sideToMove == 'w'
+    private fun renderAnalysis(fen: String, lines: List<LiveAnalyzer.PvLine>) {
+        // Drop stale updates: late lines that the worker computed for a previous position must not be
+        // rendered against the now-current board (would show a best move/eval "one move behind").
+        // Anchored on the last FEN we requested (not currentFen) so review-browsing a past position still renders.
+        if (fen != analyzedFen) return
+        val whiteToMove = fen.split(" ").getOrNull(1) != "b"
         val byRank = lines.associateBy { it.rank }
         bestMoveUci = byRank[1]?.firstMove
         // On the untouched starting position show a neutral bar (analysis still runs immediately).
-        val isStartPos = positionHistory[viewIndex].startsWith(START_FEN.substringBefore(' ') + " w")
+        val isStartPos = fen.startsWith(START_FEN.substringBefore(' ') + " w")
         byRank[1]?.let { chessBoard.evalScore = if (isStartPos) 0f else whiteScore(it, whiteToMove) }
         for (i in 0 until 3) {
             val bar = moveBars[i] ?: continue
@@ -1028,7 +1234,7 @@ class MainActivity : AppCompatActivity() {
         chessBoard.hintSquare = null
         chessBoard.lastMoveFrom = from
         chessBoard.interactionEnabled = true   // keep exploring further in the variation
-        if (engineReady) analyzer.analyze(currentFen)
+        if (engineReady) { analyzedFen = currentFen; analyzer.analyze(currentFen) }
         tvStatus.text = getString(R.string.variation_fmt, viewIndex - branchIndex)
         // What-if move quality (analysis view always; live play when the toggle is on).
         if (analysisMode || liveEvalEnabled) classifyMoveAsync(fenBefore, currentFen, explorationLine.lastIndex)
@@ -1144,24 +1350,213 @@ class MainActivity : AppCompatActivity() {
         startActivity(Intent.createChooser(intent, getString(R.string.export_history)))
     }
 
-    private fun importGameHistory() {
+    /** Import button → ask HOW: paste PGN by hand, or pick a file (PGN / FEN / history backup / screenshot). */
+    private fun showImportChooser() {
+        val items = arrayOf(getString(R.string.import_pgn_manual), getString(R.string.import_upload_data))
+        AlertDialog.Builder(this)
+            .setTitle(R.string.import_how_title)
+            .setItems(items) { _, which -> if (which == 0) showPgnPasteDialog() else launchImportFilePicker() }
+            .show()
+    }
+
+    private fun showPgnPasteDialog() {
+        val input = EditText(this).apply {
+            hint = getString(R.string.import_pgn_hint)
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
+            minLines = 5; maxLines = 12; gravity = Gravity.TOP or Gravity.START
+        }
+        val pad = (16 * resources.displayMetrics.density).toInt()
+        val container = FrameLayout(this).apply { setPadding(pad, pad / 2, pad, 0); addView(input) }
+        AlertDialog.Builder(this)
+            .setTitle(R.string.import_pgn_manual)
+            .setView(container)
+            .setPositiveButton(R.string.import_load) { _, _ -> importPgnText(input.text.toString()) }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun launchImportFilePicker() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-            type = "application/json"
+            type = "*/*"
+            putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("application/json", "text/*", "image/*"))
             addCategory(Intent.CATEGORY_OPENABLE)
         }
-        startActivityForResult(intent, REQ_IMPORT_HISTORY)
+        startActivityForResult(intent, REQ_IMPORT_DATA)
     }
 
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQ_IMPORT_HISTORY && resultCode == RESULT_OK) {
-            data?.data?.let { uri ->
-                GameHistoryManager.importGames(this, uri)
-                refreshGameHistoryList()
+        if (requestCode == REQ_IMPORT_DATA && resultCode == RESULT_OK) {
+            data?.data?.let { uri -> handleImportUri(uri) }
+        }
+    }
+
+    /** Sniff the picked file and route it: image → (not yet), history-JSON → backup import, FEN → position, else PGN. */
+    private fun handleImportUri(uri: Uri) {
+        val mime = contentResolver.getType(uri) ?: ""
+        if (mime.startsWith("image/")) { importScreenshot(uri); return }
+        val content = try {
+            contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() } ?: ""
+        } catch (e: Exception) {
+            Snackbar.make(chessBoard, R.string.import_read_error, Snackbar.LENGTH_LONG).show(); return
+        }
+        val trimmed = content.trimStart()
+        // History backup = a JSON array of objects ("[ … { … } … ]"); PGN tags are "[Event …]".
+        val isHistoryJson = trimmed.startsWith("[") && trimmed.drop(1).trimStart().startsWith("{")
+        when {
+            trimmed.isEmpty() -> Snackbar.make(chessBoard, R.string.import_read_error, Snackbar.LENGTH_LONG).show()
+            isHistoryJson -> {
+                GameHistoryManager.importGames(this, uri); refreshGameHistoryList()
                 android.widget.Toast.makeText(this, R.string.import_done, android.widget.Toast.LENGTH_SHORT).show()
             }
+            looksLikeFen(trimmed) -> importFenText(trimmed)
+            else -> importPgnText(content)
         }
+    }
+
+    private fun looksLikeFen(text: String): Boolean {
+        val line = text.lineSequence().firstOrNull { it.isNotBlank() }?.trim() ?: return false
+        return line.matches(Regex("""([pnbrqkPNBRQK1-8]+/){7}[pnbrqkPNBRQK1-8]+(\s+[wb].*)?"""))
+    }
+
+    /** Load a single FEN as a fresh position (review/setup-ready). */
+    private fun importFenText(fenRaw: String) {
+        val fen = fenRaw.lineSequence().firstOrNull { it.isNotBlank() }?.trim() ?: return
+        chessBoard.setupMode = false
+        btnSetup.text = getString(R.string.setup_board)
+        vsEngine = false
+        exitAnalysisView()
+        chessBoard.setFen(fen)
+        currentFen = chessBoard.getFen()
+        resetHistory(currentFen)
+        chessBoard.setFen(currentFen)
+        requestAnalysis()
+        updateGameStatus()
+        Snackbar.make(chessBoard, R.string.import_fen_ok, Snackbar.LENGTH_SHORT).show()
+    }
+
+    /** Recognize a board screenshot → load the best-guess FEN into setup mode for manual correction. */
+    private fun importScreenshot(uri: Uri) {
+        Snackbar.make(chessBoard, R.string.import_screenshot_working, Snackbar.LENGTH_SHORT).show()
+        lifecycleScope.launch(Dispatchers.IO) {
+            val bmp = decodeDownsampled(uri)
+            val result = bmp?.let { ScreenshotImporter.recognize(it) }
+            bmp?.recycle()
+            withContext(Dispatchers.Main) {
+                if (result == null) {
+                    Snackbar.make(chessBoard, R.string.import_screenshot_none, Snackbar.LENGTH_LONG).show()
+                } else {
+                    enterSetupWithFen(result.fen)
+                    Snackbar.make(chessBoard, getString(R.string.import_screenshot_ok_fmt, result.pieces), Snackbar.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    /** Decode an image URI downsampled so the longest edge is ≲1280 px (recognition needs no more). */
+    private fun decodeDownsampled(uri: Uri): android.graphics.Bitmap? = try {
+        val bounds = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        contentResolver.openInputStream(uri)?.use { android.graphics.BitmapFactory.decodeStream(it, null, bounds) }
+        var sample = 1
+        while (maxOf(bounds.outWidth, bounds.outHeight) / sample > 1280) sample *= 2
+        val opts = android.graphics.BitmapFactory.Options().apply { inSampleSize = sample }
+        contentResolver.openInputStream(uri)?.use { android.graphics.BitmapFactory.decodeStream(it, null, opts) }
+    } catch (e: Exception) { null }
+
+    /** Put [fen] on the board and enter setup mode so the user can fix any recognition errors by dragging. */
+    private fun enterSetupWithFen(fen: String) {
+        vsEngine = false
+        exitAnalysisView()
+        chessBoard.setFen(fen)
+        currentFen = chessBoard.getFen()
+        resetHistory(currentFen)
+        chessBoard.setFen(currentFen)
+        chessBoard.setupMode = true
+        btnSetup.text = getString(R.string.play_from_here)
+        chessBoard.onBoardChanged?.invoke(chessBoard.board)
+        chessBoard.requestLayout()
+        analyzer.idle()
+    }
+
+    /** Parse PGN, replay it through the board to build the position history, then enter review mode. */
+    private fun importPgnText(text: String) {
+        val game = PgnImporter.parse(text)
+        if (game == null) { Snackbar.make(chessBoard, R.string.import_pgn_none, Snackbar.LENGTH_LONG).show(); return }
+        // Build the whole history off to the side first; a weird PGN must never crash the app.
+        val fens = ArrayList<String>().apply { add(game.startFen) }
+        val froms = ArrayList<Pair<Int, Int>?>().apply { add(null) }
+        try {
+            chessBoard.setFen(game.startFen)
+            for ((i, san) in game.sanMoves.withIndex()) {
+                val mv = resolveSan(san)
+                if (mv == null) {
+                    chessBoard.setFen(currentFen)   // restore the live board; nothing committed yet
+                    Snackbar.make(chessBoard, getString(R.string.import_pgn_failed_fmt, i + 1, san), Snackbar.LENGTH_LONG).show()
+                    return
+                }
+                chessBoard.makeMove(mv.fr, mv.fc, mv.tr, mv.tc, mv.promo)
+                fens.add(chessBoard.getFen())
+                froms.add(mv.fr to mv.fc)
+            }
+            chessBoard.setupMode = false
+            btnSetup.text = getString(R.string.setup_board)
+            vsEngine = false
+            exitAnalysisView()
+            positionHistory.clear(); positionHistory.addAll(fens)
+            moveFromHistory.clear(); moveFromHistory.addAll(froms)
+            currentFen = positionHistory.last()
+            gameOverShown = false
+            enterReviewMode()
+            Snackbar.make(chessBoard, getString(R.string.import_pgn_ok_fmt, game.sanMoves.size), Snackbar.LENGTH_LONG).show()
+        } catch (e: Exception) {
+            Log.e("PgnImport", "import failed", e)
+            resetHistory(currentFen)
+            chessBoard.setFen(currentFen)
+            Snackbar.make(chessBoard, R.string.import_pgn_error, Snackbar.LENGTH_LONG).show()
+        }
+    }
+
+    private data class SanMove(val fr: Int, val fc: Int, val tr: Int, val tc: Int, val promo: Char?)
+
+    /** Resolve one SAN token against the board's CURRENT state (side to move, legal moves, en passant). */
+    private fun resolveSan(sanRaw: String): SanMove? {
+        val white = chessBoard.sideToMove == 'w'
+        var san = sanRaw.trim().trimEnd('+', '#', '!', '?')
+        if (san.isEmpty()) return null
+        // Castling: O-O / O-O-O (also 0-0). King is on the e-file, moves two squares.
+        if (san == "O-O" || san == "0-0" || san == "O-O-O" || san == "0-0-0") {
+            val r = if (white) 7 else 0
+            if (chessBoard.board[r][4]?.type != 'K') return null
+            val tc = if (san.count { it == 'O' || it == '0' } == 3) 2 else 6
+            return SanMove(r, 4, r, tc, null)
+        }
+        var promo: Char? = null
+        val eq = san.indexOf('=')
+        if (eq >= 0) { promo = san.getOrNull(eq + 1)?.uppercaseChar(); san = san.substring(0, eq) }
+        val pieceType = if (san.isNotEmpty() && san[0] in "KQRBN") san[0] else 'P'
+        var body = (if (pieceType != 'P') san.substring(1) else san).replace("x", "")
+        if (body.length < 2) return null
+        val tcol = body[body.length - 2] - 'a'
+        val trow = 8 - (body[body.length - 1] - '0')
+        if (trow !in 0..7 || tcol !in 0..7) return null
+        val disamb = body.dropLast(2)
+        var dFile: Int? = null; var dRank: Int? = null
+        for (ch in disamb) when (ch) {
+            in 'a'..'h' -> dFile = ch - 'a'
+            in '1'..'8' -> dRank = 8 - (ch - '0')
+        }
+        for (r in 0..7) for (c in 0..7) {
+            val pc = chessBoard.board[r][c] ?: continue
+            if (pc.type != pieceType || pc.isWhite != white) continue
+            if (dFile != null && c != dFile) continue
+            if (dRank != null && r != dRank) continue
+            if (chessBoard.generateLegalMoves(r, c).contains(trow to tcol)) {
+                val pr = if (pieceType == 'P' && (trow == 0 || trow == 7)) (promo ?: 'Q') else null
+                return SanMove(r, c, trow, tcol, pr)
+            }
+        }
+        return null
     }
 
     private fun autoSaveGame() {
@@ -1238,9 +1633,8 @@ class MainActivity : AppCompatActivity() {
         evalChart.onPlySelected = { pos -> stopAutoPlay(); showPosition(pos) }
         countsPanel.visibility = View.VISIBLE
         populateCounts(review)
-        // Auto-step through the game from the start.
+        // Start at move 1; the user steps through manually (no auto-play).
         showPosition(0)
-        startAutoPlay()
     }
 
     /** Leave the analysis view: stop auto-play, hide chart/counts, clear badge, return to review/live. */
@@ -1249,6 +1643,9 @@ class MainActivity : AppCompatActivity() {
         analysisMode = false
         evalChart.visibility = View.GONE
         countsPanel.visibility = View.GONE
+        coachPanel.visibility = View.GONE
+        coachToken++  // cancel any in-flight coach generation
+        coachRunnable?.let { coachHandler.removeCallbacks(it) }
         chessBoard.moveBadge = null
         chessBoard.moveBadgeSquare = null
         chessBoard.moveBadge2 = null
@@ -1407,6 +1804,235 @@ class MainActivity : AppCompatActivity() {
     private fun isMarquantForArrow(cls: MoveClass): Boolean =
         cls != MoveClass.BEST && cls != MoveClass.EXCELLENT && cls != MoveClass.GOOD
 
+    // ── AI Coach Settings ──────────────────────────────────────────────────
+
+    private fun setupAiCoachSection() {
+        val container = findViewById<LinearLayout>(R.id.llAiCoachCards)
+        container.removeAllViews()
+        val d = resources.displayMetrics.density
+        val accent = 0xFF1976D2.toInt()
+        val active = AiCoachManager.getActiveModeRaw(this)
+
+        val selBg = android.util.TypedValue()
+        theme.resolveAttribute(android.R.attr.selectableItemBackground, selBg, true)
+
+        for (mode in listOf(AiCoachMode.GEMMA_1B, AiCoachMode.API_KEY, AiCoachMode.LICHESS)) {
+            val isActive = active == mode
+            val row = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                isClickable = true
+                setBackgroundResource(selBg.resourceId)
+                setPadding((4 * d).toInt(), (10 * d).toInt(), (4 * d).toInt(), (10 * d).toInt())
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+            }
+            val bullet = TextView(this).apply {
+                text = if (isActive) "●" else "○"
+                setTextColor(if (isActive) accent else 0xFF9E9E9E.toInt())
+                textSize = 16f
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply { marginEnd = (10 * d).toInt() }
+            }
+            row.addView(bullet)
+            val col = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            }
+            col.addView(TextView(this).apply {
+                text = aiCoachTitle(mode)
+                textSize = 15f
+                setTextColor(if (isActive) 0xFF212121.toInt() else 0xFF424242.toInt())
+            })
+            val subTv = TextView(this).apply {
+                textSize = 12f
+                text = aiCoachSubline(mode)
+                setTextColor(aiCoachSubColor(mode))
+            }
+            col.addView(subTv)
+            row.addView(col)
+            row.setOnClickListener { onAiCoachBulletClick(mode, subTv) }
+            container.addView(row)
+        }
+    }
+
+    private fun aiCoachTitle(mode: AiCoachMode): String = when (mode) {
+        AiCoachMode.GEMMA_1B -> getString(R.string.ai_coach_gemma_1b_title)
+        AiCoachMode.API_KEY -> getString(R.string.ai_coach_api_title)
+        AiCoachMode.LICHESS -> getString(R.string.ai_coach_lichess_title)
+        else -> ""
+    }
+
+    private fun aiCoachSubline(mode: AiCoachMode): String = when (mode) {
+        AiCoachMode.GEMMA_1B ->
+            if (AiCoachManager.isModelDownloaded(this, mode)) getString(R.string.ai_coach_installed)
+            else getString(R.string.ai_coach_gemma_1b_desc)
+        AiCoachMode.API_KEY -> getString(R.string.ai_coach_api_desc)
+        AiCoachMode.LICHESS -> getString(R.string.ai_coach_lichess_desc)
+        else -> ""
+    }
+
+    private fun aiCoachSubColor(mode: AiCoachMode): Int =
+        if (mode == AiCoachMode.GEMMA_1B && AiCoachManager.isModelDownloaded(this, mode))
+            0xFF4CAF50.toInt() else 0xFF9E9E9E.toInt()
+
+    private fun onAiCoachBulletClick(mode: AiCoachMode, subTv: TextView) {
+        when (mode) {
+            AiCoachMode.GEMMA_1B -> when {
+                gemmaDownloading -> Snackbar.make(subTv, "Download already in progress", Snackbar.LENGTH_SHORT).show()
+                AiCoachManager.isModelDownloaded(this, mode) -> selectAiCoachMode(mode)
+                else -> showGemmaDownloadDialog(mode, subTv)
+            }
+            AiCoachMode.API_KEY -> showApiKeyDialog()  // re-opens for an active entry too (change key)
+            AiCoachMode.LICHESS -> selectAiCoachMode(mode)
+            else -> {}
+        }
+    }
+
+    private fun selectAiCoachMode(mode: AiCoachMode) {
+        AiCoachManager.setActiveMode(this, mode)
+        setupAiCoachSection()
+        if (mode == AiCoachMode.GEMMA_1B) {
+            lifecycleScope.launch(Dispatchers.IO) { AiCoachManager.ensureModelLoaded(this@MainActivity) }
+        }
+    }
+
+    private fun showGemmaDownloadDialog(mode: AiCoachMode, subTv: TextView) {
+        val info = AiCoachManager.getModelInfo(mode) ?: return
+        val title = aiCoachTitle(mode)
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.ai_coach_download_dialog_title, title))
+            .setMessage(getString(R.string.ai_coach_download_dialog_msg, title, info.expectedSizeMb.toString()))
+            .setPositiveButton(R.string.ai_coach_download_dialog_download) { dlg, _ ->
+                dlg.dismiss(); startGemmaDownload(mode, subTv)
+            }
+            .setNegativeButton(R.string.ai_coach_download_dialog_cancel, null)
+            .show()
+    }
+
+    private fun startGemmaDownload(mode: AiCoachMode, subTv: TextView) {
+        gemmaDownloading = true
+        subTv.setTextColor(0xFF1976D2.toInt())
+        subTv.text = getString(R.string.ai_coach_downloading_fmt, 0)
+        lifecycleScope.launch {
+            try {
+                AiCoachManager.downloadModel(this@MainActivity, mode) { pct ->
+                    runOnUiThread { subTv.text = getString(R.string.ai_coach_downloading_fmt, pct) }
+                }
+                runOnUiThread {
+                    gemmaDownloading = false
+                    AiCoachManager.setActiveMode(this@MainActivity, mode)
+                    setupAiCoachSection()
+                    Snackbar.make(subTv, R.string.ai_coach_download_complete, Snackbar.LENGTH_LONG).show()
+                    lifecycleScope.launch(Dispatchers.IO) { AiCoachManager.ensureModelLoaded(this@MainActivity) }
+                }
+            } catch (e: Exception) {
+                runOnUiThread {
+                    gemmaDownloading = false
+                    setupAiCoachSection()
+                    Snackbar.make(subTv, "Download failed: ${e.message}", Snackbar.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    /** Provider + Base-URL + Model + Key dialog (covers OpenAI/OpenRouter/Claude and self-hosted LM Studio). */
+    private fun showApiKeyDialog() {
+        val d = resources.displayMetrics.density
+        val pad = (16 * d).toInt()
+        val root = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(pad, (8 * d).toInt(), pad, 0)
+        }
+        val spinner = Spinner(this).apply {
+            adapter = ArrayAdapter(this@MainActivity, android.R.layout.simple_spinner_dropdown_item,
+                ApiProvider.entries.map { it.label })
+            setSelection(ApiProvider.entries.indexOf(AiCoachManager.getApiProvider(this@MainActivity)))
+        }
+        root.addView(spinner)
+
+        fun field(hintRes: Int, value: String, password: Boolean) = EditText(this).apply {
+            hint = getString(hintRes)
+            setText(value)
+            inputType = if (password) InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                        else InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_URI
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { topMargin = (8 * d).toInt() }
+        }
+        val baseField = field(R.string.ai_coach_api_base_hint, AiCoachManager.getApiBaseUrl(this), false)
+        val modelField = field(R.string.ai_coach_api_model_hint, AiCoachManager.getApiModel(this), false)
+        val keyField = field(R.string.ai_coach_api_hint, AiCoachManager.getApiKey(this), true)
+        root.addView(baseField); root.addView(modelField); root.addView(keyField)
+
+        // Per-provider worked example (LM Studio note: use the PC's LAN IP, not localhost).
+        val exampleTv = TextView(this).apply {
+            textSize = 11f
+            setTextColor(0xFF9E9E9E.toInt())
+            typeface = android.graphics.Typeface.MONOSPACE
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { topMargin = (10 * d).toInt() }
+        }
+        root.addView(exampleTv)
+
+        fun renderExample(prov: ApiProvider) {
+            val keyHint = if (prov == ApiProvider.CUSTOM) getString(R.string.ai_coach_api_key_lmstudio)
+                          else getString(R.string.ai_coach_api_key_secret)
+            val base = if (prov == ApiProvider.CUSTOM) "http://YOUR_IP_HERE:1234/v1" else prov.defaultBaseUrl
+            val model = if (prov == ApiProvider.CUSTOM) "qwen2.5-7b-instruct" else prov.defaultModel
+            exampleTv.text = getString(R.string.ai_coach_api_example_fmt, prov.label, base, model, keyHint)
+        }
+        renderExample(AiCoachManager.getApiProvider(this))
+
+        var first = true
+        spinner.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(p: android.widget.AdapterView<*>?, v: View?, pos: Int, id: Long) {
+                val prov = ApiProvider.entries.getOrNull(pos) ?: return
+                renderExample(prov)
+                if (first) { first = false; return }  // keep saved values on initial bind
+                baseField.setText(prov.defaultBaseUrl)
+                modelField.setText(prov.defaultModel)
+            }
+            override fun onNothingSelected(p: android.widget.AdapterView<*>?) {}
+        }
+
+        fun persist() {
+            val prov = ApiProvider.entries.getOrNull(spinner.selectedItemPosition) ?: ApiProvider.CLAUDE
+            AiCoachManager.setApiProvider(this, prov)
+            AiCoachManager.setApiBaseUrl(this, baseField.text.toString().trim())
+            AiCoachManager.setApiModel(this, modelField.text.toString().trim())
+            AiCoachManager.setApiKey(this, keyField.text.toString().trim())
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle(R.string.ai_coach_api_title)
+            .setView(root)
+            .setPositiveButton(R.string.ai_coach_api_save) { _, _ -> persist(); selectAiCoachMode(AiCoachMode.API_KEY) }
+            .setNeutralButton(R.string.ai_coach_api_test, null)
+            .setNegativeButton(R.string.ai_coach_download_dialog_cancel, null)
+            .show().also { dlg ->
+                // Override neutral so testing doesn't dismiss the dialog.
+                dlg.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
+                    persist()
+                    if (keyField.text.toString().isBlank()) {
+                        Snackbar.make(root, getString(R.string.ai_coach_api_test_fail, "no key"), Snackbar.LENGTH_SHORT).show()
+                        return@setOnClickListener
+                    }
+                    Snackbar.make(root, R.string.ai_coach_api_testing, Snackbar.LENGTH_SHORT).show()
+                    lifecycleScope.launch {
+                        val result = withContext(Dispatchers.IO) { AiCoachManager.apiTest(this@MainActivity) }
+                        Snackbar.make(root,
+                            if (result == "ok") getString(R.string.ai_coach_api_test_success)
+                            else getString(R.string.ai_coach_api_test_fail, result),
+                            Snackbar.LENGTH_LONG).show()
+                    }
+                }
+            }
+    }
+
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         if (drawerLayout.isDrawerOpen(settingsDrawer)) {
@@ -1448,8 +2074,10 @@ class MainActivity : AppCompatActivity() {
         private const val KEY_LIVE_EVAL = "live_eval"
         private const val AUTO_PLAY_MS = 900L
         private const val LIVE_EVAL_DEPTH = 14   // shallow per-move eval for live/what-if badges
+        private const val COACH_DEBOUNCE_MS = 1200L  // wait until paging settles before an LLM/API coach call
         private const val KEY_ANALYSIS_DEPTH = "analysis_depth"
         private const val KEY_ANALYSIS_ARROWS = "show_analysis_arrows"
-        private const val REQ_IMPORT_HISTORY = 1001
+        private const val KEY_AI_COACH_MODE = "ai_coach_mode"
+        private const val REQ_IMPORT_DATA = 1001
     }
 }

@@ -66,6 +66,20 @@
     <string name="export_history">Export</string>
     <string name="import_history">Import</string>
     <string name="import_done">Import complete</string>
+    <string name="import_how_title">Import — how?</string>
+    <string name="import_pgn_manual">Enter PGN manually</string>
+    <string name="import_upload_data">Upload file (PGN / FEN / screenshot)</string>
+    <string name="import_pgn_hint">Paste PGN here…</string>
+    <string name="import_load">Load</string>
+    <string name="import_pgn_none">No moves found in that PGN.</string>
+    <string name="import_pgn_failed_fmt">Move %1$d \"%2$s\" couldn\'t be read — import stopped.</string>
+    <string name="import_pgn_ok_fmt">Imported %1$d moves.</string>
+    <string name="import_pgn_error">Couldn\'t import that PGN.</string>
+    <string name="import_fen_ok">Position imported.</string>
+    <string name="import_read_error">Couldn\'t read that file.</string>
+    <string name="import_screenshot_working">Reading board from image…</string>
+    <string name="import_screenshot_none">No chess board found — crop the image to just the board and retry.</string>
+    <string name="import_screenshot_ok_fmt">Recognized %1$d pieces — check &amp; fix in setup, then \"Play from here\".</string>
 
     <!-- Piece styles -->
     <string name="piece_original">Original</string>
@@ -73,4 +87,73 @@
     <string name="piece_svg">SVG Pieces</string>
     <string name="piece_staunty">Staunty</string>
     <string name="piece_mpchess">MP Chess</string>
+
+    <!-- AI Coach Settings -->
+    <string name="ai_coach">AI Coach</string>
+    <string name="ai_coach_subtitle">Choose how the coach explains your moves</string>
+    <string name="ai_coach_gemma_1b_title">Gemma 3 1B (On-Device)</string>
+    <string name="ai_coach_gemma_1b_badge">Recommended · Runs on almost all devices</string>
+    <string name="ai_coach_gemma_1b_desc">~600 MB Download · ~1.5 GB RAM runtime</string>
+    <string name="ai_coach_gemma_3b_title">Gemma 3 4B (On-Device)</string>
+    <string name="ai_coach_gemma_3b_badge">Best On-Device Quality · Flagships only</string>
+    <string name="ai_coach_gemma_3b_desc">~2.5 GB Download · ~5 GB RAM runtime</string>
+    <string name="ai_coach_gemma_3b_warning">Your device may be underpowered</string>
+    <string name="ai_coach_gemma_3b_tooltip">Recommended from Snapdragon 8 Gen 3 or equivalent with at least 12 GB RAM. Please check your device specifications before choosing this option.</string>
+    <string name="ai_coach_api_title">Custom API Key</string>
+    <string name="ai_coach_api_badge">Best Quality · Minimal Cost</string>
+    <string name="ai_coach_api_desc">No download · No RAM · Internet required</string>
+    <string name="ai_coach_api_get_key">Get API Key →</string>
+    <string name="ai_coach_api_test">Test connection</string>
+    <string name="ai_coach_api_test_success">✓ Connection successful</string>
+    <string name="ai_coach_api_test_fail">Connection failed: %1$s</string>
+    <string name="ai_coach_api_hint">API key / token</string>
+    <string name="ai_coach_api_base_hint">Base URL (e.g. http://YOUR_IP_HERE:1234/v1)</string>
+    <string name="ai_coach_api_model_hint">Model name</string>
+    <string name="ai_coach_api_save">Save</string>
+    <string name="ai_coach_api_testing">Testing connection…</string>
+    <string name="ai_coach_api_example_fmt">Example (%1$s):\nBase URL: %2$s\nModel: %3$s\nKey: %4$s</string>
+    <string name="ai_coach_api_key_lmstudio">any string, or your LM Studio token</string>
+    <string name="ai_coach_api_key_secret">your secret key</string>
+    <string name="ai_coach_lichess_title">Lichess Analysis</string>
+    <string name="ai_coach_lichess_badge">Free · No download</string>
+    <string name="ai_coach_lichess_desc">Externally hosted · No registration required</string>
+    <string name="ai_coach_lichess_info">Lichess Analysis provides technical engine comments without natural language explanations — less coach-like, but reliable and free.</string>
+    <string name="ai_coach_lichess_got_it">Got it</string>
+    <string name="ai_coach_download_dialog_title">Download %1$s</string>
+    <string name="ai_coach_download_dialog_msg">%1$s will be downloaded (~%2$s MB). Make sure you are on Wi-Fi. The model is stored locally, runs fully on-device and is available offline. It loads automatically when the download finishes — no restart needed.</string>
+    <string name="ai_coach_download_dialog_download">Download now</string>
+    <string name="ai_coach_download_dialog_cancel">Cancel</string>
+    <string name="ai_coach_downloading_fmt">Downloading… %1$d%%</string>
+    <string name="ai_coach_installed">✓ Installed</string>
+    <string name="ai_coach_download_complete">Model installed and ready.</string>
+    <string name="ai_coach_fallback_snackbar">Gemma not installed yet — Lichess is used as fallback.</string>
+    <string name="coach_title">AI Coach</string>
+    <string name="coach_thinking">Coach is thinking…</string>
+    <string name="coach_disabled">AI Coach is off — enable it in Settings.</string>
+    <string name="coach_copied">Coach text copied</string>
+    <string name="display_options">Display options</string>
+    <!-- Coach factual comment (localized) -->
+    <string name="coach_white">White</string>
+    <string name="coach_black">Black</string>
+    <string name="coach_better_was_fmt">Better was %1$s (%2$s)</string>
+    <string name="coach_gives_up_fmt"> — gives up %1$s pawns</string>
+    <string name="coach_missed_fmt">Missed: %1$s</string>
+    <string name="mc_brilliant">Brilliant</string>
+    <string name="mc_great">Great</string>
+    <string name="mc_best">Best</string>
+    <string name="mc_excellent">Excellent</string>
+    <string name="mc_good">Good</string>
+    <string name="mc_book">Book</string>
+    <string name="mc_inaccuracy">Inaccuracy</string>
+    <string name="mc_mistake">Mistake</string>
+    <string name="mc_miss">Miss</string>
+    <string name="mc_blunder">Blunder</string>
+    <!-- Tactic descriptions (localized) -->
+    <string name="tactic_check_prefix">Check: </string>
+    <string name="tactic_mate_fmt">Mate in %1$d</string>
+    <string name="tactic_win_queen">Wins a queen</string>
+    <string name="tactic_win_rook">Wins a rook</string>
+    <string name="tactic_win_minor">Wins a minor piece</string>
+    <string name="tactic_win_pawn">Wins a pawn</string>
+    <string name="tactic_missed_cp_fmt">+%1$s pawns</string>
 </resources>

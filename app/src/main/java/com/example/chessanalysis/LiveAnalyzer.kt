@@ -18,6 +18,10 @@ class LiveAnalyzer(
     companion object {
         /** At/above this target ELO we use Stockfish's own strength limit; below it, custom weakening. */
         const val WEAK_ELO_MAX = 1350
+        /** Minimum think time per position for a review/move evaluation (Stockfish "give a verdict" budget). */
+        const val EVAL_MOVETIME_MS = 500L
+        /** Time the engine spends picking an opponent move (was 1000ms; +30% per request). */
+        const val MOVE_MOVETIME_MS = 1300L
     }
 
     @Volatile private var targetFen: String? = null
@@ -32,7 +36,7 @@ class LiveAnalyzer(
     )
 
     private class ReviewReq(
-        val fens: List<String>, val depth: Int, val multiPv: Int,
+        val fens: List<String>, val depth: Int, val multiPv: Int, val movetimeMs: Long,
         val onProgress: (Int, Int) -> Unit, val onDone: (List<List<PvLine>>) -> Unit
     )
 
@@ -43,10 +47,10 @@ class LiveAnalyzer(
      * Callbacks fire on the worker thread; marshal to UI yourself.
      */
     fun evaluatePositions(
-        fens: List<String>, depth: Int = 16, multiPv: Int = 2,
+        fens: List<String>, depth: Int = 16, multiPv: Int = 2, movetimeMs: Long = EVAL_MOVETIME_MS,
         onProgress: (Int, Int) -> Unit = { _, _ -> }, onDone: (List<List<PvLine>>) -> Unit
     ) {
-        reviewReq = ReviewReq(fens, depth, multiPv, onProgress, onDone)
+        reviewReq = ReviewReq(fens, depth, multiPv, movetimeMs, onProgress, onDone)
     }
 
     /**
@@ -58,8 +62,8 @@ class LiveAnalyzer(
         moveReq = MoveReq(fen, elo, restoreElo, onResult)
     }
 
-    /** Invoked on the worker thread with the current rank-sorted lines. */
-    var onUpdate: ((List<PvLine>) -> Unit)? = null
+    /** Invoked on the worker thread with the analyzed FEN + its current rank-sorted lines. */
+    var onUpdate: ((String, List<PvLine>) -> Unit)? = null
 
     fun start() {
         if (running) return
@@ -107,7 +111,7 @@ class LiveAnalyzer(
                 for ((idx, fen) in rv.fens.withIndex()) {
                     if (!running) break
                     engine.setPosition(fen)
-                    engine.startSearch(rv.depth)
+                    engine.startSearch(rv.depth, rv.movetimeMs)
                     val bl = TreeMap<Int, PvLine>()
                     while (running) {
                         val resp = engine.getResponse()
@@ -135,7 +139,7 @@ class LiveAnalyzer(
                     engine.setMultiPv(1)
                     engine.setElo(mv.elo)
                     engine.setPosition(mv.fen)
-                    engine.go(movetime = 1000).removePrefix("bestmove").trim().split(" ").firstOrNull()
+                    engine.go(movetime = MOVE_MOVETIME_MS).removePrefix("bestmove").trim().split(" ").firstOrNull()
                 } else {
                     // Below Stockfish's floor: custom weakening (shallow search + blunders).
                     weakMove(mv.fen, mv.elo)
@@ -167,7 +171,7 @@ class LiveAnalyzer(
                     resp.startsWith("bestmove") -> searching = false
                 }
             }
-            if (changed) onUpdate?.invoke(lines.values.toList())
+            if (changed) analyzing?.let { onUpdate?.invoke(it, lines.values.toList()) }
             try { Thread.sleep(if (searching) 30L else 120L) } catch (_: InterruptedException) {}
         }
         if (searching) { engine.stop(); drainUntilBestmove() }

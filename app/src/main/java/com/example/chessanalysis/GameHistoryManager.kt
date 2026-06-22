@@ -112,8 +112,15 @@ object GameHistoryManager {
         val json = input.bufferedReader().use { it.readText() }
         val incoming = JSONArray(json)
         val existing = loadJson(context)
+        val seenIds = HashSet<String>()
+        for (i in 0 until existing.length()) {
+            (existing.optJSONObject(i)?.optString("id"))?.let { if (it.isNotEmpty()) seenIds.add(it) }
+        }
         for (i in 0 until incoming.length()) {
-            existing.put(incoming.get(i))
+            val obj = incoming.optJSONObject(i) ?: continue
+            val id = obj.optString("id")
+            if (id.isNotEmpty() && !seenIds.add(id)) continue  // skip duplicate id
+            existing.put(obj)
         }
         while (existing.length() > MAX_ENTRIES) existing.remove(0)
         file(context).writeText(existing.toString(2))

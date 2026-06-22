@@ -95,6 +95,37 @@
                 android:layout_height="wrap_content" />
         </LinearLayout>
 
+        <!-- AI Coach auto-comment panel (analysis view only) — between board and controls -->
+        <LinearLayout
+            android:id="@+id/coachPanel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="8dp"
+            android:padding="10dp"
+            android:background="#FF333333"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/coach_title"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#FF9E9E9E"
+                android:textAllCaps="true"
+                android:letterSpacing="0.05" />
+
+            <TextView
+                android:id="@+id/tvCoachBody"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textSize="14sp"
+                android:textColor="#FFEEEEEE"
+                android:lineSpacingMultiplier="1.1" />
+        </LinearLayout>
+
         <!-- Position navigation: prev / next / reset-to-live / undo / hint — flush under the board -->
         <LinearLayout
             android:layout_width="match_parent"
@@ -421,6 +452,29 @@
                 </LinearLayout>
             </LinearLayout>
 
+            <!-- Display options (collapsible) — all on/off toggles -->
+            <TextView
+                android:id="@+id/tvTogglesHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:minHeight="40dp"
+                android:gravity="center_vertical"
+                android:text="@string/display_options"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="#757575"
+                android:textAllCaps="true"
+                android:letterSpacing="0.05"
+                android:background="?attr/selectableItemBackground" />
+
+            <LinearLayout
+                android:id="@+id/llToggles"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -531,30 +585,38 @@
                     android:checked="true" />
             </LinearLayout>
 
+            </LinearLayout>
+            <!-- /llToggles -->
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginTop="16dp"
                 android:background="#E0E0E0" />
 
-            <!-- Board theme -->
+            <!-- Board theme (collapsible) -->
             <TextView
+                android:id="@+id/tvBoardThemeHeader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
+                android:minHeight="40dp"
+                android:gravity="center_vertical"
                 android:text="@string/board_theme"
                 android:textSize="13sp"
                 android:textStyle="bold"
                 android:textColor="#757575"
                 android:textAllCaps="true"
-                android:letterSpacing="0.05" />
+                android:letterSpacing="0.05"
+                android:background="?attr/selectableItemBackground" />
 
             <RadioGroup
                 android:id="@+id/rgBoardTheme"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:orientation="vertical" />
+                android:orientation="vertical"
+                android:visibility="gone" />
 
             <View
                 android:layout_width="match_parent"
@@ -562,24 +624,29 @@
                 android:layout_marginTop="16dp"
                 android:background="#E0E0E0" />
 
-            <!-- Pieces -->
+            <!-- Pieces (collapsible) -->
             <TextView
+                android:id="@+id/tvPiecesHeader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
+                android:minHeight="40dp"
+                android:gravity="center_vertical"
                 android:text="@string/pieces"
                 android:textSize="13sp"
                 android:textStyle="bold"
                 android:textColor="#757575"
                 android:textAllCaps="true"
-                android:letterSpacing="0.05" />
+                android:letterSpacing="0.05"
+                android:background="?attr/selectableItemBackground" />
 
             <RadioGroup
                 android:id="@+id/rgPieceStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:orientation="vertical" />
+                android:orientation="vertical"
+                android:visibility="gone" />
 
             <View
                 android:layout_width="match_parent"
@@ -683,6 +750,40 @@
                 android:paddingTop="14dp"
                 android:paddingBottom="14dp"
                 android:thumb="@drawable/seekbar_thumb" />
+
+            <!-- AI Coach -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="16dp"
+                android:background="#E0E0E0" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="AI Coach"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="#757575"
+                android:textAllCaps="true"
+                android:letterSpacing="0.05" />
+
+            <TextView
+                android:id="@+id/tvAiCoachSubtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textSize="12sp"
+                android:textColor="#9E9E9E"
+                android:text="Wähle wie der Coach deine Züge erklärt" />
+
+            <LinearLayout
+                android:id="@+id/llAiCoachCards"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical" />
 
         </LinearLayout>
     </ScrollView>
