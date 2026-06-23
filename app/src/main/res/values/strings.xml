@@ -150,6 +150,7 @@
     <string name="theory_better_move_fmt">better was %1$s</string>
     <string name="coach_title">AI Coach</string>
     <string name="coach_thinking">Coach is thinking…</string>
+    <string name="coach_timeout_snackbar">AI response timed out — showing factual summary instead.</string>
     <string name="coach_disabled">AI Coach is off — enable it in Settings.</string>
     <string name="coach_copied">Coach text copied</string>
     <string name="display_options">Display options</string>

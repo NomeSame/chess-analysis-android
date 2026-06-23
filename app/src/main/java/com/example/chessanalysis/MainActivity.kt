@@ -861,11 +861,29 @@ class MainActivity : AppCompatActivity() {
                 if (token != coachToken) return@Runnable
                 tvCoachBody.text = getString(R.string.coach_thinking)
                 lifecycleScope.launch(Dispatchers.IO) {
-                    val out = (if (wantLlm) LlamaRunner.generate(CoachManager.buildPrompt(ctx, german), maxTokens = 64)
+                    // J3: maxTokens capped at 32 for on-device; API can still use 600.
+                    val out = (if (wantLlm) LlamaRunner.generate(CoachManager.buildPrompt(ctx, german), maxTokens = 32)
                                else AiCoachManager.apiChat(this@MainActivity, system, user, maxTokens = 600))?.trim()
+                    // J5: read timeout + t/s state set by LlamaRunner.generate()
+                    val timedOut = wantLlm && LlamaRunner.lastTimedOut
+                    val tps = if (wantLlm) LlamaRunner.lastTokensPerSec else 0.0
                     withContext(Dispatchers.Main) {
                         if (token == coachToken) {
-                            tvCoachBody.text = if (out.isNullOrBlank()) localizedFactualComment(ctx) else capCoach(out)
+                            if (out.isNullOrBlank() || timedOut) {
+                                // J5: fallback to factual comment on timeout / empty response
+                                tvCoachBody.text = localizedFactualComment(ctx)
+                                if (timedOut) {
+                                    Snackbar.make(
+                                        findViewById(R.id.drawerLayout),
+                                        getString(R.string.coach_timeout_snackbar),
+                                        Snackbar.LENGTH_LONG
+                                    ).show()
+                                }
+                            } else {
+                                // J5: append t/s info when available
+                                val tpsLabel = if (tps > 0.0) " [%.1f t/s]".format(tps) else ""
+                                tvCoachBody.text = capCoach(out) + tpsLabel
+                            }
                         }
                     }
                 }
