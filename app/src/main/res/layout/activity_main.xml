@@ -307,6 +307,14 @@
                 android:layout_marginTop="6dp" />
         </LinearLayout>
 
+        <Button
+            android:id="@+id/btnExportPgn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/export_pgn"
+            android:visibility="gone" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -371,6 +379,13 @@
                 android:layout_marginStart="4dp"
                 android:text="@string/import_history" />
         </LinearLayout>
+
+        <Button
+            android:id="@+id/btnExportPgnHistory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/export_pgn" />
 
         <LinearLayout
             android:id="@+id/lvGameHistory"

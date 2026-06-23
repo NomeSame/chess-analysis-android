@@ -65,6 +65,7 @@
     <string name="game_saved">Game saved to history</string>
     <string name="export_history">Export</string>
     <string name="import_history">Import</string>
+    <string name="export_pgn">Export PGN</string>
     <string name="import_done">Import complete</string>
     <string name="import_how_title">Import — how?</string>
     <string name="import_pgn_manual">Enter PGN manually</string>

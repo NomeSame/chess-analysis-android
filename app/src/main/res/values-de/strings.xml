@@ -65,6 +65,7 @@
     <string name="game_saved">Partie im Verlauf gespeichert</string>
     <string name="export_history">Exportieren</string>
     <string name="import_history">Importieren</string>
+    <string name="export_pgn">PGN exportieren</string>
     <string name="import_done">Import abgeschlossen</string>
     <string name="import_how_title">Importieren — wie?</string>
     <string name="import_pgn_manual">PGN manuell eingeben</string>
