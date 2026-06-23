@@ -89,6 +89,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
     // NOTE: on-device LLM runs via the bundled llama.cpp native runner (GGUF), not MediaPipe.
 }
 

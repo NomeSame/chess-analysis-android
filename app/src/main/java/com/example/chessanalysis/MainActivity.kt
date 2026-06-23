@@ -100,6 +100,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvGameHistoryHeader: TextView
     private lateinit var coachPanel: View
     private lateinit var tvCoachBody: TextView
+    private lateinit var moveListRecycler: androidx.recyclerview.widget.RecyclerView
+    private var moveListAdapter: MoveListAdapter? = null
     private var coachToken = 0
     private val coachHandler = android.os.Handler(android.os.Looper.getMainLooper())
     private var coachRunnable: Runnable? = null
@@ -176,6 +178,9 @@ class MainActivity : AppCompatActivity() {
             true
         }
         // lvGameHistory populated dynamically in refreshGameHistoryList()
+        moveListRecycler = findViewById(R.id.moveListRecycler)
+        moveListRecycler.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(
+            this, androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL, false)
 
         setupSettingsDrawer()
 
@@ -788,6 +793,18 @@ class MainActivity : AppCompatActivity() {
         updateBestMoveArrow()
         if (theoryMode) renderTheoryComment() else requestCoachComment()
         if (analysisMode) evalChart.setMarker(if (exploring) -1 else viewIndex)
+        if (analysisMode && !exploring) {
+            val adapter = moveListAdapter
+            if (adapter != null && index < adapter.itemCount) {
+                val prev = adapter.selectedPosition
+                adapter.selectedPosition = index
+                if (prev != index) {
+                    adapter.notifyItemChanged(prev.coerceIn(0, adapter.itemCount - 1))
+                    adapter.notifyItemChanged(index)
+                }
+                moveListRecycler.smoothScrollToPosition(index.coerceIn(0, adapter.itemCount - 1))
+            }
+        }
     }
 
     /** Show the move-quality badge for the move that produced the viewed position; else clear it. */
@@ -1912,6 +1929,22 @@ class MainActivity : AppCompatActivity() {
         refreshGameHistoryList()
     }
 
+    private fun buildMoveItems(): List<MoveItem> {
+        val review = lastReview ?: return emptyList()
+        val items = mutableListOf<MoveItem>()
+        items.add(MoveItem(0, "Start", positionHistory.size <= 1))
+        for (i in 1 until positionHistory.size) {
+            val moveNum = (i + 1) / 2
+            val isBlack = i % 2 == 0
+            val cls = review.perPly.getOrNull(i - 1)
+            val symbol = cls?.symbol ?: ""
+            val dest = GameReviewer.playedUci(positionHistory[i - 1], positionHistory[i])?.takeLast(2) ?: "?"
+            val prefix = if (!isBlack) "$moveNum." else "…"
+            items.add(MoveItem(i, "$prefix$dest$symbol", i == positionHistory.lastIndex))
+        }
+        return items
+    }
+
     /** Run a full-game review, then show the Chess.com-style analysis view (chart + counts + auto-play). */
     private fun startAnalysis() {
         runGameReview { review ->
@@ -1939,6 +1972,13 @@ class MainActivity : AppCompatActivity() {
         countsPanel.visibility = View.VISIBLE
         populateCounts(review)
         if (::btnExportPgn.isInitialized) btnExportPgn.visibility = View.VISIBLE
+        val items = buildMoveItems()
+        if (items.size > 1) {
+            moveListAdapter = MoveListAdapter(items) { pos -> stopAutoPlay(); showPosition(pos) }
+            moveListRecycler.adapter = moveListAdapter
+            moveListRecycler.visibility = View.VISIBLE
+            moveListRecycler.scrollToPosition(0)
+        }
         // Start at move 1; the user steps through manually (no auto-play).
         showPosition(0)
     }
@@ -1950,6 +1990,8 @@ class MainActivity : AppCompatActivity() {
         evalChart.visibility = View.GONE
         countsPanel.visibility = View.GONE
         if (::btnExportPgn.isInitialized) btnExportPgn.visibility = View.GONE
+        moveListRecycler.visibility = View.GONE
+        moveListAdapter = null
         coachPanel.visibility = View.GONE
         coachToken++  // cancel any in-flight coach generation
         coachRunnable?.let { coachHandler.removeCallbacks(it) }
