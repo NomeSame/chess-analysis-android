@@ -119,9 +119,26 @@ class MainActivity : AppCompatActivity() {
     private lateinit var swAnalysisArrows: SwitchCompat
     private var gemmaDownloading = false
 
+    private var soundPool: android.media.SoundPool? = null
+    private var sndMove = 0; private var sndCapture = 0
+    private var sndCastle = 0; private var sndCheck = 0
+    private var pieceSoundsEnabled = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        try {
+            val attrs = android.media.AudioAttributes.Builder()
+                .setUsage(android.media.AudioAttributes.USAGE_GAME)
+                .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build()
+            soundPool = android.media.SoundPool.Builder().setMaxStreams(4).setAudioAttributes(attrs).build()
+            sndMove    = soundPool!!.load(this, R.raw.move,    1)
+            sndCapture = soundPool!!.load(this, R.raw.capture, 1)
+            sndCastle  = soundPool!!.load(this, R.raw.castle,  1)
+            sndCheck   = soundPool!!.load(this, R.raw.check,   1)
+        } catch (e: Exception) { Log.e("Sound", "SoundPool init failed", e); soundPool = null }
 
         chessBoard = findViewById(R.id.chessBoard)
         tvStatus = findViewById(R.id.tvStatus)
@@ -421,6 +438,15 @@ class MainActivity : AppCompatActivity() {
             prefs.edit().putBoolean(KEY_ANALYSIS_ARROWS, checked).apply()
             if (!checked && ::chessBoard.isInitialized) chessBoard.bestMoveArrow = null
         }
+
+        pieceSoundsEnabled = prefs.getBoolean(KEY_PIECE_SOUNDS, true)
+        val swPieceSounds = findViewById<SwitchCompat>(R.id.swPieceSounds)
+        swPieceSounds.isChecked = pieceSoundsEnabled
+        swPieceSounds.setOnCheckedChangeListener { _, checked ->
+            pieceSoundsEnabled = checked
+            prefs.edit().putBoolean(KEY_PIECE_SOUNDS, checked).apply()
+        }
+
         setupAiCoachSection()
     }
 
@@ -636,6 +662,17 @@ class MainActivity : AppCompatActivity() {
         updateGameStatus()
     }
 
+    private fun playMoveSound(isCapture: Boolean, isCastle: Boolean, isCheck: Boolean) {
+        if (!pieceSoundsEnabled) return
+        val sp = soundPool ?: return
+        val am = getSystemService(AUDIO_SERVICE) as android.media.AudioManager
+        if (am.ringerMode == android.media.AudioManager.RINGER_MODE_SILENT) return
+        try {
+            val snd = when { isCastle -> sndCastle; isCapture -> sndCapture; isCheck -> sndCheck; else -> sndMove }
+            sp.play(snd, 1f, 1f, 0, 0, 1f)
+        } catch (e: Exception) { Log.e("Sound", "play failed", e) }
+    }
+
     /** Record the just-made move (origin [from]) as a new live position and analyze it. */
     private fun commitMove(from: Pair<Int, Int>?) {
         currentFen = chessBoard.getFen()
@@ -645,6 +682,23 @@ class MainActivity : AppCompatActivity() {
         chessBoard.interactionEnabled = true
         chessBoard.hintSquare = null
         chessBoard.lastMoveFrom = from
+        // Play move sound
+        val fenBefore = positionHistory.getOrNull(positionHistory.lastIndex - 1) ?: ""
+        val fenAfter  = positionHistory.last()
+        val piecesBefore = fenBefore.substringBefore(' ').count { it.isLetter() }
+        val piecesAfter  = fenAfter.substringBefore(' ').count { it.isLetter() }
+        val isCaptureDone = piecesAfter < piecesBefore
+        val isCastleDone  = from != null && run {
+            val boardBefore = fenBoard(fenBefore)
+            val movedPiece = boardBefore.getOrNull(from.first * 8 + from.second)
+            if (movedPiece?.uppercaseChar() != 'K') false
+            else {
+                val dest = destSquare(fenBefore, fenAfter)
+                dest != null && kotlin.math.abs(dest.second - from.second) >= 2
+            }
+        }
+        val isCheckNow = chessBoard.isInCheck(chessBoard.sideToMove == 'w')
+        playMoveSound(isCaptureDone, isCastleDone, isCheckNow)
         requestAnalysis()
         if (liveEvalEnabled && positionHistory.size >= 2) {
             // shift current badge to badge2 before clearing for the new move
@@ -2225,6 +2279,7 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         stopAutoPlay()
+        soundPool?.release(); soundPool = null
         // Keep the engine alive across a config-change recreate (language swap); tear down only on real exit.
         if (isFinishing) {
             analyzer.onUpdate = null
@@ -2257,6 +2312,7 @@ class MainActivity : AppCompatActivity() {
         private const val KEY_ANALYSIS_DEPTH = "analysis_depth"
         private const val KEY_ANALYSIS_ARROWS = "show_analysis_arrows"
         private const val KEY_AI_COACH_MODE = "ai_coach_mode"
+        private const val KEY_PIECE_SOUNDS = "piece_sounds"
         private const val REQ_IMPORT_DATA = 1001
     }
 }

@@ -61,6 +61,7 @@
     <!-- Analysis settings -->
     <string name="analysis_depth">Analysetiefe</string>
     <string name="show_analysis_arrows">Best-Move-Pfeile in Analyse anzeigen</string>
+    <string name="piece_sounds">Figurengeräusche</string>
     <string name="game_history">Partieverlauf</string>
     <string name="game_saved">Partie im Verlauf gespeichert</string>
     <string name="export_history">Exportieren</string>
