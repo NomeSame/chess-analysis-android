@@ -107,6 +107,11 @@ class MainActivity : AppCompatActivity() {
     private val autoPlayHandler = android.os.Handler(android.os.Looper.getMainLooper())
     private var autoPlayRunnable: Runnable? = null
 
+    // PGN export
+    private lateinit var btnExportPgn: Button
+    private lateinit var btnExportPgnHistory: Button
+    private var currentPgnGame: PgnImporter.Game? = null
+
     private val prefs by lazy { getSharedPreferences("settings", Context.MODE_PRIVATE) }
 
     private var analysisDepth = 16
@@ -217,6 +222,10 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.btnExportHistory).setOnClickListener { exportGameHistory() }
         findViewById<Button>(R.id.btnImportHistory).setOnClickListener { showImportChooser() }
+        btnExportPgnHistory = findViewById(R.id.btnExportPgnHistory)
+        btnExportPgnHistory.setOnClickListener { exportCurrentPgn() }
+        btnExportPgn = findViewById(R.id.btnExportPgn)
+        btnExportPgn.setOnClickListener { exportCurrentPgn() }
         findViewById<Button>(R.id.btnLearnTheory).setOnClickListener { showTheoryPicker() }
 
         findViewById<ImageButton>(R.id.btnSettings).setOnClickListener {
@@ -1045,6 +1054,7 @@ class MainActivity : AppCompatActivity() {
         gameOverShown = false
         reviewMode = false
         exploring = false
+        currentPgnGame = null
         explorationLine.clear(); explorationFrom.clear(); explorationClass.clear(); explorationBest.clear()
         if (::evalChart.isInitialized) exitAnalysisView()
         if (::btnReviewAnalyze.isInitialized) btnReviewAnalyze.visibility = View.GONE
@@ -1421,6 +1431,33 @@ class MainActivity : AppCompatActivity() {
         startActivity(Intent.createChooser(intent, getString(R.string.export_history)))
     }
 
+    /** Build a PgnImporter.Game from the current game (imported PGN or reconstructed from positionHistory). */
+    private fun buildExportGame(): PgnImporter.Game {
+        currentPgnGame?.let { return it }
+        val fens = positionHistory.toList()
+        val startFen = fens.firstOrNull() ?: PgnImporter.START_FEN
+        val moves = mutableListOf<String>()
+        for (i in 0 until fens.size - 1) {
+            val uci = GameReviewer.playedUci(fens[i], fens[i + 1])
+            moves.add(uci ?: "?")
+        }
+        return PgnImporter.Game(startFen, moves, emptyMap())
+    }
+
+    /** Share the current game as a PGN text via the system share sheet. */
+    private fun exportCurrentPgn() {
+        try {
+            val pgn = PgnExporter.export(buildExportGame())
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, pgn)
+            }
+            startActivity(Intent.createChooser(intent, getString(R.string.export_pgn)))
+        } catch (e: Exception) {
+            Log.e("PgnExport", "export failed", e)
+        }
+    }
+
     /** Import button → ask HOW: paste PGN by hand, or pick a file (PGN / FEN / history backup / screenshot). */
     private fun showImportChooser() {
         val items = arrayOf(getString(R.string.import_pgn_manual), getString(R.string.import_upload_data))
@@ -1578,6 +1615,7 @@ class MainActivity : AppCompatActivity() {
             moveFromHistory.clear(); moveFromHistory.addAll(froms)
             currentFen = positionHistory.last()
             gameOverShown = false
+            currentPgnGame = game
             enterReviewMode()
             Snackbar.make(chessBoard, getString(R.string.import_pgn_ok_fmt, game.sanMoves.size), Snackbar.LENGTH_LONG).show()
         } catch (e: Exception) {
@@ -1846,6 +1884,7 @@ class MainActivity : AppCompatActivity() {
         evalChart.onPlySelected = { pos -> stopAutoPlay(); showPosition(pos) }
         countsPanel.visibility = View.VISIBLE
         populateCounts(review)
+        if (::btnExportPgn.isInitialized) btnExportPgn.visibility = View.VISIBLE
         // Start at move 1; the user steps through manually (no auto-play).
         showPosition(0)
     }
@@ -1856,6 +1895,7 @@ class MainActivity : AppCompatActivity() {
         analysisMode = false
         evalChart.visibility = View.GONE
         countsPanel.visibility = View.GONE
+        if (::btnExportPgn.isInitialized) btnExportPgn.visibility = View.GONE
         coachPanel.visibility = View.GONE
         coachToken++  // cancel any in-flight coach generation
         coachRunnable?.let { coachHandler.removeCallbacks(it) }

@@ -66,6 +66,7 @@
     <string name="analysis_updated">Analysis updated</string>
     <string name="export_history">Export</string>
     <string name="import_history">Import</string>
+    <string name="export_pgn">Export PGN</string>
     <string name="import_done">Import complete</string>
     <string name="import_how_title">Import — how?</string>
     <string name="import_pgn_manual">Enter PGN manually</string>
