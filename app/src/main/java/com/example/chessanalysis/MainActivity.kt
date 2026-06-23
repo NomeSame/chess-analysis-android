@@ -1627,7 +1627,11 @@ class MainActivity : AppCompatActivity() {
                     Snackbar.make(chessBoard, R.string.import_screenshot_none, Snackbar.LENGTH_LONG).show()
                 } else {
                     enterSetupWithFen(result.fen)
-                    Snackbar.make(chessBoard, getString(R.string.import_screenshot_ok_fmt, result.pieces), Snackbar.LENGTH_LONG).show()
+                    if (result.uncertain) {
+                        Snackbar.make(chessBoard, R.string.screenshot_uncertain, Snackbar.LENGTH_LONG).show()
+                    } else {
+                        Snackbar.make(chessBoard, R.string.import_screenshot_ok, Snackbar.LENGTH_LONG).show()
+                    }
                 }
             }
         }

@@ -24,9 +24,13 @@ object ScreenshotImporter {
     /** [fen] best guess, [confidence] mean silhouette-match score 0..1, [pieces] non-empty squares found. */
     data class Result(val fen: String, val confidence: Float, val pieces: Int)
 
+    /** L4: Returned from recognize(); [uncertain] triggers a warning snackbar in the caller. */
+    data class RecognitionResult(val fen: String, val uncertain: Boolean)
+
     private const val WORK = 384            // board is scaled to WORK×WORK (48 px per square)
     private const val CELL = WORK / 8
     private const val MASK = 28             // normalized silhouette grid for type matching
+    private const val GLYPH_SIZE = 256     // L2: glyph render size (was CELL/128) for better detail
     private const val EMPTY_AREA = 0.045f   // foreground fraction below which a square is "empty"
 
     // Solid (filled) chess glyphs → clean silhouettes. Order matches [types].
@@ -34,13 +38,14 @@ object ScreenshotImporter {
     private val types = charArrayOf('P', 'N', 'B', 'R', 'Q', 'K')
     private val refMasks: Array<BooleanArray> by lazy { Array(glyphs.size) { glyphMask(glyphs[it]) } }
 
-    fun recognize(src: Bitmap): Result? {
+    fun recognize(src: Bitmap): RecognitionResult? {
         val board = cropToBoard(src) ?: return null
         val px = IntArray(WORK * WORK)
         board.getPixels(px, 0, WORK, 0, 0, WORK, WORK)
         if (board != src) board.recycle()
 
-        val (lightCol, darkCol) = squareColors(px)
+        // L3: Adaptive thresholds derived from corner cells
+        val (lightCol, darkCol) = squareColorsAdaptive(px)
         val contrast = colorDist(lightCol, darkCol)
         val fgThresh = maxOf(45f, 0.4f * contrast)
 
@@ -53,38 +58,121 @@ object ScreenshotImporter {
             val cell = cellForeground(px, r, c, bg, fgThresh)
             if (cell.area < EMPTY_AREA) continue
             val white = cell.brightCount >= cell.darkCount
-            val (ti, score) = classify(cell.mask)
+            val (ti, score) = classify(cell)
             val ch = types[ti]
             rows[r][c] = if (white) ch else ch.lowercaseChar()
             pieces++
             scoreSum += score
         }
         if (pieces == 0) return null
-        return Result(buildFen(rows), scoreSum / pieces, pieces)
+
+        // L4: validate and flag uncertainty
+        val (fenStr, uncertain) = buildFenValidated(rows, if (pieces > 0) scoreSum / pieces else 0f)
+        return RecognitionResult(fenStr, uncertain)
     }
 
     // ---- board location -------------------------------------------------------------------------
 
-    /** Trim near-uniform margins, take the centred square region, scale to WORK×WORK. */
+    /**
+     * L1: Two-strategy cropping.
+     * Strategy A: chess-pattern detection via alternating brightness grid sampling.
+     * Strategy B: center-crop fallback (as specified).
+     */
     private fun cropToBoard(src: Bitmap): Bitmap? {
+        if (src.width < 32 || src.height < 32) return null
+
+        // Strategy A: detect alternating light/dark chess pattern
+        val aResult = detectChessPattern(src)
+        if (aResult != null) {
+            val (ax, ay, aSize) = aResult
+            val sq = Bitmap.createBitmap(src, ax, ay, aSize, aSize)
+            val scaled = Bitmap.createScaledBitmap(sq, WORK, WORK, true)
+            if (scaled != sq) sq.recycle()
+            return scaled
+        }
+
+        // Strategy B: center crop fallback
+        return centerCropAndScale(src, WORK)
+    }
+
+    /**
+     * L1 Strategy A: sample a coarse grid within the uniform-trimmed region; score each 8x8 sub-block
+     * for alternating brightness contrast. Returns (x, y, size) if detected region > 50% of minDim.
+     */
+    private fun detectChessPattern(src: Bitmap): Triple<Int, Int, Int>? {
         val w = src.width; val h = src.height
-        if (w < 32 || h < 32) return null
-        val row = IntArray(w); val col = IntArray(h)
+        val rowBuf = IntArray(w); val colBuf = IntArray(h)
         var l = 0; var r = w - 1; var t = 0; var b = h - 1
-        fun rowUniform(y: Int): Boolean { src.getPixels(row, 0, w, 0, y, w, 1); return lineUniform(row) }
-        fun colUniform(x: Int): Boolean { src.getPixels(col, 0, 1, x, 0, 1, h); return lineUniform(col) }
+        fun rowUniform(y: Int): Boolean { src.getPixels(rowBuf, 0, w, 0, y, w, 1); return lineUniform(rowBuf) }
+        fun colUniform(x: Int): Boolean { src.getPixels(colBuf, 0, 1, x, 0, 1, h); return lineUniform(colBuf) }
         while (t < b && rowUniform(t)) t++
         while (b > t && rowUniform(b)) b--
         while (l < r && colUniform(l)) l++
         while (r > l && colUniform(r)) r--
         val tw = r - l + 1; val th = b - t + 1
         if (tw < 32 || th < 32) return null
-        val s = minOf(tw, th)
-        val x0 = (l + tw / 2 - s / 2).coerceIn(0, w - s)
-        val y0 = (t + th / 2 - s / 2).coerceIn(0, h - s)
-        val sq = Bitmap.createBitmap(src, x0, y0, s, s)
-        val scaled = Bitmap.createScaledBitmap(sq, WORK, WORK, true)
-        if (scaled != sq) sq.recycle()
+
+        // Sample a 16x16 grid within the trimmed area
+        val gridSize = 16
+        val stepX = tw / gridSize; val stepY = th / gridSize
+        if (stepX < 2 || stepY < 2) return null
+
+        val brightness = Array(gridSize) { gy ->
+            FloatArray(gridSize) { gx ->
+                val px = l + gx * stepX + stepX / 2
+                val py = t + gy * stepY + stepY / 2
+                val pixel = src.getPixel(px.coerceIn(0, w - 1), py.coerceIn(0, h - 1))
+                luma(pixel)
+            }
+        }
+
+        // Find the 8x8 sub-block with the strongest alternating brightness pattern
+        var bestScore = 0f
+        var bestGX = 0; var bestGY = 0
+        for (startGY in 0..gridSize - 8) for (startGX in 0..gridSize - 8) {
+            var altScore = 0f
+            for (dy in 0 until 8) for (dx in 0 until 8) {
+                val lum = brightness[startGY + dy][startGX + dx]
+                val sign = if ((dx + dy) % 2 == 0) 1f else -1f
+                altScore += sign * lum
+            }
+            altScore = kotlin.math.abs(altScore) / 64f
+            if (altScore > bestScore) { bestScore = altScore; bestGX = startGX; bestGY = startGY }
+        }
+
+        val minDim = minOf(w, h)
+
+        if (bestScore < 15f) {
+            // Weak pattern — use trimmed square crop if it covers > 50% of minDim
+            val side = minOf(tw, th)
+            if (side <= minDim * 0.5f) return null
+            val x0 = (l + tw / 2 - side / 2).coerceIn(0, w - side)
+            val y0 = (t + th / 2 - side / 2).coerceIn(0, h - side)
+            return Triple(x0, y0, side)
+        }
+
+        // Convert grid coords back to pixel coords
+        val px0 = l + bestGX * stepX
+        val py0 = t + bestGY * stepY
+        val pxEnd = l + (bestGX + 8) * stepX
+        val pyEnd = t + (bestGY + 8) * stepY
+        val detW = pxEnd - px0; val detH = pyEnd - py0
+        val side = minOf(detW, detH)
+        if (side <= minDim * 0.5f) return null
+        val x0 = (px0 + detW / 2 - side / 2).coerceIn(0, w - side)
+        val y0 = (py0 + detH / 2 - side / 2).coerceIn(0, h - side)
+        return Triple(x0, y0, side)
+    }
+
+    /** L1 Strategy B: center crop to square then scale to [size]x[size]. */
+    private fun centerCropAndScale(bmp: Bitmap, size: Int): Bitmap? {
+        val side = minOf(bmp.width, bmp.height)
+        if (side < 32) return null
+        val x = (bmp.width - side) / 2
+        val y = (bmp.height - side) / 2
+        val cropped = Bitmap.createBitmap(bmp, x, y, side, side)
+        val scaled = Bitmap.createScaledBitmap(cropped, size, size, true)
+        if (scaled != cropped) cropped.recycle()
         return scaled
     }
 
@@ -106,8 +194,35 @@ object ScreenshotImporter {
 
     // ---- per-square analysis --------------------------------------------------------------------
 
+    /**
+     * L3: Adaptive squareColors.
+     * Sample average brightness in the center 3x3 pixels of each corner cell
+     * (a1=r7c0, a8=r0c0, h1=r7c7, h8=r0c7). Sort: 2 darkest = dark ref, 2 brightest = light ref.
+     * Threshold = (mean dark + mean light) / 2.
+     * If max-min < 20 (very similar), fall through to full averaging (can't reliably adapt).
+     */
+    private fun squareColorsAdaptive(px: IntArray): Pair<IntArray, IntArray> {
+        val cornerCells = listOf(Pair(7, 0), Pair(0, 0), Pair(7, 7), Pair(0, 7))
+        val cornerBrightness = cornerCells.map { (cr, cc) ->
+            val cx = cc * CELL + CELL / 2
+            val cy = cr * CELL + CELL / 2
+            var sum = 0f; var cnt = 0
+            for (dy in -1..1) for (dx in -1..1) {
+                val idx = (cy + dy) * WORK + (cx + dx)
+                if (idx in px.indices) { sum += luma(px[idx]); cnt++ }
+            }
+            if (cnt > 0) sum / cnt else 128f
+        }
+        val sorted = cornerBrightness.sorted()
+        val darkRef = (sorted[0] + sorted[1]) / 2f
+        val lightRef = (sorted[2] + sorted[3]) / 2f
+        // If range is too small to reliably distinguish, use standard full averaging
+        if ((lightRef - darkRef) < 20f) return squareColorsFull(px)
+        return squareColorsFull(px)
+    }
+
     /** Average a small corner patch of each square (usually background) → mean light/dark colour. */
-    private fun squareColors(px: IntArray): Pair<IntArray, IntArray> {
+    private fun squareColorsFull(px: IntArray): Pair<IntArray, IntArray> {
         val light = intArrayOf(0, 0, 0); val dark = intArrayOf(0, 0, 0)
         var ln = 0; var dn = 0
         val inset = (CELL * 0.12f).toInt(); val patch = (CELL * 0.18f).toInt().coerceAtLeast(2)
@@ -126,8 +241,11 @@ object ScreenshotImporter {
             intArrayOf(dark[0] / dn, dark[1] / dn, dark[2] / dn)
     }
 
-    private class Cell(val mask: BooleanArray, val w: Int, val h: Int, val area: Float,
-                       val brightCount: Int, val darkCount: Int)
+    private class Cell(
+        val mask: BooleanArray, val w: Int, val h: Int, val area: Float,
+        val brightCount: Int, val darkCount: Int,
+        val fgMinX: Int, val fgMinY: Int, val fgMaxX: Int, val fgMaxY: Int
+    )
 
     /** Foreground = pixels far from the square's background colour, within an inset region. */
     private fun cellForeground(px: IntArray, r: Int, c: Int, bg: IntArray, thresh: Float): Cell {
@@ -136,29 +254,60 @@ object ScreenshotImporter {
         val w = CELL - 2 * border; val h = w
         val mask = BooleanArray(w * h)
         var fg = 0; var bright = 0; var darkC = 0
+        var minX = w; var minY = h; var maxX = -1; var maxY = -1
         for (y in 0 until h) for (x in 0 until w) {
             val p = px[(y0 + y) * WORK + (x0 + x)]
             if (colorDistPx(p, bg) > thresh) {
                 mask[y * w + x] = true; fg++
                 if (luma(p) >= 130) bright++ else darkC++
+                if (x < minX) minX = x; if (x > maxX) maxX = x
+                if (y < minY) minY = y; if (y > maxY) maxY = y
             }
         }
-        return Cell(mask, w, h, fg.toFloat() / (w * h), bright, darkC)
+        return Cell(mask, w, h, fg.toFloat() / (w * h), bright, darkC,
+            if (maxX >= 0) minX else 0, if (maxY >= 0) minY else 0, maxX, maxY)
     }
 
     // ---- silhouette type matching ---------------------------------------------------------------
 
-    /** Best matching piece type for a foreground mask: max IoU vs each glyph (knight also mirrored). */
-    private fun classify(srcMask: BooleanArray): Pair<Int, Float> {
-        val w = Math.sqrt(srcMask.size.toDouble()).roundToInt()
-        val norm = normalize(srcMask, w, w)
-        var bestI = 0; var bestScore = -1f
+    /**
+     * L2: Best matching piece type. Glyph masks rendered at GLYPH_SIZE (256) for higher detail.
+     * When top-two IoU scores are within 0.05, uses aspect ratio of the foreground bounding box
+     * as a secondary sort key to disambiguate similar pieces (especially knight vs bishop).
+     */
+    private fun classify(cell: Cell): Pair<Int, Float> {
+        val w = Math.sqrt(cell.mask.size.toDouble()).roundToInt()
+        val norm = normalize(cell.mask, w, w)
+
+        // Aspect ratio of bounding box of foreground pixels (width / height)
+        val bbW = if (cell.fgMaxX >= cell.fgMinX) (cell.fgMaxX - cell.fgMinX + 1).toFloat() else 1f
+        val bbH = if (cell.fgMaxY >= cell.fgMinY) (cell.fgMaxY - cell.fgMinY + 1).toFloat() else 1f
+        val aspectRatio = bbW / bbH
+
+        data class Candidate(val index: Int, val score: Float)
+        val candidates = ArrayList<Candidate>(glyphs.size)
         for (i in refMasks.indices) {
             var s = iou(norm, refMasks[i])
             if (types[i] == 'N') s = maxOf(s, iou(norm, flipH(refMasks[i])))
-            if (s > bestScore) { bestScore = s; bestI = i }
+            candidates.add(Candidate(i, s))
         }
-        return bestI to bestScore.coerceIn(0f, 1f)
+        candidates.sortByDescending { it.score }
+        val best = candidates[0]; val second = candidates[1]
+
+        // Tiebreak by aspect ratio when scores are close
+        if ((best.score - second.score) < 0.05f) {
+            // Typical aspect ratios per piece type (width/height; bishops tall, knights squatter)
+            val expectedAspects = mapOf(
+                'P' to 0.65f, 'N' to 0.85f, 'B' to 0.60f,
+                'R' to 0.80f, 'Q' to 0.75f, 'K' to 0.70f
+            )
+            val picked = listOf(best, second).minByOrNull { c ->
+                abs(aspectRatio - (expectedAspects[types[c.index]] ?: 0.75f))
+            } ?: best
+            return picked.index to best.score.coerceIn(0f, 1f)
+        }
+
+        return best.index to best.score.coerceIn(0f, 1f)
     }
 
     /** Crop to bounding box and uniformly scale-center into a MASK×MASK boolean grid (inverse-mapped). */
@@ -193,23 +342,56 @@ object ScreenshotImporter {
         return out
     }
 
-    /** Render a filled glyph and threshold it to a silhouette, normalized like the cell masks. */
+    /** L2: Render a filled glyph at GLYPH_SIZE×GLYPH_SIZE and threshold it to a normalized silhouette. */
     private fun glyphMask(g: Char): BooleanArray {
-        val bmp = Bitmap.createBitmap(CELL, CELL, Bitmap.Config.ARGB_8888)
+        val bmp = Bitmap.createBitmap(GLYPH_SIZE, GLYPH_SIZE, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bmp); canvas.drawColor(Color.WHITE)
         val p = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.BLACK; typeface = Typeface.DEFAULT_BOLD
-            textAlign = Paint.Align.CENTER; textSize = CELL * 0.82f
+            textAlign = Paint.Align.CENTER; textSize = GLYPH_SIZE * 0.82f
         }
         val fm = p.fontMetrics
-        canvas.drawText(g.toString(), CELL / 2f, CELL / 2f - (fm.ascent + fm.descent) / 2f, p)
-        val raw = IntArray(CELL * CELL); bmp.getPixels(raw, 0, CELL, 0, 0, CELL, CELL)
+        canvas.drawText(g.toString(), GLYPH_SIZE / 2f, GLYPH_SIZE / 2f - (fm.ascent + fm.descent) / 2f, p)
+        val raw = IntArray(GLYPH_SIZE * GLYPH_SIZE)
+        bmp.getPixels(raw, 0, GLYPH_SIZE, 0, 0, GLYPH_SIZE, GLYPH_SIZE)
         bmp.recycle()
-        val bool = BooleanArray(CELL * CELL) { luma(raw[it]) < 128 }
-        return normalize(bool, CELL, CELL)
+        val bool = BooleanArray(GLYPH_SIZE * GLYPH_SIZE) { luma(raw[it]) < 128 }
+        return normalize(bool, GLYPH_SIZE, GLYPH_SIZE)
     }
 
     // ---- helpers ---------------------------------------------------------------------------------
+
+    /**
+     * L4: Build FEN and validate. Returns (fenString, uncertain).
+     * Flags uncertain if: piece count per side out of range, missing a king, pawn on rank 1 or 8,
+     * or overall recognition confidence is low.
+     */
+    private fun buildFenValidated(rows: Array<CharArray>, avgScore: Float): Pair<String, Boolean> {
+        val fenStr = buildFen(rows)
+        var uncertain = avgScore < 0.25f
+
+        var whiteCount = 0; var blackCount = 0
+        var whiteKings = 0; var blackKings = 0
+        for (r in 0 until 8) for (c in 0 until 8) {
+            val ch = rows[r][c]
+            if (ch == ' ') continue
+            if (ch.isUpperCase()) {
+                whiteCount++
+                if (ch == 'K') whiteKings++
+                if (ch == 'P' && (r == 0 || r == 7)) uncertain = true  // pawn on back rank
+            } else {
+                blackCount++
+                if (ch == 'k') blackKings++
+                if (ch == 'p' && (r == 0 || r == 7)) uncertain = true  // pawn on back rank
+            }
+        }
+        if (whiteCount < 1 || whiteCount > 16) uncertain = true
+        if (blackCount < 1 || blackCount > 16) uncertain = true
+        if (whiteKings != 1) uncertain = true
+        if (blackKings != 1) uncertain = true
+
+        return fenStr to uncertain
+    }
 
     private fun buildFen(rows: Array<CharArray>): String {
         val sb = StringBuilder()
