@@ -80,6 +80,8 @@
     <string name="import_screenshot_working">Reading board from image…</string>
     <string name="import_screenshot_none">No chess board found — crop the image to just the board and retry.</string>
     <string name="import_screenshot_ok_fmt">Recognized %1$d pieces — check &amp; fix in setup, then \"Play from here\".</string>
+    <string name="import_screenshot_ok">Board imported — check &amp; fix in setup, then \"Play from here\".</string>
+    <string name="screenshot_uncertain">Screenshot recognition uncertain — please verify</string>
 
     <!-- Piece styles -->
     <string name="piece_original">Original</string>

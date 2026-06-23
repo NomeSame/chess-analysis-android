@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(command -v python python3 py)",
+      "Bash(ls /c/Python* /c/Users/Marco/AppData/Local/Programs/Python)",
+      "Bash(where python *)",
+      "Bash(mkdir -p \"/d/Vault/projects/Analysis_App/.simtmp\")",
+      "Bash(cp /tmp/sim.py /tmp/game.pgn \"/d/Vault/projects/Analysis_App/.simtmp/\")"
+    ]
+  }
+}
