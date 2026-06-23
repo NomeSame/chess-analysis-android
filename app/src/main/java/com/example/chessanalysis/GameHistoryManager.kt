@@ -97,6 +97,44 @@ object GameHistoryManager {
         file(context).writeText(keep.toString(2))
     }
 
+    /**
+     * Update an existing game entry by matching on FEN history.
+     * Returns true if a match was found and updated, false if not found (caller should saveGame instead).
+     */
+    fun updateGame(
+        context: Context,
+        fens: List<String>,
+        moveFrom: List<Pair<Int, Int>?>,
+        depth: Int,
+        result: String? = null,
+        accuracy: Map<String, Double>? = null,
+        counts: Map<String, Map<String, Int>>? = null
+    ): Boolean {
+        val arr = loadJson(context)
+        val targetHash = fens.joinToString(",").hashCode()
+        for (i in 0 until arr.length()) {
+            val obj = arr.getJSONObject(i)
+            val existingFens = (0 until obj.getJSONArray("fens").length()).map {
+                obj.getJSONArray("fens").getString(it)
+            }
+            if (existingFens.joinToString(",").hashCode() == targetHash && existingFens == fens) {
+                obj.put("timestamp", System.currentTimeMillis())
+                obj.put("depth", depth)
+                result?.let { obj.put("result", it) }
+                accuracy?.let { obj.put("accuracy", JSONObject(it)) }
+                counts?.let {
+                    val jo = JSONObject()
+                    for ((side, map) in it) jo.put(side, JSONObject(map))
+                    obj.put("counts", jo)
+                }
+                arr.put(i, obj)
+                file(context).writeText(arr.toString(2))
+                return true
+            }
+        }
+        return false
+    }
+
     fun clearAll(context: Context) { file(context).writeText("[]") }
 
     fun exportGames(context: Context): File {

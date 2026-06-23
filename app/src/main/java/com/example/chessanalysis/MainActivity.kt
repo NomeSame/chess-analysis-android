@@ -1754,18 +1754,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun autoSaveGame() {
         if (positionHistory.size < 2) return
-        // Skip if already saved within the last 5 minutes (dedup)
-        val recent = GameHistoryManager.loadAll(this)
-        val fiveMinAgo = System.currentTimeMillis() - 300_000
-        for (r in recent) {
-            if (r.timestamp > fiveMinAgo && r.fens.size == positionHistory.size) {
-                var same = true
-                for (i in positionHistory.indices) {
-                    if (r.fens.getOrNull(i) != positionHistory[i]) { same = false; break }
-                }
-                if (same) return  // already saved
-            }
-        }
         val result = when {
             chessBoard.isCheckmate() -> {
                 val winner = chessBoard.sideToMove != 'w'
@@ -1786,17 +1774,31 @@ class MainActivity : AppCompatActivity() {
             )
         }
         val depth = prefs.getInt("analysis_depth", 16)
-        GameHistoryManager.saveGame(
+        val fens = positionHistory.toList()
+        val moveFrom = moveFromHistory.toList()
+        val updated = GameHistoryManager.updateGame(
             context = this,
-            fens = positionHistory.toList(),
-            moveFrom = moveFromHistory.toList(),
+            fens = fens,
+            moveFrom = moveFrom,
             depth = depth,
             result = result,
             accuracy = accuracy,
             counts = counts
         )
-        // Toast "Game saved"
-        android.widget.Toast.makeText(this, R.string.game_saved, android.widget.Toast.LENGTH_SHORT).show()
+        if (updated) {
+            Snackbar.make(chessBoard, R.string.analysis_updated, Snackbar.LENGTH_SHORT).show()
+        } else {
+            GameHistoryManager.saveGame(
+                context = this,
+                fens = fens,
+                moveFrom = moveFrom,
+                depth = depth,
+                result = result,
+                accuracy = accuracy,
+                counts = counts
+            )
+            android.widget.Toast.makeText(this, R.string.game_saved, android.widget.Toast.LENGTH_SHORT).show()
+        }
         refreshGameHistoryList()
     }
 
