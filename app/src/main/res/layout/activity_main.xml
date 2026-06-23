@@ -319,7 +319,10 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginEnd="4dp"
-                android:text="@string/new_game" />
+                android:text="@string/new_game"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:singleLine="true" />
 
             <Button
                 android:id="@+id/btnSetupMode"
@@ -327,15 +330,23 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginStart="4dp"
-                android:text="@string/setup_board" />
-        </LinearLayout>
+                android:layout_marginEnd="4dp"
+                android:text="@string/setup_board"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:singleLine="true" />
 
-        <Button
-            android:id="@+id/btnLearnTheory"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/learn_theory" />
+            <Button
+                android:id="@+id/btnLearnTheory"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:text="@string/learn_theory"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:singleLine="true" />
+        </LinearLayout>
 
         <!-- Game History (inline list, visible only when entries exist) -->
         <TextView
