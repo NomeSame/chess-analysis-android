@@ -177,6 +177,63 @@ object CoachManager {
         return "<start_of_turn>user\n$content<end_of_turn>\n<start_of_turn>model\n"
     }
 
+    // ---- Theory-aware prompts (Phase K) ----------------------------------------------------------
+
+    /**
+     * Builds a Gemma-chat-template prompt grounded in curated theory facts.
+     * The model is instructed to use only those facts (no hallucination) and answer 1-2 sentences.
+     */
+    fun buildTheoryPrompt(ctx: Ctx, entry: TheoryRepository.Entry, locale: java.util.Locale): String {
+        val german = locale.language == "de"
+        val theory = StringBuilder()
+        theory.append("Opening: ${entry.name}")
+        if (entry.eco.isNotEmpty()) theory.append(" (${entry.eco})")
+        theory.append('\n')
+        if (entry.idea.isNotEmpty())      theory.append("Idea: ${entry.idea}\n")
+        if (entry.whitePlan.isNotEmpty()) theory.append("White plan: ${entry.whitePlan}\n")
+        if (entry.blackPlan.isNotEmpty()) theory.append("Black plan: ${entry.blackPlan}\n")
+        if (entry.trap.isNotEmpty())      theory.append("Trap: ${entry.trap}\n")
+        if (entry.sanMoves.isNotEmpty())  theory.append("Mainline: ${entry.sanMoves.joinToString(" ")}\n")
+
+        val board = parseBoard(ctx.fenBefore)
+        val position = StringBuilder()
+        position.append(boardFacts(board, ctx.moverWhite))
+        if (ctx.bestUci != null)   position.append("Engine best: ${describeMove(board, ctx.bestUci)} (${ctx.bestEval ?: "?"})\n")
+        if (ctx.playedUci != null) position.append("Move played: ${describeMove(board, ctx.playedUci)}\n")
+
+        val systemBlock = if (german)
+            "Du bist ein Schachtrainer. KRITISCH: Nutze NUR die unten angegebenen Fakten. Erfinde keine Figuren, Felder oder Motive. Antworte auf Deutsch."
+        else
+            "You are a chess coach. CRITICAL: use ONLY the facts provided below. Invent no pieces, squares or motifs. Answer in English."
+
+        val question = if (german)
+            "War dieser Zug Teil der Theorie? Welchen Plan empfiehlt die Theorie von hier aus? Gibt es eine Falle zu beachten? Antworte in 1-2 Sätzen, nur basierend auf den gegebenen Fakten."
+        else
+            "Was this move part of the theory? What is the theory's plan from here? Any trap to watch for? Answer in 1-2 sentences using only the provided facts."
+
+        val content = "$systemBlock\n\nTHEORY FACTS:\n${theory.toString().trim()}\n\nPOSITION FACTS:\n${position.toString().trim()}\n\nQuestion: $question"
+        return "<start_of_turn>user\n$content<end_of_turn>\n<start_of_turn>model\n"
+    }
+
+    /**
+     * Deterministic fallback when no LLM is available in theory mode.
+     * Returns a structured summary of the opening's key ideas.
+     */
+    fun buildTheoryFallback(entry: TheoryRepository.Entry, locale: java.util.Locale): String {
+        val german = locale.language == "de"
+        val sb = StringBuilder()
+        sb.append(if (german) "Eröffnung" else "Opening")
+        sb.append(": ${entry.name}")
+        if (entry.eco.isNotEmpty()) sb.append(" (${entry.eco})")
+        if (entry.idea.isNotEmpty())
+            sb.append("\n${if (german) "Idee" else "Idea"}: ${entry.idea}")
+        if (entry.whitePlan.isNotEmpty())
+            sb.append("\n${if (german) "Weiß" else "White"}: ${entry.whitePlan}")
+        if (entry.blackPlan.isNotEmpty())
+            sb.append("\n${if (german) "Schwarz" else "Black"}: ${entry.blackPlan}")
+        return sb.toString()
+    }
+
     private fun isPositive(cls: MoveClass) = cls == MoveClass.BEST || cls == MoveClass.BRILLIANT ||
         cls == MoveClass.GREAT || cls == MoveClass.BOOK || cls == MoveClass.EXCELLENT
 

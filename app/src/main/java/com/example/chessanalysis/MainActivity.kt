@@ -845,8 +845,14 @@ class MainActivity : AppCompatActivity() {
         coachPanel.visibility = View.VISIBLE
         val token = ++coachToken
 
+        val theoryEntry = if (theoryMode) currentTheory else null
+        val locale = resources.configuration.locales.get(0)
+
         // Instant local text first — also the final text for Lichess / unavailable model.
-        tvCoachBody.text = localizedFactualComment(ctx)
+        tvCoachBody.text = if (theoryEntry != null)
+            CoachManager.buildTheoryFallback(theoryEntry, locale)
+        else
+            localizedFactualComment(ctx)
 
         // Cancel any pending generation; only fire after the user pauses on a move (debounce),
         // so rapid paging through many moves does NOT flood the LLM/API queue.
@@ -855,17 +861,28 @@ class MainActivity : AppCompatActivity() {
         val wantApi = mode == AiCoachMode.API_KEY
         if (wantLlm || wantApi) {
             val german = isGerman()
-            val system = CoachManager.systemPrompt(german)
-            val user = CoachManager.buildUser(ctx)
             val r = Runnable {
                 if (token != coachToken) return@Runnable
                 tvCoachBody.text = getString(R.string.coach_thinking)
                 lifecycleScope.launch(Dispatchers.IO) {
-                    val out = (if (wantLlm) LlamaRunner.generate(CoachManager.buildPrompt(ctx, german), maxTokens = 64)
-                               else AiCoachManager.apiChat(this@MainActivity, system, user, maxTokens = 600))?.trim()
+                    val out = when {
+                        wantLlm && theoryEntry != null ->
+                            LlamaRunner.generate(CoachManager.buildTheoryPrompt(ctx, theoryEntry, locale), maxTokens = 96)?.trim()
+                        wantLlm ->
+                            LlamaRunner.generate(CoachManager.buildPrompt(ctx, german), maxTokens = 64)?.trim()
+                        else -> {
+                            val system = CoachManager.systemPrompt(german)
+                            val user = CoachManager.buildUser(ctx)
+                            AiCoachManager.apiChat(this@MainActivity, system, user, maxTokens = 600)?.trim()
+                        }
+                    }
                     withContext(Dispatchers.Main) {
                         if (token == coachToken) {
-                            tvCoachBody.text = if (out.isNullOrBlank()) localizedFactualComment(ctx) else capCoach(out)
+                            tvCoachBody.text = when {
+                                out.isNullOrBlank() && theoryEntry != null -> CoachManager.buildTheoryFallback(theoryEntry, locale)
+                                out.isNullOrBlank() -> localizedFactualComment(ctx)
+                                else -> capCoach(out)
+                            }
                         }
                     }
                 }
