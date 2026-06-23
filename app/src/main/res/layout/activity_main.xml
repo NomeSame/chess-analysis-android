@@ -126,6 +126,18 @@
                 android:lineSpacingMultiplier="1.1" />
         </LinearLayout>
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/moveListRecycler"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="4dp"
+            android:visibility="gone"
+            android:clipToPadding="false"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:requiresFadingEdge="horizontal"
+            android:fadingEdgeLength="16dp" />
+
         <!-- Position navigation: prev / next / reset-to-live / undo / hint — flush under the board -->
         <LinearLayout
             android:layout_width="match_parent"
