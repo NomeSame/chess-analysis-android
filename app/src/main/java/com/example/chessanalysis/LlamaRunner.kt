@@ -43,7 +43,7 @@ object LlamaRunner {
 
     /** Load a GGUF model. Returns true on success. Safe to call when [isAvailable] is false (returns false). */
     @Synchronized
-    fun load(modelPath: String, nCtx: Int = 1024, nThreads: Int = defaultThreads()): Boolean {
+    fun load(modelPath: String, nCtx: Int = 512, nThreads: Int = defaultThreads()): Boolean {
         if (!isAvailable) return false
         if (handle != 0L && loadedModelPath == modelPath) return true
         if (handle != 0L) { nativeFree(handle); handle = 0L; loadedModelPath = null }
@@ -54,13 +54,31 @@ object LlamaRunner {
         return h != 0L
     }
 
-    /** Generate text for [prompt]. Returns null if the runner/model isn't ready. Blocking — call off the UI thread. */
+    // J5: last measured tokens/sec and timeout flag — readable by MainActivity after generate().
+    @Volatile var lastTokensPerSec: Double = 0.0
+        private set
+    @Volatile var lastTimedOut: Boolean = false
+        private set
+
+    /**
+     * Generate text for [prompt]. Returns null if the runner/model isn't ready. Blocking — call off the UI thread.
+     * J3: default maxTokens reduced to 32 (1–2 sentences is enough for a chess coach comment).
+     * J5: strips [TPS:…] / [TIMEOUT] markers from the raw native output and exposes them via
+     * [lastTokensPerSec] / [lastTimedOut].
+     */
     @Synchronized
-    fun generate(prompt: String, maxTokens: Int = 256): String? {
+    fun generate(prompt: String, maxTokens: Int = 32): String? {
         if (!isAvailable || handle == 0L) return null
-        return try { nativeGenerate(handle, prompt, maxTokens) } catch (t: Throwable) {
-            Log.e(TAG, "generate failed", t); null
+        val raw = try { nativeGenerate(handle, prompt, maxTokens) } catch (t: Throwable) {
+            Log.e(TAG, "generate failed", t); return null
         }
+        lastTimedOut = raw.contains("\n[TIMEOUT]")
+        val tpsMatch = Regex("""\[TPS:([\d.]+)\]""").find(raw)
+        lastTokensPerSec = tpsMatch?.groupValues?.get(1)?.toDoubleOrNull() ?: 0.0
+        return raw
+            .replace("\n[TIMEOUT]", "")
+            .replace(Regex("""\n\[TPS:[^\]]+\]"""), "")
+            .trim()
     }
 
     @Synchronized

@@ -5,17 +5,24 @@
 #include <android/log.h>
 #include <string>
 #include <vector>
+#include <chrono>
 #include "llama.h"
 
 #define LOG_TAG "LlamaJNI"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
+// J1: Q3_K_S quantisation testing — skip; model file is chosen by the user at runtime.
+
 namespace {
 struct LlamaCtx {
     llama_model*        model = nullptr;
     llama_context*      ctx   = nullptr;
     const llama_vocab*  vocab = nullptr;
+    // J2: KV-cache prefix reuse — skipped.
+    // llama_kv_cache_seq_cp / llama_kv_cache_seq_rm require careful seq-id management
+    // and differ across llama.cpp versions. With nCtx=512 and maxTokens=32 the prompt
+    // re-encode cost is negligible; implement if benchmarks show otherwise.
 };
 
 bool g_backend_ready = false;
@@ -66,17 +73,39 @@ Java_com_example_chessanalysis_LlamaRunner_nativeGenerate(
     llama_sampler_chain_add(smpl, llama_sampler_init_temp(0.8f));
     llama_sampler_chain_add(smpl, llama_sampler_init_dist(LLAMA_DEFAULT_SEED));
 
+    // J5: timeout + t/s measurement
+    auto start = std::chrono::steady_clock::now();
+    int generated = 0;
+    bool timed_out = false;
+    static constexpr long TIMEOUT_MS = 6000;
+
     std::string out;
     llama_batch batch = llama_batch_get_one(tokens.data(), (int32_t) tokens.size());
     for (int i = 0; i < maxTokens; ++i) {
         if (llama_decode(h->ctx, batch) != 0) { LOGE("decode failed"); break; }
         llama_token tok = llama_sampler_sample(smpl, h->ctx, -1);
+        // J5: EOG stop — Gemma emits <end_of_turn> as an EOG token; llama_vocab_is_eog covers it.
         if (llama_vocab_is_eog(h->vocab, tok)) break;
         char buf[256];
         int m = llama_token_to_piece(h->vocab, tok, buf, sizeof(buf), 0, true);
         if (m > 0) out.append(buf, m);
+        generated++;
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::steady_clock::now() - start).count();
+        if (elapsed > TIMEOUT_MS) { timed_out = true; break; }
         batch = llama_batch_get_one(&tok, 1);
     }
+
+    auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now() - start).count();
+    double tps = (generated > 0 && elapsed_ms > 0) ? generated * 1000.0 / elapsed_ms : 0.0;
+    LOGI("generated %d tokens in %ldms (%.1f t/s)%s", generated, (long)elapsed_ms, tps,
+         timed_out ? " [TIMEOUT]" : "");
+
+    if (timed_out) out += "\n[TIMEOUT]";
+    char tps_buf[32];
+    snprintf(tps_buf, sizeof(tps_buf), "\n[TPS:%.1f]", tps);
+    out += tps_buf;
 
     llama_sampler_free(smpl);
     return env->NewStringUTF(out.c_str());

@@ -150,6 +150,7 @@
     <string name="theory_better_move_fmt">besser war %1$s</string>
     <string name="coach_title">KI-Coach</string>
     <string name="coach_thinking">Coach denkt nach…</string>
+    <string name="coach_timeout_snackbar">KI-Antwort unvollständig, Fallback verwendet.</string>
     <string name="coach_disabled">KI-Coach ist aus — in den Einstellungen aktivieren.</string>
     <string name="coach_copied">Coach-Text kopiert</string>
     <string name="display_options">Anzeige-Optionen</string>

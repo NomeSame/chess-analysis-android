@@ -869,19 +869,32 @@ class MainActivity : AppCompatActivity() {
                         wantLlm && theoryEntry != null ->
                             LlamaRunner.generate(CoachManager.buildTheoryPrompt(ctx, theoryEntry, locale), maxTokens = 96)?.trim()
                         wantLlm ->
-                            LlamaRunner.generate(CoachManager.buildPrompt(ctx, german), maxTokens = 64)?.trim()
+                            LlamaRunner.generate(CoachManager.buildPrompt(ctx, german), maxTokens = 32)?.trim()
                         else -> {
                             val system = CoachManager.systemPrompt(german)
                             val user = CoachManager.buildUser(ctx)
                             AiCoachManager.apiChat(this@MainActivity, system, user, maxTokens = 600)?.trim()
                         }
                     }
+                    val timedOut = wantLlm && LlamaRunner.lastTimedOut
+                    val tps = if (wantLlm) LlamaRunner.lastTokensPerSec else 0.0
                     withContext(Dispatchers.Main) {
                         if (token == coachToken) {
-                            tvCoachBody.text = when {
-                                out.isNullOrBlank() && theoryEntry != null -> CoachManager.buildTheoryFallback(theoryEntry, locale)
-                                out.isNullOrBlank() -> localizedFactualComment(ctx)
-                                else -> capCoach(out)
+                            when {
+                                (out.isNullOrBlank() || timedOut) && theoryEntry != null -> {
+                                    tvCoachBody.text = CoachManager.buildTheoryFallback(theoryEntry, locale)
+                                    if (timedOut) Snackbar.make(findViewById(R.id.drawerLayout),
+                                        getString(R.string.coach_timeout_snackbar), Snackbar.LENGTH_LONG).show()
+                                }
+                                out.isNullOrBlank() || timedOut -> {
+                                    tvCoachBody.text = localizedFactualComment(ctx)
+                                    if (timedOut) Snackbar.make(findViewById(R.id.drawerLayout),
+                                        getString(R.string.coach_timeout_snackbar), Snackbar.LENGTH_LONG).show()
+                                }
+                                else -> {
+                                    val tpsLabel = if (tps > 0.0) " [%.1f t/s]".format(tps) else ""
+                                    tvCoachBody.text = capCoach(out) + tpsLabel
+                                }
                             }
                         }
                     }
