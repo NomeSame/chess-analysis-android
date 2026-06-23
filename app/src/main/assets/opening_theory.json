@@ -1,0 +1,902 @@
+[
+  {
+    "eco": "C50",
+    "name": "Italian Game",
+    "moves": ["e4","e5","Nf3","Nc6","Bc4"],
+    "idea": "White targets the f7 square and controls the center with a bishop on the long diagonal, aiming for rapid development and kingside pressure.",
+    "whitePlan": "Castle kingside, place pieces actively with d3 or d4, and exploit the f7 weakness.",
+    "blackPlan": "Equalize with ...Nf6 or ...Bc5, then contest the center with ...d6 or ...d5.",
+    "trap": ""
+  },
+  {
+    "eco": "C54",
+    "name": "Giuoco Piano",
+    "moves": ["e4","e5","Nf3","Nc6","Bc4","Bc5","c3"],
+    "idea": "White prepares the d4 pawn push to claim the center while keeping the bishop on c4 pointed at f7.",
+    "whitePlan": "Play d4 to open the center, then activate rooks and dominate with a space advantage.",
+    "blackPlan": "Counter with ...Nf6 and ...d5, or prepare ...d6 and a solid setup to neutralize the center push.",
+    "trap": "If Black plays ...Nxe4 carelessly after d4, the fork trick with d5 and Qd5 wins material."
+  },
+  {
+    "eco": "C51",
+    "name": "Evans Gambit",
+    "moves": ["e4","e5","Nf3","Nc6","Bc4","Bc5","b4"],
+    "idea": "White sacrifices the b4 pawn to deflect Black's bishop and gain a powerful pawn center with c3 and d4.",
+    "whitePlan": "After ...Bxb4 c3 Ba5 d4, launch a rapid central attack and exploit the open lines for the pieces.",
+    "blackPlan": "Accept the gambit and try to consolidate the extra pawn, or decline with ...Bb6 for a solid game.",
+    "trap": "In the accepted variation, ...Nxe4 too early runs into Qd5 forking f7 and the knight."
+  },
+  {
+    "eco": "C55",
+    "name": "Two Knights Defense",
+    "moves": ["e4","e5","Nf3","Nc6","Bc4","Nf6"],
+    "idea": "Black immediately counterattacks e4 with the knight, prioritizing activity over the solid ...Bc5 approach.",
+    "whitePlan": "Play Ng5 to attack f7, forcing complications, or choose the calmer d4 for central control.",
+    "blackPlan": "After Ng5 d5 exd5, play ...Na5 or ...Nd4 to gain counterplay and avoid being overrun.",
+    "trap": "The Fried Liver Attack (Ng5 d5 exd5 Nxf7) sacrifices a piece for a devastating kingside attack if Black is unprepared."
+  },
+  {
+    "eco": "C60",
+    "name": "Ruy Lopez",
+    "moves": ["e4","e5","Nf3","Nc6","Bb5"],
+    "idea": "White pins the knight that defends e5, indirectly pressuring the e5 pawn and fighting for long-term central dominance.",
+    "whitePlan": "Castle kingside, play d4 to challenge the center, and build a space advantage with c3 and a methodical pawn structure.",
+    "blackPlan": "Break the pin with ...a6, then contest the center with ...d5 or maintain tension with ...Nf6 and ...Be7.",
+    "trap": ""
+  },
+  {
+    "eco": "C65",
+    "name": "Ruy Lopez: Berlin Defense",
+    "moves": ["e4","e5","Nf3","Nc6","Bb5","Nf6"],
+    "idea": "Black sidesteps the Morphy Defense and aims to trade off pieces, reaching an endgame where Black's solid structure compensates for the slightly inferior king position.",
+    "whitePlan": "Play Nxe5 and d4, accepting the endgame after ...Nxe5 d4, and use the bishop pair for long-term pressure.",
+    "blackPlan": "After 4.Nxe5 Nd6 5.Bxc6 dxc6, trade queens and enter the Berlin endgame with the goal of exploiting White's pawn structure.",
+    "trap": ""
+  },
+  {
+    "eco": "C78",
+    "name": "Ruy Lopez: Morphy Defense",
+    "moves": ["e4","e5","Nf3","Nc6","Bb5","a6","Ba4"],
+    "idea": "Black expels the bishop with ...a6 to resolve the pin, while White retreats to a4 to keep pressure on the c6 knight.",
+    "whitePlan": "Castle, play Re1, then c3 and d4 to launch the classic Lopez central expansion.",
+    "blackPlan": "Play ...b5 to gain space on the queenside and ...Bb7 to pressurize e4, or choose the Chigorin Defense with ...Na5.",
+    "trap": "The Noah's Ark Trap: after ...b5 Bb3 d5 exd5 c4, Black wins the bishop with ...c4 Bc2 d4 Ne4."
+  },
+  {
+    "eco": "C89",
+    "name": "Ruy Lopez: Marshall Attack",
+    "moves": ["e4","e5","Nf3","Nc6","Bb5","a6","Ba4","Nf6","O-O","Be7","Re1","b5","Bb3","O-O","c3","d5"],
+    "idea": "Black sacrifices a central pawn on move 8 to get a powerful attack with piece activity and kingside threats against the castled White king.",
+    "whitePlan": "Accept the pawn with exd5 Nxd5 Nxe5 Nxe5 Rxe5 and then defend precisely while trying to consolidate the extra material.",
+    "blackPlan": "Generate massive piece activity, typical threats include ...Nxe4, ...Nd3, and a queen invasion to h4 or g4.",
+    "trap": "White playing Rxe4 too early can run into ...Qd6 attacking the rook and threatening ...Qg3 with a mating attack."
+  },
+  {
+    "eco": "C68",
+    "name": "Ruy Lopez: Exchange Variation",
+    "moves": ["e4","e5","Nf3","Nc6","Bb5","a6","Bxc6"],
+    "idea": "White doubles Black's pawns immediately, giving up the bishop pair for a long-term structural advantage and an endgame edge.",
+    "whitePlan": "Exchange all pieces and target the doubled c-pawns in the endgame, especially via d4 and a kingside pawn majority.",
+    "blackPlan": "Use the bishop pair and open f-file for active counterplay, aiming to prove the two bishops outweigh the structural weakness.",
+    "trap": ""
+  },
+  {
+    "eco": "C45",
+    "name": "Scotch Game",
+    "moves": ["e4","e5","Nf3","Nc6","d4"],
+    "idea": "White immediately challenges the center on move 3, seeking to resolve central tension early and open the position for piece activity.",
+    "whitePlan": "After exd4 Nxd4, place the knight actively on d4, then develop with Bc4 or Nb5 targeting d6 and f7.",
+    "blackPlan": "Play ...Bc5 or ...Nf6 to challenge the well-placed d4 knight and seek counterplay in the semi-open position.",
+    "trap": "In the Scotch after ...Nxd4 Qxd4, Black must not play ...Ne5 immediately, as Qxe5+ wins material."
+  },
+  {
+    "eco": "C44",
+    "name": "Scotch Gambit",
+    "moves": ["e4","e5","Nf3","Nc6","d4","exd4","Bc4"],
+    "idea": "Instead of recapturing on d4, White offers rapid development in the Italian style, sacrificing a pawn for open lines and an attacking position.",
+    "whitePlan": "Castle quickly, connect rooks, and launch an attack on f7 using the Bc4 and Nf3 battery, often with Ng5.",
+    "blackPlan": "Hold the extra pawn with ...Nf6 and ...d6, or play actively with ...Bc5 to fight for equality.",
+    "trap": "The Max Lange Attack arises after ...Bc5 c3 Nf6 e5 d5, leading to sharp complications where Black must know the theory."
+  },
+  {
+    "eco": "C25",
+    "name": "Vienna Game",
+    "moves": ["e4","e5","Nc3"],
+    "idea": "White supports the e4 pawn with the knight rather than the standard Nf3, preparing an f4 advance or a transposition to other openings.",
+    "whitePlan": "Play f4 to launch the Vienna Gambit, or develop normally with Bc4 and Nf3 for a solid positional game.",
+    "blackPlan": "Play ...Nf6 to attack e4 immediately, or ...Nc6 for a solid classical setup.",
+    "trap": ""
+  },
+  {
+    "eco": "C26",
+    "name": "Vienna Gambit",
+    "moves": ["e4","e5","Nc3","Nf6","f4"],
+    "idea": "White gambitizes with f4 to gain central space and open the f-file, blending the Vienna Game with King's Gambit-style aggression.",
+    "whitePlan": "After fxe5 Nxe4, play d4 and Nf3 to centralize rapidly and build an attack before Black can consolidate.",
+    "blackPlan": "Accept with ...exf4 and try to hold the pawn with ...d5 and ...g5, or decline with ...d6 for solidity.",
+    "trap": "After ...exf4 e5 Ng8 Nf3 d6 d4 dxe5 Nxe5, Black's development is so poor that White has a dominant attacking position."
+  },
+  {
+    "eco": "C33",
+    "name": "King's Gambit Accepted",
+    "moves": ["e4","e5","f4","exf4"],
+    "idea": "Black accepts the pawn, and White gains a strong pawn center with d4 while Black tries to hold the extra pawn and counterattack.",
+    "whitePlan": "Play d4 and Nf3 to rapidly develop and build central dominance, then use the open f-file for a kingside attack.",
+    "blackPlan": "Hold the f4 pawn with ...g5 (the Classical Defense) or return it for quick development with ...d5 or ...Nf6.",
+    "trap": "After ...g5 h4 g4, the Kieseritzky Gambit Nf3 d6 Nxg4 is extremely dangerous; ...gxf3?? loses immediately to Qxf3."
+  },
+  {
+    "eco": "C30",
+    "name": "King's Gambit Declined",
+    "moves": ["e4","e5","f4","Bc5"],
+    "idea": "Black declines the gambit and counterattacks d4 immediately with the bishop, avoiding the sharp pawn-grabbing complications.",
+    "whitePlan": "Play Nf3 and c3 to support a d4 advance, then use the f-file after fxe5 for active play.",
+    "blackPlan": "Develop solidly with ...d6, ...Nc6, and ...Nf6, keeping the bishop on c5 to restrain d4.",
+    "trap": "If White tries fxe5 too early without preparation, ...Qh4+ wins a pawn and gives Black a strong initiative."
+  },
+  {
+    "eco": "C42",
+    "name": "Petrov's Defense (Russian Game)",
+    "moves": ["e4","e5","Nf3","Nf6"],
+    "idea": "Black mirrors White's knight development and immediately counterattacks e4, aiming for solid equality rather than imbalanced play.",
+    "whitePlan": "Play Nxe5 and then d4 after ...d6 Nf3 Nxe4 d4, seizing the center and pressing for a slight long-term advantage.",
+    "blackPlan": "Equalize with the main line ...d6 Nf3 Nxe4 d4 d5 and maintain a solid, symmetrical structure.",
+    "trap": "After Nxe5, Black must not play ...Nxe4 immediately without first playing ...d6; Qe2! wins the knight."
+  },
+  {
+    "eco": "C41",
+    "name": "Philidor Defense",
+    "moves": ["e4","e5","Nf3","d6"],
+    "idea": "Black solidly supports the e5 pawn with the d-pawn, accepting a slightly cramped but resilient structure.",
+    "whitePlan": "Play d4 to challenge the center and exploit the space advantage, aiming for d5 to cramp Black's position.",
+    "blackPlan": "Play ...Nf6, ...Be7, and ...O-O, then use counterplay with ...c6 and ...d5, or the Hanham Variation with ...Nd7.",
+    "trap": "The Philidor Counter-Gambit (...f5?!) is unsound and after exf5 e4 Ng5 d5 d6, Black gets a losing position."
+  },
+  {
+    "eco": "C47",
+    "name": "Four Knights Game",
+    "moves": ["e4","e5","Nf3","Nc6","Nc3","Nf6"],
+    "idea": "Both sides develop all four knights symmetrically, leading to a solid and classical game where piece coordination is key.",
+    "whitePlan": "Play Bb5 for the Spanish Four Knights, pressuring c6, or Bc4 for the Italian version aiming at f7.",
+    "blackPlan": "Mirror White's development or break symmetry with ...Nd4 or ...Bb4 for the Rubinstein Variation.",
+    "trap": "The Halloween Gambit (Nxe5 Nxe5 d4) sacrifices a knight for aggressive central play, but is objectively dubious with precise Black play."
+  },
+  {
+    "eco": "C46",
+    "name": "Three Knights Game",
+    "moves": ["e4","e5","Nf3","Nc6","Nc3"],
+    "idea": "White develops both knights but delays Nf6, keeping flexible options including the Vienna-style f4 advance.",
+    "whitePlan": "Play Bb5 to transpose to the Four Knights, or choose d4 or f4 for a more direct central or attacking approach.",
+    "blackPlan": "Play ...Nf6 to transpose to the Four Knights, or try ...g6 and ...Bg7 for a Pirc-like setup.",
+    "trap": ""
+  },
+  {
+    "eco": "C23",
+    "name": "Bishop's Opening",
+    "moves": ["e4","e5","Bc4"],
+    "idea": "White develops the bishop immediately to attack f7 and control the center, keeping flexibility before committing the king's knight.",
+    "whitePlan": "Play Nf3 and d4 to transition to the Italian Game or Scotch Gambit, using the c4 bishop as an attacking piece.",
+    "blackPlan": "Play ...Nf6 to counterattack e4, or ...Nc6 and ...Bc5 to enter a classical Italian-style position.",
+    "trap": ""
+  },
+  {
+    "eco": "C44",
+    "name": "Ponziani Opening",
+    "moves": ["e4","e5","Nf3","Nc6","c3"],
+    "idea": "White prepares d4 with c3, aiming for a strong pawn center, but the move is slow and gives Black active counterplay.",
+    "whitePlan": "Push d4 to claim the center, then develop normally aiming for a Ruy Lopez-like structure.",
+    "blackPlan": "Play the aggressive ...f5 or the solid ...Nf6 to gain the initiative against the slow setup.",
+    "trap": "After ...Nf6 d4 Nxe4 d5 Ne7 Nxe5, White wins material due to the fork on c6 or f7 threats."
+  },
+  {
+    "eco": "C22",
+    "name": "Center Game",
+    "moves": ["e4","e5","d4","exd4","Qxd4"],
+    "idea": "White captures on d4 with the queen, gaining an immediate central presence but exposing the queen to tempo-gaining attacks.",
+    "whitePlan": "Develop rapidly with Nc3, Bc4, and Nge2, keeping the queen active in the center while avoiding harassment.",
+    "blackPlan": "Attack the queen with ...Nc6 to gain a tempo, then develop quickly with ...Nf6 and ...Bb4 or ...Bc5.",
+    "trap": "If White plays Qe3 to avoid ...Nc6, Black can play ...Bb4+ Nc3 Nf6 e5 Ng4! with a strong attack."
+  },
+  {
+    "eco": "C21",
+    "name": "Danish Gambit",
+    "moves": ["e4","e5","d4","exd4","c3"],
+    "idea": "White sacrifices two pawns for devastating development and open lines, aiming to overwhelm Black before he can consolidate.",
+    "whitePlan": "After ...dxc3 Bc4 cxb2 Bxb2, develop Nc3 and Nge2, then launch a direct kingside attack with all pieces active.",
+    "blackPlan": "Decline with ...d5 for a solid game, or accept and try to hold the pawns with precise defense.",
+    "trap": "After accepting both pawns, ...Nf6 Nc3 Bb4 Nge2 O-O O-O, Black can often hold but the position requires exact knowledge."
+  },
+  {
+    "eco": "C50",
+    "name": "Hungarian Defense",
+    "moves": ["e4","e5","Nf3","Nc6","Bc4","Be7"],
+    "idea": "Black plays the passive ...Be7 instead of ...Bc5 or ...Nf6, aiming for a solid but somewhat cramped defensive setup.",
+    "whitePlan": "Play d4 to challenge the center aggressively and exploit Black's lack of counterplay, building a large space advantage.",
+    "blackPlan": "Develop solidly with ...Nf6, ...O-O, and ...d6, hoping to hold the position and counterattack later.",
+    "trap": ""
+  },
+  {
+    "eco": "C57",
+    "name": "Italian Game: Fried Liver Attack",
+    "moves": ["e4","e5","Nf3","Nc6","Bc4","Nf6","Ng5","d5","exd5","Nxd5","Nxf7"],
+    "idea": "White sacrifices the knight on f7 to destroy Black's king position, exposing the king to a ferocious attack in the middlegame.",
+    "whitePlan": "After ...Kxf7 Qf3+, bring the queen and bishop to bear on the king, using Nc3 and d4 to add more attackers rapidly.",
+    "blackPlan": "Black must accept the sacrifice and try to survive with ...Ke6 or ...Kg8, returning material to stabilize if possible.",
+    "trap": "After Nxf7 Kxf7 Qf3+ Ke6 Nc3 Nb4 Qe4 c6 a3! Na6, the attack is so strong that most players blunder under pressure."
+  },
+  {
+    "eco": "B20",
+    "name": "Sicilian Defense",
+    "moves": ["e4","c5"],
+    "idea": "Black fights for the center asymmetrically: c5 contests d4 without mirroring White's pawn structure, leading to imbalanced positions where Black can play for a win.",
+    "whitePlan": "Open the center with d4, seize space, and launch a kingside attack.",
+    "blackPlan": "Undermine White's center, create queenside counterplay, and exploit the half-open c-file.",
+    "trap": ""
+  },
+  {
+    "eco": "B90",
+    "name": "Sicilian Defense: Najdorf Variation",
+    "moves": ["e4","c5","Nf3","d6","d4","cxd4","Nxd4","Nf6","Nc3","a6"],
+    "idea": "a6 prevents Nb5 and Bb5+, giving Black maximum flexibility to choose between ...e5, ...e6, or queenside expansion depending on White's setup.",
+    "whitePlan": "Launch a direct kingside attack with f4-f5 or the English Attack (Be3, f3, g4).",
+    "blackPlan": "Expand on the queenside with ...b5-b4, attacking White's center and generating counterplay.",
+    "trap": "If Black plays ...b5 too early without ...Bb7, White can sacrifice on e6 or b5 to open lines against the uncastled king."
+  },
+  {
+    "eco": "B70",
+    "name": "Sicilian Defense: Dragon Variation",
+    "moves": ["e4","c5","Nf3","d6","d4","cxd4","Nxd4","Nf6","Nc3","g6"],
+    "idea": "Black fianchettoes the bishop to g7, creating a powerful long diagonal and a resilient kingside structure suited to endgame and counterattacking play.",
+    "whitePlan": "Castle queenside and launch a mating attack with h4-h5, sacrificing material to break open the h-file.",
+    "blackPlan": "Castle kingside, activate the dragon bishop, and counterattack on the c-file and queenside with ...Rc8 and ...d5.",
+    "trap": "In the Yugoslav Attack, if Black takes the h-pawn carelessly, White's Bxh6 often leads to a devastating mating attack before Black can coordinate."
+  },
+  {
+    "eco": "B34",
+    "name": "Sicilian Defense: Accelerated Dragon",
+    "moves": ["e4","c5","Nf3","Nc6","d4","cxd4","Nxd4","g6"],
+    "idea": "Black fianchettoes immediately without committing to ...d6, keeping the option of ...d5 in one move and avoiding the Yugoslav Attack that plagues the regular Dragon.",
+    "whitePlan": "Play the Maroczy Bind with c4 to clamp down on d5 and restrict Black's counterplay.",
+    "blackPlan": "Break the bind with ...d5 at the right moment or generate queenside pressure with ...a5-a4.",
+    "trap": "If White delays c4, Black can achieve ...d5 immediately, equalizing easily and rendering many White setups ineffective."
+  },
+  {
+    "eco": "B80",
+    "name": "Sicilian Defense: Scheveningen Variation",
+    "moves": ["e4","c5","Nf3","d6","d4","cxd4","Nxd4","Nf6","Nc3","e6"],
+    "idea": "Black builds a solid small center with ...e6 and ...d6, accepting a space disadvantage in exchange for a very solid structure and flexible piece development.",
+    "whitePlan": "Launch the Keres Attack (g4) or English Attack to build a powerful kingside offensive.",
+    "blackPlan": "Complete development, castle, and counterattack with ...d5 or queenside expansion.",
+    "trap": "The Keres Attack (g4 early) can catch Black off guard if they try to play normally; ...h6 is often punished by g5."
+  },
+  {
+    "eco": "B33",
+    "name": "Sicilian Defense: Sveshnikov Variation",
+    "moves": ["e4","c5","Nf3","Nc6","d4","cxd4","Nxd4","Nf6","Nc3","e5"],
+    "idea": "Black seizes central space with ...e5, driving the knight to b5 and accepting a permanent d5 weakness in exchange for active piece play and the bishop pair.",
+    "whitePlan": "Occupy d5 with a knight, pressure the backward d6 pawn, and exploit the weak d5 outpost.",
+    "blackPlan": "Use the powerful e5 pawn as a space anchor, activate the dark-squared bishop, and create counterplay on the kingside and c-file.",
+    "trap": "If Black plays carelessly, a knight planted on d5 that cannot be easily removed becomes a dominating piece that paralyzes Black's position."
+  },
+  {
+    "eco": "B58",
+    "name": "Sicilian Defense: Classical Variation",
+    "moves": ["e4","c5","Nf3","Nc6","d4","cxd4","Nxd4","Nf6","Nc3","d6"],
+    "idea": "Black develops naturally without early commitments, keeping the position flexible and steering toward a rich middlegame rather than a specific named plan.",
+    "whitePlan": "Play Be2 and castle kingside for a solid approach, or Be3/f3 for an aggressive setup.",
+    "blackPlan": "Complete kingside development, castle, and then decide on queenside expansion or central breaks based on White's setup.",
+    "trap": ""
+  },
+  {
+    "eco": "B46",
+    "name": "Sicilian Defense: Taimanov Variation",
+    "moves": ["e4","c5","Nf3","e6","d4","cxd4","Nxd4","Nc6"],
+    "idea": "Black develops the knight to c6 before committing the bishop, maintaining maximum flexibility and keeping options open for both ...a6 and ...Nge7 setups.",
+    "whitePlan": "Play Nb5 ideas, or build with Be3, Be2, and castle to prepare a central or kingside offensive.",
+    "blackPlan": "Play ...Nge7 or ...Nf6, complete development, and prepare ...d5 or queenside counterplay.",
+    "trap": "If Black plays ...a6 too slowly, White's Nb5 with pressure on d6 can force concessions before Black has consolidated."
+  },
+  {
+    "eco": "B41",
+    "name": "Sicilian Defense: Kan Variation",
+    "moves": ["e4","c5","Nf3","e6","d4","cxd4","Nxd4","a6"],
+    "idea": "The early ...a6 prevents Nb5 and sets up a flexible structure where Black can choose between Taimanov-style play with ...Nc6 or Scheveningen-style with ...d6.",
+    "whitePlan": "Establish central control and prepare a kingside attack, often with f4 and a timely central push.",
+    "blackPlan": "Expand on the queenside with ...b5 and ...Bb7, pressing on the long diagonal and the b-file.",
+    "trap": "If Black plays ...b5 prematurely, White can exploit the weakened queenside with a4, undermining the b5 pawn and gaining space."
+  },
+  {
+    "eco": "B22",
+    "name": "Sicilian Defense: Alapin Variation",
+    "moves": ["e4","c5","c3"],
+    "idea": "White prepares d4 with c3, aiming for a strong pawn center while avoiding the deeply theoretical open Sicilian main lines.",
+    "whitePlan": "Build a solid center with d4, develop naturally, and exploit the space advantage in a positional middlegame.",
+    "blackPlan": "Challenge the center immediately with ...d5 or ...Nf6, or play ...d6 and ...Nf6 for a flexible setup.",
+    "trap": "After 2...Nf6 3.e5 Nd5, if Black is not careful White can build a very strong center and Black's knight can become misplaced."
+  },
+  {
+    "eco": "B23",
+    "name": "Sicilian Defense: Closed Variation",
+    "moves": ["e4","c5","Nc3","Nc6","g3","g6","Bg2","Bg7"],
+    "idea": "White avoids the open Sicilian and builds a solid kingside fianchetto setup, aiming for a slow strategic game rather than sharp tactical battles.",
+    "whitePlan": "Advance f4-f5 to create kingside pressure, or maneuver pieces to support a central d3-d4 break.",
+    "blackPlan": "Expand on the queenside with ...d6, ...e6, and ...b5-b4, making use of the half-open c-file.",
+    "trap": ""
+  },
+  {
+    "eco": "B21",
+    "name": "Sicilian Defense: Smith-Morra Gambit",
+    "moves": ["e4","c5","d4","cxd4","c3","dxc3","Nxc3"],
+    "idea": "White sacrifices a pawn for rapid development, an open c-file, and dangerous attacking chances before Black can fully consolidate.",
+    "whitePlan": "Develop rapidly with Nf3, Bc4, O-O, and attack along the c-file and d5 square before Black finishes development.",
+    "blackPlan": "Return material or consolidate the extra pawn with precise moves like ...d3, and complete development to defuse White's initiative.",
+    "trap": "If Black plays ...e6 and ...d6 passively without returning the pawn or activating pieces, White's rapid development creates overwhelming threats."
+  },
+  {
+    "eco": "B23",
+    "name": "Sicilian Defense: Grand Prix Attack",
+    "moves": ["e4","c5","Nc3","Nc6","f4"],
+    "idea": "White builds an immediate kingside attacking formation with f4, threatening f5 and a quick kingside offensive without the theoretical burden of d4 lines.",
+    "whitePlan": "Play Nf3, Bb5 or Bc4, castle kingside, and launch f4-f5 to crack open Black's kingside.",
+    "blackPlan": "Play ...g6 and ...Bg7 to create a solid defensive setup, or challenge with ...d5 to counter White's space.",
+    "trap": "If Black castles kingside carelessly, the f4-f5 advance can open the f-file for a devastating rook attack."
+  },
+  {
+    "eco": "C00",
+    "name": "French Defense",
+    "moves": ["e4","e6","d4","d5"],
+    "idea": "Black immediately challenges White's center with ...d5, accepting a potentially cramped position in exchange for a solid pawn structure and long-term counterplay.",
+    "whitePlan": "Maintain central tension or advance e5 to gain space, then attack the kingside while Black is cramped.",
+    "blackPlan": "Break with ...c5 to undermine White's d4 pawn and free the light-squared bishop, which is often hemmed in by ...e6.",
+    "trap": ""
+  },
+  {
+    "eco": "C18",
+    "name": "French Defense: Winawer Variation",
+    "moves": ["e4","e6","d4","d5","Nc3","Bb4"],
+    "idea": "Black pins the knight and threatens to double White's pawns on c3, creating a structural imbalance where Black's bishop pair and active play compensate for White's center.",
+    "whitePlan": "Advance e5 to gain space, then use Qg4 ideas and kingside attacks exploiting Black's kingside weaknesses after ...Bxc3+.",
+    "blackPlan": "Double White's pawns with ...Bxc3+, then attack the weakened c3 pawn complex and White's center with ...c5.",
+    "trap": "After Qg4 attacking g7, if Black plays ...Kf8 instead of castling, White's c1 bishop can join the attack with devastating effect."
+  },
+  {
+    "eco": "C07",
+    "name": "French Defense: Tarrasch Variation",
+    "moves": ["e4","e6","d4","d5","Nd2"],
+    "idea": "White avoids doubling pawns by developing the knight to d2 instead of c3, maintaining a solid center and avoiding the complications of the Winawer.",
+    "whitePlan": "Play Ngf3, Bd3, and castle, then build pressure with e5 or exchange on d5 for a favorable endgame.",
+    "blackPlan": "Play ...c5 to challenge White's center and activate the light-squared bishop, aiming for active piece play.",
+    "trap": ""
+  },
+  {
+    "eco": "C02",
+    "name": "French Defense: Advance Variation",
+    "moves": ["e4","e6","d4","d5","e5"],
+    "idea": "White immediately closes the center and gains space, fixing a stronghold on e5 that restricts Black's pieces but gives Black a clear target to undermine.",
+    "whitePlan": "Build on the e5 space advantage with f4, Nf3, and a kingside attack while keeping the center closed.",
+    "blackPlan": "Attack the pawn chain base at d4 with ...c5 and ...Nc6, and activate the light-squared bishop via ...b6 and ...Ba6.",
+    "trap": "If Black plays ...Qb6 early attacking d4, White should not defend with c3 hastily; Nf3 or Be3 are better."
+  },
+  {
+    "eco": "C01",
+    "name": "French Defense: Exchange Variation",
+    "moves": ["e4","e6","d4","d5","exd5","exd5"],
+    "idea": "White exchanges pawns to reach a symmetrical pawn structure, eliminating the typical French tension in exchange for a slightly easier game for Black.",
+    "whitePlan": "Develop actively and exploit the open e-file, aiming for a slight initiative in the symmetrical endgame.",
+    "blackPlan": "Equalize quickly through natural development, as the symmetrical structure reduces White's winning chances significantly.",
+    "trap": ""
+  },
+  {
+    "eco": "C14",
+    "name": "French Defense: Classical Variation",
+    "moves": ["e4","e6","d4","d5","Nc3","Nf6","Bg5"],
+    "idea": "White pins the f6 knight with Bg5, maintaining pressure on d5 and preparing to advance e5, while Black seeks to break the pin and free the light-squared bishop.",
+    "whitePlan": "Play e5 to gain space, then build a kingside attack with Qd2, Bxf6, and f4.",
+    "blackPlan": "Break the pin with ...Be7, then challenge the center with ...c5 and activate the light-squared bishop.",
+    "trap": "If Black plays ...dxe4 prematurely before ...Be7, the undefended f6 knight can be exploited by Bxf6 followed by Nxe4."
+  },
+  {
+    "eco": "B10",
+    "name": "Caro-Kann Defense",
+    "moves": ["e4","c6"],
+    "idea": "Black prepares ...d5 with c6, supporting the center pawn so that after ...d5, the pawn is defended and Black avoids the cramping issues of the French Defense.",
+    "whitePlan": "Build central control with d4, develop actively, and try to exploit any passivity in Black's position.",
+    "blackPlan": "Play ...d5 to challenge the center, then develop the light-squared bishop outside the pawn chain before closing it in.",
+    "trap": ""
+  },
+  {
+    "eco": "B12",
+    "name": "Caro-Kann Defense: Advance Variation",
+    "moves": ["e4","c6","d4","d5","e5"],
+    "idea": "White gains space with e5, but unlike the French, Black's light-squared bishop is already outside the pawn chain after ...c6, giving Black good counterplay.",
+    "whitePlan": "Build on the e5 space with c3, Nf3, and a kingside attack using f4 or Be3.",
+    "blackPlan": "Attack the pawn chain with ...c5 and ...Nc6, or use the free light-squared bishop on f5 to create active counterplay.",
+    "trap": "If Black plays ...Bf5 too early without supporting it, White's g4 can win the bishop or force it to an awkward square."
+  },
+  {
+    "eco": "B18",
+    "name": "Caro-Kann Defense: Classical Variation",
+    "moves": ["e4","c6","d4","d5","Nc3","dxe4","Nxe4","Bf5"],
+    "idea": "Black develops the light-squared bishop to f5 before playing ...e6, solving the main problem of the Caro-Kann and achieving a solid, active position.",
+    "whitePlan": "Play Ng3 to challenge the bishop, then develop with Nf3, Bd3, and castle for a slight space advantage.",
+    "blackPlan": "Complete development with ...e6, ...Nd7, ...Ngf6, and castle, maintaining the solid and active bishop on f5.",
+    "trap": "If Black delays ...e6 and White plays Bd3, a sacrifice Bxh7 can be devastating if Black's king is still on e8."
+  },
+  {
+    "eco": "B13",
+    "name": "Caro-Kann Defense: Panov-Botvinnik Attack",
+    "moves": ["e4","c6","d4","d5","exd5","cxd5","c4"],
+    "idea": "White creates an isolated queen pawn structure with active piece play, seeking dynamic compensation through piece activity rather than pawn structure.",
+    "whitePlan": "Develop rapidly with Nc3, Nf3, and Bf4 or Bg5, using the d5 advance as a dynamic weapon in the middlegame.",
+    "blackPlan": "Blockade the isolated d-pawn with a knight on d5 and trade pieces to reach a favorable endgame.",
+    "trap": "If Black tries to win the d4 pawn immediately without proper blockading pieces, White's active pieces create a dangerous initiative."
+  },
+  {
+    "eco": "B07",
+    "name": "Pirc Defense",
+    "moves": ["e4","d6","d4","Nf6","Nc3","g6"],
+    "idea": "Black allows White to build a large center and then plans to undermine and attack it from the flanks, using the g7 bishop and counterattacking with ...c5 or ...e5.",
+    "whitePlan": "Build a strong center with f4 (Austrian Attack) or develop solidly with Be2 and castle, then expand.",
+    "blackPlan": "Fianchetto the bishop, castle kingside, and counterattack the center with ...c5 or ...e5 at the right moment.",
+    "trap": "In the Austrian Attack, if Black castles kingside without first challenging the center, f5 followed by Rxf6 can shatter Black's king cover."
+  },
+  {
+    "eco": "B06",
+    "name": "Modern Defense",
+    "moves": ["e4","g6","d4","Bg7"],
+    "idea": "Black delays ...d6 and ...Nf6, keeping extra flexibility and allowing the bishop to exert pressure on the center from g7 without committing to a knight on f6.",
+    "whitePlan": "Build a large center with d4 and f4 or c4, and attempt to exploit Black's delayed development with a space advantage.",
+    "blackPlan": "Allow White to overextend, then strike the center with ...c5 or ...d5 when White's pawns become vulnerable.",
+    "trap": "If Black delays too long in challenging the center, White's space advantage can become overwhelming and Black's counterplay may come too late."
+  },
+  {
+    "eco": "B01",
+    "name": "Scandinavian Defense",
+    "moves": ["e4","d5","exd5","Qxd5","Nc3","Qa5"],
+    "idea": "Black immediately challenges White's e4 pawn and develops the queen early, accepting some tempo loss in exchange for rapid piece activity.",
+    "whitePlan": "Develop rapidly with d4, Nf3, and Bc4 or Bd2, gaining time by attacking the queen and building a natural center.",
+    "blackPlan": "Keep the queen active on a5, develop pieces naturally with ...Nf6, ...Bf5, and castle queenside or kingside.",
+    "trap": "If Black retreats the queen passively, White gains a very comfortable lead in development and space without any concessions."
+  },
+  {
+    "eco": "B02",
+    "name": "Alekhine's Defense",
+    "moves": ["e4","Nf6","e5","Nd5","d4","d6","c4","Nb6"],
+    "idea": "Black provocatively invites White to advance pawns and create a large center, then plans to undermine and attack this overextended center rather than contest it directly.",
+    "whitePlan": "Maintain and advance the center with the Four Pawns Attack (f4) or play solidly with c4, Nf3, and Be2.",
+    "blackPlan": "Challenge the overextended pawns with ...dxe5 or ...c5, targeting the d4 and e5 pawns as weaknesses.",
+    "trap": "If Black attacks the center too early before completing development, White can consolidate and the b6 knight becomes passive."
+  },
+  {
+    "eco": "D30",
+    "name": "Queen's Gambit Declined",
+    "moves": ["d4","d5","c4","e6","Nc3","Nf6","Bg5","Be7","e3","O-O","Nf3","Nbd7"],
+    "idea": "Black solidly supports the center with e6 and d5, accepting a slightly cramped position in exchange for a sound pawn structure and long-term counterplay.",
+    "whitePlan": "Exploit the extra space with a minority attack on the queenside (a4-b4-b5) or a central break with e4.",
+    "blackPlan": "Free the game with ...c5 or ...e5 breaks, targeting White's center once pieces are fully developed.",
+    "trap": "Black must not play ...dxc4 carelessly without follow-up, allowing White to establish a broad center with e4."
+  },
+  {
+    "eco": "D20",
+    "name": "Queen's Gambit Accepted",
+    "moves": ["d4","d5","c4","dxc4","Nf3","Nf6","e3","e6","Bxc4","c5"],
+    "idea": "Black accepts the pawn to concede the center temporarily, then fights back with ...c5 to challenge White's d4 pawn and achieve dynamic equality.",
+    "whitePlan": "Regain the pawn and build a central advantage, aiming to use the open c-file and active piece play.",
+    "blackPlan": "Target d4 with ...c5 and ...Nc6, seeking to dissolve White's center and equalize.",
+    "trap": "After 1.d4 d5 2.c4 dxc4 3.Nf3, playing 3...b5 to hold the pawn runs into 4.a4 with strong queenside pressure."
+  },
+  {
+    "eco": "D10",
+    "name": "Slav Defense",
+    "moves": ["d4","d5","c4","c6","Nf3","Nf6","Nc3","dxc4","a4","Bf5","e3","e6"],
+    "idea": "Black supports d5 with c6, keeping the c8-bishop outside the pawn chain before it gets locked in, giving a solid yet active setup.",
+    "whitePlan": "Recover the c4 pawn and build central control, often targeting the b7 square or launching a kingside attack.",
+    "blackPlan": "Develop actively with ...Bf5 and ...e6, then pursue queenside counterplay with ...Bb4 or ...c5.",
+    "trap": "In the Slav Exchange (cxd5 cxd5), Black must avoid ...Nc6 too early allowing Nb5 targeting d6."
+  },
+  {
+    "eco": "D43",
+    "name": "Semi-Slav Defense",
+    "moves": ["d4","d5","c4","c6","Nc3","Nf6","Nf3","e6","Bg5","dxc4"],
+    "idea": "Black combines features of the Slav and QGD, keeping options open for both ...Bf5 and solid e6 setups, often leading to razor-sharp play.",
+    "whitePlan": "Use the pin on f6 to generate tactical complications, often entering the sharp Botvinnik Variation with e4.",
+    "blackPlan": "Hold the c4 pawn and launch queenside counterplay, or enter chaotic positions in the Botvinnik System.",
+    "trap": "The Botvinnik Variation (5.Bg5 dxc4 6.e4 b5 7.e5 h6 8.Bh4 g5) is extremely sharp; Black must know exact theory or face catastrophe."
+  },
+  {
+    "eco": "D32",
+    "name": "QGD Tarrasch Defense",
+    "moves": ["d4","d5","c4","e6","Nc3","c5","cxd5","exd5","Nf3","Nc6","g3"],
+    "idea": "Black accepts an isolated queen's pawn in exchange for active piece play and open lines for the bishops.",
+    "whitePlan": "Blockade the isolated d5 pawn and pressure it with Bg5 and Nf3, aiming to exploit it in the endgame.",
+    "blackPlan": "Use the IQP to generate dynamic piece activity, aiming for a kingside attack or tactics before the endgame.",
+    "trap": "Black must not trade off all attacking pieces early, as the IQP becomes a long-term weakness in simplified positions."
+  },
+  {
+    "eco": "D35",
+    "name": "QGD Exchange Variation",
+    "moves": ["d4","d5","c4","e6","Nc3","Nf6","cxd5","exd5","Bg5","Be7","e3","O-O"],
+    "idea": "White trades on d5 to fix Black's pawn structure and pursue a minority attack with b4-b5, creating a backward pawn on c6.",
+    "whitePlan": "Advance b4-b5 to exchange the b5 pawn for c6, leaving Black with a weak pawn that is hard to defend.",
+    "blackPlan": "Activate the rooks on central files, aim for ...c5 breaks, and seek counterplay through the e-file.",
+    "trap": ""
+  },
+  {
+    "eco": "D02",
+    "name": "London System",
+    "moves": ["d4","d5","Nf3","Nf6","Bf4","e6","e3","Bd6","Bxd6","Qxd6","Nbd2"],
+    "idea": "White builds a solid triangle of e3, d4, c3 with the bishop outside on f4, then develops methodically without weaknesses.",
+    "whitePlan": "Complete development with Bd3, O-O, and c3, then expand with c4 or a kingside pawn advance.",
+    "blackPlan": "Challenge with ...c5 or ...Ne4 to trade the active f4 bishop, reducing White's slight edge.",
+    "trap": "If Black plays ...Nh5 to win the bishop, White can respond Bg3 and follow with Ne5, gaining a strong outpost."
+  },
+  {
+    "eco": "D05",
+    "name": "Colle System",
+    "moves": ["d4","d5","Nf3","Nf6","e3","e6","Bd3","c5","c3","Nc6","Nbd2"],
+    "idea": "White builds a restrained triangle of e3, d4, c3, planning to launch a kingside attack with e4 at the right moment.",
+    "whitePlan": "Prepare and execute the e4 break, often following with e5 to cramp Black's kingside and attack the king.",
+    "blackPlan": "Challenge with ...c5 and ...Nc6 to undermine d4 before White can carry out e4.",
+    "trap": "After e4 dxe4 Nxe4 Nxe4 Bxe4, White often wins material or launches a devastating attack if Black is unprepared."
+  },
+  {
+    "eco": "A46",
+    "name": "Torre Attack",
+    "moves": ["d4","Nf6","Nf3","e6","Bg5","d5","e3","Be7","Nbd2","O-O"],
+    "idea": "White pins the f6 knight early to slow Black's counterplay and maintains flexibility in pawn structure while preparing a solid buildup.",
+    "whitePlan": "Play c3 and Bd3, then either launch the e4 advance or a kingside attack with h4 and Ne5.",
+    "blackPlan": "Unpin with ...h6 and ...Ne4 or ...c5, trading the bishop to relieve the pressure.",
+    "trap": ""
+  },
+  {
+    "eco": "A45",
+    "name": "Trompowsky Attack",
+    "moves": ["d4","Nf6","Bg5","e6","e4","h6","Bxf6","Qxf6","Nc3","d6"],
+    "idea": "White immediately pins and often trades the f6 knight, damaging Black's pawn structure and seizing central space with e4.",
+    "whitePlan": "Exploit the bishop pair and lead with central control via Nf3, Bd3, and O-O, pressuring the doubled pawns.",
+    "blackPlan": "Use the two bishops and active queen to generate compensation, aiming for ...e5 to challenge White's center.",
+    "trap": "After 2...Ne4 3.Bf4 c5 4.f3 Qa5+ 5.c3 Nf6 6.d5, Black's queen is awkwardly placed and White gains space."
+  },
+  {
+    "eco": "E20",
+    "name": "Nimzo-Indian Defense",
+    "moves": ["d4","Nf6","c4","e6","Nc3","Bb4","e3","O-O","Bd3","d5","Nf3","c5"],
+    "idea": "Black pins the c3 knight to prevent e4 and create doubled c-pawns, seeking long-term pressure against White's pawn structure.",
+    "whitePlan": "Resolve the pin favorably, build a strong pawn center with e4, and exploit the bishop pair in open positions.",
+    "blackPlan": "Double White's c-pawns with ...Bxc3, then blockade with ...Ne4 or ...d5 to exploit the structural weakness.",
+    "trap": "The Hübner Variation leads to a complex French-like structure where White must avoid passive play."
+  },
+  {
+    "eco": "E12",
+    "name": "Queen's Indian Defense",
+    "moves": ["d4","Nf6","c4","e6","Nf3","b6","g3","Bb7","Bg2","Be7","O-O","O-O"],
+    "idea": "Black controls e4 indirectly with the b7 bishop fianchetto, avoiding the Nimzo-Indian and maintaining flexibility in pawn structure.",
+    "whitePlan": "Expand in the center with Nc3 and then e4, or play on the queenside with b3 and Bb2 for a battle of fianchettos.",
+    "blackPlan": "Pressure e4 along the long diagonal and look for ...d5 or ...c5 breaks to free the game.",
+    "trap": "After 4.Nc3 Bb4, White must not play 5.Bg5 as 5...h6 6.Bh4 g5 7.Bg3 Ne4 gives Black excellent play."
+  },
+  {
+    "eco": "E60",
+    "name": "King's Indian Defense",
+    "moves": ["d4","Nf6","c4","g6","Nc3","Bg7","e4","d6","Nf3","O-O","Be2","e5"],
+    "idea": "Black allows White to build a broad center, then counterattacks it with ...e5, aiming for fierce kingside play against White's queenside expansion.",
+    "whitePlan": "Close the center with d5 and expand on the queenside with c5, a4-b4, or keep the center fluid for tactical battles.",
+    "blackPlan": "After d5 closes, launch a kingside attack with ...f5-f4, while White advances on the queenside in a classic pawn race.",
+    "trap": "In the Four Pawns Attack, Black must avoid ...Nxe4 without precise calculation as White's central mass can crash through."
+  },
+  {
+    "eco": "D85",
+    "name": "Grünfeld Defense",
+    "moves": ["d4","Nf6","c4","g6","Nc3","d5","cxd5","Nxd5","e4","Nxc3","bxc3","Bg7"],
+    "idea": "Black allows White to build a massive pawn center, then immediately attacks it with pieces from the flanks, especially via the g7 bishop.",
+    "whitePlan": "Defend and advance the d4-e4 center with moves like Bc4, Ne2, and O-O, then convert central space into a winning endgame.",
+    "blackPlan": "Undermine d4 with ...c5 and ...Qa5 or ...Bg4, proving the center is a target rather than a strength.",
+    "trap": "The Russian System (7.Bc4) hides tactical shots that win material if Black plays carelessly."
+  },
+  {
+    "eco": "A43",
+    "name": "Old Benoni",
+    "moves": ["d4","c5","d5","e5","e4","d6","Nc3","Be7","Nf3","Bg4"],
+    "idea": "Black uses ...c5 and ...e5 to fix a space-grabbing wedge in the center, accepting a locked structure for long-term positional pressure.",
+    "whitePlan": "Expand on the queenside with a4 and b4-b5, or maneuver pieces to exploit the d5 outpost and space advantage.",
+    "blackPlan": "Generate kingside counterplay with ...f5 and piece activity, targeting White's queenside pawns once they advance.",
+    "trap": ""
+  },
+  {
+    "eco": "A70",
+    "name": "Modern Benoni",
+    "moves": ["d4","Nf6","c4","c5","d5","e6","Nc3","exd5","cxd5","d6","e4","g6","Nf3","Bg7"],
+    "idea": "Black creates an asymmetric pawn structure with a majority on the queenside vs. White's space, leading to dynamic imbalances.",
+    "whitePlan": "Dominate the central squares with pawns on d5 and e4, advance f4-f5 for kingside attack, and use the d5 outpost.",
+    "blackPlan": "Break with ...b5 or ...e5 and exploit the queenside majority, using the g7 bishop to pressure White's center.",
+    "trap": "The Taimanov Attack (5.f4 d6 6.e5) is very dangerous if Black plays passively; the e-file and d6 weakness can be decisive."
+  },
+  {
+    "eco": "A57",
+    "name": "Benko Gambit",
+    "moves": ["d4","Nf6","c4","c5","d5","b5","cxb5","a6","bxa6","Bxa6","Nc3","d6"],
+    "idea": "Black sacrifices two queenside pawns to permanently open the a- and b-files, generating lasting pressure on White's queenside.",
+    "whitePlan": "Return or keep the extra pawns while consolidating with e4 and defending the queenside with precise piece placement.",
+    "blackPlan": "Use the open a- and b-files with Ra8 and Rb8 to create unrelenting pressure on White's queenside structure.",
+    "trap": "If White plays too slowly after accepting, Black generates overwhelming queenside pressure before White castles."
+  },
+  {
+    "eco": "E00",
+    "name": "Catalan Opening",
+    "moves": ["d4","Nf6","c4","e6","g3","d5","Bg2","Be7","Nf3","O-O","O-O","dxc4"],
+    "idea": "White combines the Queen's Gambit with a kingside fianchetto, using the g2 bishop to press along the long diagonal toward Black's queenside.",
+    "whitePlan": "Recover c4 and exploit the powerful g2 bishop's pressure on d5 and the queenside in the endgame.",
+    "blackPlan": "Hold c4 with ...b5 and ...a6 for counterplay, or return it for free piece activity and a solid position.",
+    "trap": "In the Open Catalan, holding c4 too greedily can leave Black's queenside overextended and weak."
+  },
+  {
+    "eco": "E11",
+    "name": "Bogo-Indian Defense",
+    "moves": ["d4","Nf6","c4","e6","Nf3","Bb4+","Bd2","a5","g3","d5","Bg2","O-O"],
+    "idea": "Black checks on b4 to either exchange on d2 or retreat with ...Be7, avoiding the main Nimzo while getting a solid setup.",
+    "whitePlan": "Expand with b3 or c5, then challenge Black's center once the bishop concedes to Bd2 or after Bxd2+ Qxd2.",
+    "blackPlan": "Use the ...a5 push to prevent White's b4 and maintain the bishop's influence, preparing ...d5 and ...c5 counterplay.",
+    "trap": ""
+  },
+  {
+    "eco": "A80",
+    "name": "Dutch Defense",
+    "moves": ["d4","f5","g3","Nf6","Bg2","e6","Nf3","Be7","O-O","O-O","c4","d6"],
+    "idea": "Black controls e4 with ...f5, aiming for an eventual kingside attack while accepting a slightly weakened kingside pawn structure.",
+    "whitePlan": "Probe with c4 and Nc3, then expand on the queenside or exploit Black's weak e6 and g6 squares.",
+    "blackPlan": "Build a kingside attack with ...Ne4, ...Qe8-h5, or march the g/h pawns, using the f5 pawn as the spearhead.",
+    "trap": "The Staunton Gambit (2.e4 fxe4 3.Nc3) is dangerous; Black must know 3...Nf6 4.Bg5 g6 to avoid trouble."
+  },
+  {
+    "eco": "A81",
+    "name": "Dutch Defense: Leningrad Variation",
+    "moves": ["d4","f5","g3","Nf6","Bg2","g6","Nf3","Bg7","O-O","O-O","c4","d6"],
+    "idea": "Black fianchettos the g7 bishop alongside f5, creating a flexible setup that combines kingside attack with solid long-diagonal pressure.",
+    "whitePlan": "Expand on the queenside with Nc3, b4-b5, and c5, or take advantage of the weakened dark squares around Black's king.",
+    "blackPlan": "Launch a kingside attack with ...Ne4, ...Qe8, and pawn advances, using the g7 bishop to assist from afar.",
+    "trap": "White can play Nh4 to exploit the g6 weakness and target f5; Black must respond accurately or lose the f5 pawn."
+  },
+  {
+    "eco": "A90",
+    "name": "Dutch Defense: Stonewall Variation",
+    "moves": ["d4","f5","c4","Nf6","g3","e6","Bg2","d5","Nf3","c6","O-O","Bd6"],
+    "idea": "Black erects a rigid pawn structure (d5, e6, f5, c6) creating a stonewall, controlling e4 permanently at the cost of the e5 square.",
+    "whitePlan": "Occupy the e5 hole with a knight via Ne5, and pressure Black's position on the queenside with b3 and Ba3.",
+    "blackPlan": "Mount a direct kingside attack with ...Ne4, ...Qe8-h5, and eventually a ...g5 pawn storm.",
+    "trap": "White's knight on e5 combined with Ba3 (trading Black's bishop) is a classic plan that cripples Black if not met with ...b6 and ...Ba6."
+  },
+  {
+    "eco": "A51",
+    "name": "Budapest Gambit",
+    "moves": ["d4","Nf6","c4","e5","dxe5","Ng4","Nf3","Bc5","e3","Nc6","Be2","O-O"],
+    "idea": "Black sacrifices a pawn immediately for rapid development and pressure on e5, targeting the premature pawn advance with piece activity.",
+    "whitePlan": "Consolidate the e5 pawn with careful play, Nf3, and Be2, then return extra material only on favorable terms.",
+    "blackPlan": "Generate fast development pressure on e5 and f2, using the Bc5, Ng4, and Nc6 battery to regain the pawn advantageously.",
+    "trap": "3.e4 is refuted by 3...Nxe4 4.Ne2 Nf6 followed by ...Bc5 with overwhelming pressure on the e5 pawn."
+  },
+  {
+    "eco": "D08",
+    "name": "Albin Countergambit",
+    "moves": ["d4","d5","c4","e5","dxe5","d4","Nf3","Nc6","g3","Be6","Nbd2"],
+    "idea": "Black sacrifices a pawn to plant a supported passed pawn on d4, cramping White's position and seeking fast piece activity.",
+    "whitePlan": "Return the pawn favorably with e3 or Ng5, dissolve the d4 pawn and develop with the bishop pair advantage.",
+    "blackPlan": "Advance ...d3 to force concessions, then exploit the pawn's cramping effect with rapid queenside development.",
+    "trap": "The trap 4.e3?? Bb4+ 5.Bd2 dxe3!! wins material as 6.Bxb4 exf2+ 7.Ke2 fxg1=N+! is devastating."
+  },
+  {
+    "eco": "D07",
+    "name": "Chigorin Defense",
+    "moves": ["d4","d5","c4","Nc6","Nc3","dxc4","Nf3","Nf6","e4","e6","Bxc4"],
+    "idea": "Black develops the c6 knight early, accepting pressure on d5 for dynamic piece play and the option to pressure White's center with ...e5.",
+    "whitePlan": "Exploit the d5 weakness and central space with e4 and active piece play, often winning the d5 square outright.",
+    "blackPlan": "Use dynamic knight activity and the semi-open d-file to create complications and pressure against White's center.",
+    "trap": "Black's premature ...e5 can backfire, leaving White a slight but stable advantage."
+  },
+  {
+    "eco": "D38",
+    "name": "Ragozin Defense",
+    "moves": ["d4","Nf6","c4","e6","Nf3","d5","Nc3","Bb4","Bg5","dxc4","e4","c5"],
+    "idea": "Black pins the c3 knight with ...Bb4 within the QGD framework, combining Nimzo-Indian ideas with Queen's Gambit structures.",
+    "whitePlan": "Resolve the pin with a2-a3 and then build central control, using the bishop pair in an open position.",
+    "blackPlan": "Use ...Bb4 to prevent e4 and create complications similar to the Nimzo-Indian, aiming for active counterplay.",
+    "trap": "5.Qa4+ is a tricky move order where Black must avoid an early ...O-O and ...dxc4 as White's center can become very strong."
+  },
+  {
+    "eco": "E81",
+    "name": "King's Indian: Sämisch Variation",
+    "moves": ["d4","Nf6","c4","g6","Nc3","Bg7","e4","d6","f3","O-O","Be3","e5"],
+    "idea": "White builds the ultimate pawn center with f3, sealing e4 permanently and preparing a g4-h4 kingside storm or central advance.",
+    "whitePlan": "Advance g4-h4-h5 for a direct kingside attack or close with d5 and play on the queenside.",
+    "blackPlan": "Counter with ...c5 (Benoni structure) or ...e5 then ...Nh5 and ...f5, launching a counterstrike before White's attack hits.",
+    "trap": "Black's 6...Nbd7?! allows 7.d5 closing the center, after which White's g4-h4-h5 attack often crashes through."
+  },
+  {
+    "eco": "D63",
+    "name": "Queen's Gambit Declined: Orthodox Defense",
+    "moves": ["d4","d5","c4","e6","Nc3","Nf6","Bg5","Be7","e3","O-O","Nf3","Nbd7","Rc1","c6"],
+    "idea": "Black adopts the classical Orthodox setup with ...Nbd7, keeping the queenside flexible and preparing the standard freeing moves ...dxc4 or ...e5.",
+    "whitePlan": "Execute the minority attack (b4-b5) to create a weakness on c6, or play for central control and kingside pressure.",
+    "blackPlan": "Free the game with ...dxc4 and ...e5, or play ...Ne4 to trade the awkwardly placed g5 bishop.",
+    "trap": "The Cambridge Springs ideas (...Qa5) can trap the g5 bishop after ...Ne4 if White plays Bxe7 Qxc3."
+  },
+  {
+    "eco": "A10",
+    "name": "English Opening",
+    "moves": ["c4"],
+    "idea": "White controls the d5 square and aims for a queenside space advantage while keeping a flexible pawn structure.",
+    "whitePlan": "Expand on the queenside with Nc3, g3, Bg2, and d3 or d4 depending on Black's setup.",
+    "blackPlan": "Mirror with ...c5, stake the center with ...e5 or ...d5, or adopt an Indian setup with ...Nf6 and ...g6.",
+    "trap": ""
+  },
+  {
+    "eco": "A34",
+    "name": "English: Symmetrical Variation",
+    "moves": ["c4","c5","Nf3","Nf6","Nc3","Nc6","g3","g6","Bg2","Bg7"],
+    "idea": "Both sides mirror each other's queenside expansion, leading to rich positional maneuvering where small tempo gains decide the advantage.",
+    "whitePlan": "Play d4 to break the symmetry and seize central space, activating the g2 bishop's long diagonal.",
+    "blackPlan": "Break symmetry with ...d5 or ...e5, or wait for White to overextend before countering.",
+    "trap": ""
+  },
+  {
+    "eco": "A22",
+    "name": "English: Reversed Sicilian",
+    "moves": ["c4","e5","Nc3","Nf6","g3","d5","cxd5","Nxd5"],
+    "idea": "White plays a Sicilian Dragon structure with an extra tempo, aiming for pressure on the d5 square and a kingside fianchetto.",
+    "whitePlan": "Develop with Bg2, Nf3, and O-O, then target the d5 knight and expand with d3-d4.",
+    "blackPlan": "Centralize the knight on d5 and aim for quick piece activity with ...Nc6, ...Be6, and ...c6 to solidify.",
+    "trap": "If Black plays ...Nxc3 too early, White recaptures bxc3 with good central control and the bishop pair."
+  },
+  {
+    "eco": "A28",
+    "name": "English: Four Knights",
+    "moves": ["c4","e5","Nc3","Nf6","Nf3","Nc6","e3"],
+    "idea": "Both sides develop naturally toward the center, leading to a solid positional battle with mutual piece pressure.",
+    "whitePlan": "Castle kingside, play d4 to challenge the center, and use the c-file for queenside pressure.",
+    "blackPlan": "Transpose to symmetrical lines or strike with ...d5 or ...Bb4 to create imbalances.",
+    "trap": "After ...Bb4, if White plays d4 without preparation, Black wins a pawn with ...Nxe4 exploiting the pin on c3."
+  },
+  {
+    "eco": "A04",
+    "name": "Réti Opening",
+    "moves": ["Nf3","d5","c4"],
+    "idea": "White attacks Black's central pawn from the flank, avoiding direct confrontation and aiming to undermine d5 with c4.",
+    "whitePlan": "Fianchetto with g3 and Bg2, then attack the d5 pawn while maintaining a flexible pawn structure.",
+    "blackPlan": "Advance ...d4 to grab space, or play ...e6 and ...c6 to solidify the center.",
+    "trap": "If Black grabs the c4 pawn with ...dxc4, White ignores it and builds central control with d4, regaining the pawn favorably."
+  },
+  {
+    "eco": "A07",
+    "name": "King's Indian Attack",
+    "moves": ["Nf3","d5","g3","Nf6","Bg2","e6","O-O","Be7","d3"],
+    "idea": "White builds a flexible kingside setup and launches a thematic f4-f5 pawn advance to crack open the kingside.",
+    "whitePlan": "Play e4, Nbd2, Re1, and then e5 or f4-f5 to generate a direct kingside attack.",
+    "blackPlan": "Counterattack on the queenside with ...c5, ...b5-b4 before White's kingside storm arrives.",
+    "trap": ""
+  },
+  {
+    "eco": "A02",
+    "name": "Bird's Opening",
+    "moves": ["f4"],
+    "idea": "White controls the e5 square from the flank, preparing for a Dutch Defense structure with colors reversed.",
+    "whitePlan": "Develop with Nf3, e3, Be2, and O-O, then build pressure along the f-file and on e5.",
+    "blackPlan": "Challenge with ...e5 (the From's Gambit) or play ...d5 and ...Nf6 for solid central counterplay.",
+    "trap": "The From's Gambit 1.f4 e5 2.fxe5 d6 3.exd6 Bxd6 gives Black dangerous attacking compensation if White plays passively."
+  },
+  {
+    "eco": "A01",
+    "name": "Nimzo-Larsen Attack",
+    "moves": ["b3","e5","Bb2","Nc6","e3","Nf6","Bb5"],
+    "idea": "White fianchettoes the queen's bishop to exert long-diagonal pressure toward g7 and e5, aiming for active piece play.",
+    "whitePlan": "Develop with Nf3, O-O, then f4 or d4 to challenge Black's center after piece coordination.",
+    "blackPlan": "Seize the center with ...d5 and ...e4, restricting the b2 bishop's scope.",
+    "trap": "If Black plays ...e4 prematurely without preparation, White can exploit the weakened d4 square and uncoordinated Black pieces."
+  },
+  {
+    "eco": "A00",
+    "name": "Polish Opening (Sokolsky)",
+    "moves": ["b4","e5","Bb2","f6","e4","Bxb4","Bc4"],
+    "idea": "White sacrifices the b-pawn to gain the bishop pair and rapid development, aiming to exploit the open b-file and diagonal pressure.",
+    "whitePlan": "Develop quickly with Nc3, Nf3, and castle, using the b-file and long diagonal for active piece play.",
+    "blackPlan": "Return the extra pawn if necessary and consolidate with ...d6, ...Ne7, and ...O-O.",
+    "trap": "If Black greedily holds the b4 pawn with ...a5, White plays c3 and gains strong central control while Black's queenside is weakened."
+  },
+  {
+    "eco": "A00",
+    "name": "Grob Opening",
+    "moves": ["g4"],
+    "idea": "A highly unorthodox flank advance that weakens White's kingside but aims to create immediate chaos and unbalance the position.",
+    "whitePlan": "Follow up with Bg2, h3, d3, and c4, hoping to confuse opponents unfamiliar with the resulting positions.",
+    "blackPlan": "Accept the challenge with ...d5 and ...e5, seizing the center while White's kingside is compromised.",
+    "trap": "After 1.g4 d5 2.Bg2 Bxg4 3.c4, White regains the bishop with c5 threatening to trap it, so Black must play ...Be6 carefully."
+  },
+  {
+    "eco": "A40",
+    "name": "Englund Gambit",
+    "moves": ["d4","e5","dxe5","Nc6","Nf3","Qe7","Qd5","f6"],
+    "idea": "Black sacrifices a pawn on move one to avoid positional play and lure White into an unfamiliar middlegame full of tactical tricks.",
+    "whitePlan": "Decline the gambit complications with Nf3 and e3, returning to normal development without overextending.",
+    "blackPlan": "Recover the pawn while gaining active piece play with ...Nge7, ...Ng6 targeting e5, and quick castling.",
+    "trap": "After 1.d4 e5 2.dxe5 Nc6 3.Nf3 Qe7 4.Bf4 Qb4+, Black forks b2 and f4, winning material if White is unprepared."
+  },
+  {
+    "eco": "C40",
+    "name": "Latvian Gambit",
+    "moves": ["e4","e5","Nf3","f5"],
+    "idea": "Black immediately counterattacks in the center at the cost of positional soundness, aiming for wild tactical complications.",
+    "whitePlan": "Play Nxe5 or d4 to exploit Black's weakened king and e4 pawn, maintaining a lasting material or structural advantage.",
+    "blackPlan": "Recover material with ...fxe4 and activate pieces rapidly, sacrificing safety for attacking chances.",
+    "trap": "After 3.Nxe5 Qf6 4.d4 d6 5.Nc4 fxe4 6.Nc3, Black's position is already very difficult to hold."
+  },
+  {
+    "eco": "C40",
+    "name": "Elephant Gambit",
+    "moves": ["e4","e5","Nf3","d5"],
+    "idea": "Black offers a central pawn on move two to seize the initiative and disrupt White's standard development plans.",
+    "whitePlan": "Accept with exd5 and develop normally with Bc4 or Nc3, maintaining the extra pawn while neutralizing Black's activity.",
+    "blackPlan": "After exd5, play ...e4 to push back the knight and gain central space, then develop with ...Bc5 and ...Nf6.",
+    "trap": "After 3.exd5 e4 4.Qe2, White pins the e4 pawn and wins it back, leaving Black with nothing for the gambit."
+  },
+  {
+    "eco": "B00",
+    "name": "Owen's Defense",
+    "moves": ["e4","b6","d4","Bb7","Bd3","e6","Nf3","c5"],
+    "idea": "Black fianchettoes the queen's bishop to pressure White's e4-d4 pawn chain from a distance rather than contesting the center directly.",
+    "whitePlan": "Advance e5 or d5 to gain space, or develop quickly and target f7 and the e6 weakness.",
+    "blackPlan": "Strike with ...c5 and ...d5 to undermine White's center once the bishop is safely deployed.",
+    "trap": "If Black plays ...Bxe4 prematurely trying to win a pawn, White replies Bxe4 with a clear development lead."
+  },
+  {
+    "eco": "B01",
+    "name": "Scandinavian Defense: Modern Variation",
+    "moves": ["e4","d5","exd5","Nf6","d4","Nxd5","Nf3","g6"],
+    "idea": "Instead of the classical Qxd5, Black recaptures with the knight to avoid tempo loss and build a solid, flexible position.",
+    "whitePlan": "Play c4 to gain space and drive the d5 knight, then develop with Nc3 and Be2 for a classical advantage.",
+    "blackPlan": "Fianchetto with ...g6-Bg7 and castle kingside, using the solid knight on d5 as a central anchor.",
+    "trap": ""
+  },
+  {
+    "eco": "B00",
+    "name": "Nimzowitsch Defense",
+    "moves": ["e4","Nc6","d4","d5","e5","f6"],
+    "idea": "Black immediately challenges White's e4 pawn with the knight rather than pawns, aiming for unorthodox piece-based counterplay.",
+    "whitePlan": "Play d4 and Nf3 to maintain central control, not allowing Black to easily free the position with ...d5 or ...e5.",
+    "blackPlan": "Aim for ...f6 or ...e5 breaks to undermine White's center and activate the c6 knight.",
+    "trap": "After 3.e5 f6 4.f4, Black must be careful as 4...fxe5 5.fxe5 gives White a powerful central duo."
+  },
+  {
+    "eco": "A00",
+    "name": "Van't Kruijs Opening",
+    "moves": ["e3"],
+    "idea": "A very passive first move that keeps options open but concedes the initiative; mainly used as a move-order tool.",
+    "whitePlan": "Transpose into d4 systems with Nf3, d4, and Bd3, or play c4 for an English-type position after Nc3.",
+    "blackPlan": "Seize the center immediately with ...e5 or ...d5, exploiting White's lack of central ambition.",
+    "trap": ""
+  },
+  {
+    "eco": "A00",
+    "name": "Anderssen Opening",
+    "moves": ["a3"],
+    "idea": "White makes a waiting move to see Black's setup before committing, at the cost of immediate initiative and a tempo.",
+    "whitePlan": "Follow up with e4 or d4 depending on Black's response, using a3 as later prophylaxis against ...Bb4.",
+    "blackPlan": "Develop normally with ...e5 or ...d5, treating the position as a standard opening minus a White tempo.",
+    "trap": ""
+  },
+  {
+    "eco": "A00",
+    "name": "King's Fianchetto Opening",
+    "moves": ["g3","d5","Bg2","e5","d3","Nf6","Nd2"],
+    "idea": "White builds a solid kingside fianchetto setup similar to the King's Indian Attack, aiming for long-term pressure and flexibility.",
+    "whitePlan": "Play e4 to challenge Black's center, then develop Nf3, O-O, and Re1 for a classic KIA attack.",
+    "blackPlan": "Occupy the center with ...d5-e5, develop naturally, and castle before White's kingside pressure becomes dangerous.",
+    "trap": ""
+  },
+  {
+    "eco": "A00",
+    "name": "Hippopotamus Defense",
+    "moves": ["e4","Nh6","d4","g6","Nf3","f6","Nc3","d6","Be3","Nd7","Bc4","c6"],
+    "idea": "Black builds an ultra-defensive setup with all pieces behind the pawn chain, waiting to counterattack once White overextends.",
+    "whitePlan": "Seize maximum central space with pawns on d4 and e4, then look for kingside breakthroughs before Black's pieces activate.",
+    "blackPlan": "Complete the Hippo setup with ...e6, ...b6, ...Bb7, and ...O-O, then strike back with ...e5 or ...c5 once consolidated.",
+    "trap": "If White advances e5 too early without preparation, Black plays ...fxe5 dxe5 and follows with ...Ng4 hitting e3 while the center collapses."
+  }
+]

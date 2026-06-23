@@ -17,7 +17,7 @@ object PgnImporter {
         val startFen = tags["FEN"]?.trim()?.takeIf { it.isNotEmpty() } ?: START_FEN
 
         var mt = text.replace(Regex("""(?m)^\s*\[[^\n\]]*]\s*$"""), " ") // [Tag "…"] lines
-        mt = mt.replace(Regex("""\{[^}]*}"""), " ")    // {comments}
+        mt = mt.replace(Regex("""\{[^}]*\}"""), " ")   // {comments}
         mt = mt.replace(Regex("""(?m);.*$"""), " ")    // ;line comments
         mt = stripVariations(mt)                       // (variations), nested
         mt = mt.replace(Regex("""\$\d+"""), " ")       // $NAG glyphs

@@ -49,9 +49,11 @@ class GameReviewer(private val explorer: LichessExplorer? = null) {
         }
 
         val openingTexts = mutableMapOf<Int, String>()
-        // Openings are contiguous from the start: once a position is out of book (or the network is
-        // unavailable → null), stop querying so an offline review doesn't stall on 16 timeouts.
+        // Openings are contiguous from the start: once a position is out of book, stop checking.
         var bookEnded = false
+        // Running UCI move path from the start (for the offline local-book fallback).
+        val standardStart = fens.firstOrNull()?.substringBefore(' ') == OpeningBook.START_PLACEMENT
+        val uciPath = ArrayList<String>()
         val bestEvalPerPly = ArrayList<String?>(n - 1)
         val playedEvalPerPly = ArrayList<String?>(n - 1)
 
@@ -84,12 +86,12 @@ class GameReviewer(private val explorer: LichessExplorer? = null) {
             playedEvalPerPly.add(formatEval(playedCp, playedMate))
 
             val sacrifice = isSacrifice(fens, i, moverWhite)
-            // cp-loss for the chart/tactics (lenient); for classification only when both sides are non-mate cp.
+            // cp-loss for the chart/tactics (lenient).
             val cpLoss = ((best?.cp ?: 0) - (playedCp ?: 0)).coerceAtLeast(0)
-            val cpLossForClass = if (info.bestMate == null && info.playedMate == null &&
-                info.bestCp != null && info.playedCp != null)
-                (info.bestCp - info.playedCp).coerceAtLeast(0) else null
-            val combined = MoveClass.classify(info, materialSacrificed = sacrifice, cpLoss = cpLossForClass)
+            // Chess.com-style: classify purely on win%-drop. The raw cp-loss tier used to be combined
+            // via worseOf() here, but it bumped small win%-drops (e.g. -3.00 while already +6.00) to
+            // MISTAKE → Inaccuracy ≈ 0 and inflated Mistake counts. Pass null to disable that override.
+            val combined = MoveClass.classify(info, materialSacrificed = sacrifice, cpLoss = null)
             cpLosses.add(cpLoss)
             perPly.add(combined)
             counts[moverWhite]!!.merge(combined, 1, Int::plus)
@@ -99,19 +101,31 @@ class GameReviewer(private val explorer: LichessExplorer? = null) {
             accSum[moverWhite] = accSum[moverWhite]!! + moveAccuracy(drop)
             accCnt[moverWhite] = accCnt[moverWhite]!! + 1
 
-            // Opening book check: for early plies, query Lichess Masters Explorer (until out of book).
-            if (i <= 15 && explorer != null && !bookEnded) {
-                val stats = explorer.query(fens[i])
-                if (stats != null && stats.totalGames > 0) {
+            // Opening book check: prefer Lichess Masters online; fall back to the bundled local book
+            // when the network is unreachable (query == null) so BOOK is never silently 0 offline.
+            if (i <= 15 && !bookEnded) {
+                if (standardStart) uciPath.add(playedUci ?: "")
+                val stats = explorer?.query(fens[i])
+                var bookText: String? = null
+                val isBook = when {
+                    stats != null && stats.totalGames > 0 -> {        // online: position is theory
+                        bookText = "GMs: " + stats.topMoves.take(3).joinToString(", ") {
+                            "${it.san} ${"%.0f".format(it.playedPct)}%"
+                        }
+                        true
+                    }
+                    stats == null && standardStart -> OpeningBook.isBookPath(uciPath).also {        // offline fallback
+                        if (it) bookText = OpeningBook.openingName(uciPath)
+                    }
+                    else -> false                                     // online & out of book
+                }
+                if (isBook) {
                     counts[moverWhite]!!.merge(combined, -1, Int::plus)
                     counts[moverWhite]!!.merge(MoveClass.BOOK, 1, Int::plus)
                     perPly[i] = MoveClass.BOOK
-                    val top3 = stats.topMoves.take(3)
-                    openingTexts[i] = "GMs: " + top3.joinToString(", ") {
-                        "${it.san} ${"%.0f".format(it.playedPct)}%"
-                    }
+                    bookText?.let { openingTexts[i] = it }
                 } else {
-                    bookEnded = true  // out of book or offline → don't query the remaining plies
+                    bookEnded = true  // out of book → don't check the remaining plies
                 }
             }
         }

@@ -330,6 +330,13 @@
                 android:text="@string/setup_board" />
         </LinearLayout>
 
+        <Button
+            android:id="@+id/btnLearnTheory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/learn_theory" />
+
         <!-- Game History (inline list, visible only when entries exist) -->
         <TextView
             android:id="@+id/tvGameHistoryHeader"

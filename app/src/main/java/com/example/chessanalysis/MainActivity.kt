@@ -217,6 +217,7 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.btnExportHistory).setOnClickListener { exportGameHistory() }
         findViewById<Button>(R.id.btnImportHistory).setOnClickListener { showImportChooser() }
+        findViewById<Button>(R.id.btnLearnTheory).setOnClickListener { showTheoryPicker() }
 
         findViewById<ImageButton>(R.id.btnSettings).setOnClickListener {
             drawerLayout.openDrawer(settingsDrawer)
@@ -231,6 +232,38 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.IO) { AiCoachManager.ensureModelLoaded(this@MainActivity) }
         lifecycleScope.launch { initEngine() }
         lichessExplorer = LichessExplorer()
+        setupOpeningBook()
+    }
+
+    /** Load the downloaded opening book, or prompt the user to download it once. */
+    private fun setupOpeningBook() {
+        if (OpeningBookManager.isDownloaded(this)) {
+            lifecycleScope.launch(Dispatchers.IO) { OpeningBookManager.loadIntoMemory(this@MainActivity) }
+            return
+        }
+        if (prefs.getBoolean("book_prompted", false)) return   // user already chose; seed book stays
+        AlertDialog.Builder(this)
+            .setTitle(R.string.book_download_title)
+            .setMessage(getString(R.string.book_download_message, OpeningBookManager.ESTIMATED_MB))
+            .setNegativeButton(R.string.book_download_skip) { _, _ ->
+                prefs.edit().putBoolean("book_prompted", true).apply()
+            }
+            .setPositiveButton(R.string.book_download_yes) { _, _ ->
+                prefs.edit().putBoolean("book_prompted", true).apply()
+                val snack = Snackbar.make(findViewById(R.id.drawerLayout), R.string.book_downloading, Snackbar.LENGTH_INDEFINITE)
+                snack.show()
+                lifecycleScope.launch(Dispatchers.IO) {
+                    val ok = OpeningBookManager.download(this@MainActivity) { done, total ->
+                        runOnUiThread { snack.setText(getString(R.string.book_downloading_fmt, done, total)) }
+                    }
+                    runOnUiThread {
+                        snack.dismiss()
+                        val msg = if (ok) R.string.book_download_done else R.string.book_download_failed
+                        Snackbar.make(findViewById(R.id.drawerLayout), msg, Snackbar.LENGTH_LONG).show()
+                    }
+                }
+            }
+            .show()
     }
 
     private fun setupSettingsDrawer() {
@@ -690,7 +723,7 @@ class MainActivity : AppCompatActivity() {
         }
         updateMoveBadge()
         updateBestMoveArrow()
-        requestCoachComment()
+        if (theoryMode) renderTheoryComment() else requestCoachComment()
         if (analysisMode) evalChart.setMarker(if (exploring) -1 else viewIndex)
     }
 
@@ -1175,7 +1208,10 @@ class MainActivity : AppCompatActivity() {
         val target = chessBoard.board[toRow][toCol]
         if (target != null && target.isWhite == piece.isWhite) {
             chessBoard.selectedSq = Pair(toRow, toCol)
-            chessBoard.legalMoves = chessBoard.generatePseudoMoves(toRow, toCol)
+            // LEGAL moves (not pseudo): matches the initial-selection path and prevents moving a pinned
+            // piece illegally — legalMoves drives the accept-check below, so pseudo moves would let an
+            // illegal destination through → board desync.
+            chessBoard.legalMoves = chessBoard.generateLegalMoves(toRow, toCol)
             chessBoard.invalidate()
             return
         }
@@ -1270,6 +1306,11 @@ class MainActivity : AppCompatActivity() {
 
     /** True while reviewing a finished game (Phase C extends this). */
     private var reviewMode = false
+
+    /** "Learn theory" mode: browsing a curated opening line; coach panel shows theory text. */
+    private var theoryMode = false
+    private var currentTheory: TheoryRepository.Entry? = null
+    private var theoryToken = 0
 
     /** Popup shown once when a game ends: "[Color] won by [reason]" with two follow-up actions. */
     private fun showGameOverDialog(winnerWhite: Boolean, reason: GameEndReason) {
@@ -1481,12 +1522,12 @@ class MainActivity : AppCompatActivity() {
 
     /** Parse PGN, replay it through the board to build the position history, then enter review mode. */
     private fun importPgnText(text: String) {
-        val game = PgnImporter.parse(text)
-        if (game == null) { Snackbar.make(chessBoard, R.string.import_pgn_none, Snackbar.LENGTH_LONG).show(); return }
-        // Build the whole history off to the side first; a weird PGN must never crash the app.
-        val fens = ArrayList<String>().apply { add(game.startFen) }
-        val froms = ArrayList<Pair<Int, Int>?>().apply { add(null) }
         try {
+            val game = PgnImporter.parse(text)
+            if (game == null) { Snackbar.make(chessBoard, R.string.import_pgn_none, Snackbar.LENGTH_LONG).show(); return }
+            // Build the whole history off to the side first; a weird PGN must never crash the app.
+            val fens = ArrayList<String>().apply { add(game.startFen) }
+            val froms = ArrayList<Pair<Int, Int>?>().apply { add(null) }
             chessBoard.setFen(game.startFen)
             for ((i, san) in game.sanMoves.withIndex()) {
                 val mv = resolveSan(san)
@@ -1502,7 +1543,7 @@ class MainActivity : AppCompatActivity() {
             chessBoard.setupMode = false
             btnSetup.text = getString(R.string.setup_board)
             vsEngine = false
-            exitAnalysisView()
+            if (::evalChart.isInitialized) exitAnalysisView()
             positionHistory.clear(); positionHistory.addAll(fens)
             moveFromHistory.clear(); moveFromHistory.addAll(froms)
             currentFen = positionHistory.last()
@@ -1514,6 +1555,141 @@ class MainActivity : AppCompatActivity() {
             resetHistory(currentFen)
             chessBoard.setFen(currentFen)
             Snackbar.make(chessBoard, R.string.import_pgn_error, Snackbar.LENGTH_LONG).show()
+        }
+    }
+
+    // ---- Learn theory ----
+
+    /** Load the curated theory DB (once, off the UI thread) then show a searchable opening picker. */
+    private fun showTheoryPicker() {
+        if (TheoryRepository.isLoaded) { showTheoryList(); return }
+        Snackbar.make(chessBoard, R.string.theory_loading, Snackbar.LENGTH_SHORT).show()
+        lifecycleScope.launch(Dispatchers.IO) {
+            TheoryRepository.load(this@MainActivity)
+            withContext(Dispatchers.Main) { showTheoryList() }
+        }
+    }
+
+    private fun showTheoryList() {
+        val entries = TheoryRepository.all()
+        if (entries.isEmpty()) { Snackbar.make(chessBoard, R.string.theory_none, Snackbar.LENGTH_LONG).show(); return }
+        val labels = entries.map { if (it.eco.isNotEmpty()) "${it.name}  (${it.eco})" else it.name }.toTypedArray()
+        AlertDialog.Builder(this)
+            .setTitle(R.string.theory_pick_title)
+            .setItems(labels) { _, which -> enterTheory(entries[which]) }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    /** Replay a curated opening line onto the board and enter review+theory mode showing its text. */
+    private fun enterTheory(entry: TheoryRepository.Entry) {
+        try {
+            val fens = ArrayList<String>().apply { add(START_FEN) }
+            val froms = ArrayList<Pair<Int, Int>?>().apply { add(null) }
+            chessBoard.setFen(START_FEN)
+            for (san in entry.sanMoves) {
+                val mv = resolveSan(san) ?: break
+                chessBoard.makeMove(mv.fr, mv.fc, mv.tr, mv.tc, mv.promo)
+                fens.add(chessBoard.getFen())
+                froms.add(mv.fr to mv.fc)
+            }
+            chessBoard.setupMode = false
+            btnSetup.text = getString(R.string.setup_board)
+            vsEngine = false
+            if (::evalChart.isInitialized) exitAnalysisView()
+            positionHistory.clear(); positionHistory.addAll(fens)
+            moveFromHistory.clear(); moveFromHistory.addAll(froms)
+            currentFen = positionHistory.last()
+            gameOverShown = false
+            currentTheory = entry
+            theoryMode = true
+            enterReviewMode()   // shows position 0; renderTheoryComment runs via showPosition
+        } catch (e: Exception) {
+            Log.e("Theory", "enterTheory failed", e)
+            theoryMode = false; currentTheory = null
+            resetHistory(currentFen); chessBoard.setFen(currentFen)
+            Snackbar.make(chessBoard, R.string.import_pgn_error, Snackbar.LENGTH_LONG).show()
+        }
+    }
+
+    /** UCI move path from the start to the currently viewed position (via FEN diff). */
+    private fun effectiveUciPath(): List<String> {
+        val line = effectiveLine()
+        val out = ArrayList<String>(viewIndex)
+        for (i in 0 until viewIndex) {
+            out.add(GameReviewer.playedUci(line[i], line[i + 1]) ?: break)
+        }
+        return out
+    }
+
+    /** Compose the coaching-panel text for the viewed theory position (curated text + tree + deviation). */
+    private fun renderTheoryComment() {
+        val entry = currentTheory ?: run { coachPanel.visibility = View.GONE; return }
+        coachPanel.visibility = View.VISIBLE
+        val path = effectiveUciPath()
+        val sb = StringBuilder()
+        sb.append(if (entry.eco.isNotEmpty()) "${entry.name} (${entry.eco})" else entry.name)
+        if (entry.idea.isNotEmpty()) sb.append("\n\n").append(entry.idea)
+
+        if (exploring) {
+            // The user played a move off the main line: identify it and ask the engine for a verdict.
+            val named: Any? = TheoryRepository.lookup(path) ?: OpeningBook.openingName(path)
+            sb.append("\n\n").append(getString(R.string.theory_left_line_fmt, entry.name))
+            when {
+                named is TheoryRepository.Entry && named.name != entry.name ->
+                    sb.append(' ').append(getString(R.string.theory_transposes_fmt, named.name))
+                named is String -> sb.append(' ').append(getString(R.string.theory_transposes_fmt, named))
+                OpeningBook.isBookPath(path) -> sb.append(' ').append(getString(R.string.theory_still_book))
+                else -> sb.append(' ').append(getString(R.string.theory_off_book))
+            }
+            tvCoachBody.text = sb.toString()
+            theoryDeviationVerdict(sb.toString())   // appends an engine verdict asynchronously
+        } else {
+            if (entry.whitePlan.isNotEmpty())
+                sb.append("\n\n").append(getString(R.string.theory_white_plan)).append(": ").append(entry.whitePlan)
+            if (entry.blackPlan.isNotEmpty())
+                sb.append('\n').append(getString(R.string.theory_black_plan)).append(": ").append(entry.blackPlan)
+            if (entry.trap.isNotEmpty())
+                sb.append("\n\n⚠ ").append(entry.trap)
+            val conts = TheoryRepository.continuationsFrom(path)
+            if (conts.isNotEmpty()) {
+                sb.append("\n\n").append(getString(R.string.theory_continuations)).append(':')
+                for ((uci, name) in conts.take(5)) sb.append("\n• ").append(formatUciMoveArrow(uci)).append(" → ").append(name)
+            }
+            tvCoachBody.text = sb.toString()
+        }
+    }
+
+    /** Ask the engine to judge the user's deviating move and append a one-line verdict to [base]. */
+    private fun theoryDeviationVerdict(base: String) {
+        if (!engineReady || viewIndex < 1) return
+        val line = effectiveLine()
+        val fenBefore = line.getOrNull(viewIndex - 1) ?: return
+        val fenAfter = line.getOrNull(viewIndex) ?: return
+        val token = ++theoryToken
+        analyzer.evaluatePositions(listOf(fenBefore, fenAfter), depth = LIVE_EVAL_DEPTH, multiPv = 2) { lines ->
+            val best = lines.getOrNull(0).orEmpty().firstOrNull { it.rank == 1 }
+            val second = lines.getOrNull(0).orEmpty().firstOrNull { it.rank == 2 }
+            val a1 = lines.getOrNull(1).orEmpty().firstOrNull { it.rank == 1 }
+            val info = EvalInfo(
+                ply = 0, fenBefore = fenBefore,
+                bestMoveUci = best?.firstMove, bestCp = best?.cp, bestMate = best?.mate,
+                secondCp = second?.cp, secondMate = second?.mate,
+                playedMoveUci = GameReviewer.playedUci(fenBefore, fenAfter),
+                playedCp = a1?.cp?.let { -it }, playedMate = a1?.mate?.let { -it }
+            )
+            val cls = MoveClass.classify(info)
+            val bestUci = best?.firstMove
+            runOnUiThread {
+                if (token != theoryToken || !theoryMode) return@runOnUiThread
+                val sb = StringBuilder(base).append("\n\n").append(getString(R.string.theory_engine_label))
+                    .append(": ").append(moveClassLabel(cls))
+                if (bestUci != null && bestUci.length >= 4 && bestUci.take(4) != info.playedMoveUci?.take(4) &&
+                    cls.ordinal >= MoveClass.INACCURACY.ordinal) {
+                    sb.append(" — ").append(getString(R.string.theory_better_move_fmt, formatUciMoveArrow(bestUci)))
+                }
+                tvCoachBody.text = sb.toString()
+            }
         }
     }
 
@@ -1734,6 +1910,9 @@ class MainActivity : AppCompatActivity() {
     /** Leave review mode: discard any variation, hide the circle, return to the live position. */
     private fun exitReviewMode() {
         reviewMode = false
+        theoryMode = false
+        currentTheory = null
+        coachPanel.visibility = View.GONE
         exploring = false
         explorationLine.clear(); explorationFrom.clear(); explorationClass.clear(); explorationBest.clear()
         if (analysisMode) exitAnalysisView()

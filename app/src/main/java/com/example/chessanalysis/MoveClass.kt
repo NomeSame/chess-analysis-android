@@ -47,14 +47,13 @@ enum class MoveClass(val symbol: String, val color: Int, val label: String) {
             return cpToWinPct(cp ?: 0)
         }
 
-        /** Classify by centipawn loss alone (0 = perfect, positive = loss for mover).
-         *  Scale is aligned with the win%-drop tiers (mildest = EXCELLENT) so the two can be combined. */
+        /** Classify by centipawn loss alone — caps at MISTAKE; BLUNDER is only from win%-drop (EPM-style).
+         *  Thresholds: Excellent < 50, Good < 100, Inaccuracy < 300, Mistake >= 300. */
         fun cpLossClassify(cpLoss: Int): MoveClass = when {
-            cpLoss < 10 -> EXCELLENT
-            cpLoss < 20 -> GOOD
-            cpLoss < 50 -> INACCURACY
-            cpLoss < 100 -> MISTAKE
-            else -> BLUNDER
+            cpLoss < 50 -> EXCELLENT
+            cpLoss < 100 -> GOOD
+            cpLoss < 300 -> INACCURACY
+            else -> MISTAKE
         }
 
         /** The worse (lower-quality) of two classes. */
@@ -80,13 +79,14 @@ enum class MoveClass(val symbol: String, val color: Int, val label: String) {
             if (isBest && onlyMove) return GREAT
             if (isBest) return BEST
 
-            // Error tiers from the win%-drop.
+            // Error tiers from the win%-drop (Chess.com EPM-style: blunder only from win%-drop, not cpLoss).
+            // MISS thresholds lowered to account for rating-adjusted EPM (sub-1000 players: +2.00 can be "winning").
             val winCls = when {
                 drop < 2.0 -> EXCELLENT
                 drop < 5.0 -> GOOD
                 drop < 10.0 -> INACCURACY
-                drop < 20.0 -> if (bestWin >= 75.0 && playedWin < 55.0) MISS else MISTAKE
-                else -> if (bestWin >= 75.0 && playedWin < 55.0) MISS else BLUNDER
+                drop < 25.0 -> if (bestWin >= 65.0 && playedWin < 50.0) MISS else MISTAKE
+                else -> if (bestWin >= 65.0 && playedWin < 50.0) MISS else BLUNDER
             }
             // Combine conservatively with the cp-loss tier (catches "threw away a won game" where win% barely moves).
             return if (cpLoss != null) worseOf(winCls, cpLossClassify(cpLoss)) else winCls
