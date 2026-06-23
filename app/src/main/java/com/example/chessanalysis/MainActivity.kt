@@ -1572,7 +1572,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun showTheoryList() {
         val entries = TheoryRepository.all()
-        if (entries.isEmpty()) { Snackbar.make(chessBoard, R.string.theory_none, Snackbar.LENGTH_LONG).show(); return }
+        if (entries.isEmpty()) {
+            findViewById<Button>(R.id.btnLearnTheory).visibility = View.GONE
+            Snackbar.make(chessBoard, R.string.theory_none, Snackbar.LENGTH_LONG).show()
+            return
+        }
+        findViewById<Button>(R.id.btnLearnTheory).visibility = View.VISIBLE
         val labels = entries.map { if (it.eco.isNotEmpty()) "${it.name}  (${it.eco})" else it.name }.toTypedArray()
         AlertDialog.Builder(this)
             .setTitle(R.string.theory_pick_title)
