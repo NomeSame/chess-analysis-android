@@ -84,6 +84,7 @@
     <string name="import_screenshot_ok_fmt">%1$d Figuren erkannt — im Setup prüfen &amp; korrigieren, dann \"Von hier spielen\".</string>
     <string name="import_screenshot_ok">Brett importiert — im Setup prüfen &amp; korrigieren, dann \"Von hier spielen\".</string>
     <string name="screenshot_uncertain">Screenshot-Erkennung unsicher — bitte prüfen</string>
+    <string name="invalid_position_for_engine">Brett braucht genau einen König pro Seite — im Setup korrigieren</string>
 
     <!-- Piece styles -->
     <string name="piece_original">Original</string>

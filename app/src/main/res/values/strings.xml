@@ -85,6 +85,8 @@
     <string name="import_screenshot_ok_fmt">Recognized %1$d pieces — check &amp; fix in setup, then \"Play from here\".</string>
     <string name="import_screenshot_ok">Board imported — check &amp; fix in setup, then \"Play from here\".</string>
     <string name="screenshot_uncertain">Screenshot recognition uncertain — please verify</string>
+    <string name="flip_board">↻ Flip</string>
+    <string name="invalid_position_for_engine">Board needs exactly one king per side — fix in setup</string>
 
     <!-- Piece styles -->
     <string name="piece_original">Original</string>

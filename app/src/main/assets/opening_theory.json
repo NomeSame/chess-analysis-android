@@ -2,901 +2,2165 @@
   {
     "eco": "C50",
     "name": "Italian Game",
-    "moves": ["e4","e5","Nf3","Nc6","Bc4"],
+    "moves": [
+      "e4",
+      "e5",
+      "Nf3",
+      "Nc6",
+      "Bc4"
+    ],
     "idea": "White targets the f7 square and controls the center with a bishop on the long diagonal, aiming for rapid development and kingside pressure.",
     "whitePlan": "Castle kingside, place pieces actively with d3 or d4, and exploit the f7 weakness.",
     "blackPlan": "Equalize with ...Nf6 or ...Bc5, then contest the center with ...d6 or ...d5.",
-    "trap": ""
+    "trap": "",
+    "ideaDe": "Wei\u00df zielt auf das Feld f7 und kontrolliert das Zentrum mit einem L\u00e4ufer auf der langen Diagonale, mit dem Ziel einer schnellen Entwicklung und Drucks am K\u00f6nigsfl\u00fcgel.",
+    "plansWhiteDe": "Rochade am K\u00f6nigsfl\u00fcgel, aktive Figurenaufstellung mit d3 oder d4 und Ausnutzung der Schw\u00e4che auf f7.",
+    "plansBlackDe": "Ausgleich mit ...Sf6 oder ...Lc5, dann das Zentrum mit ...d6 oder ...d5 bestreiten.",
+    "trapDe": ""
   },
   {
     "eco": "C54",
     "name": "Giuoco Piano",
-    "moves": ["e4","e5","Nf3","Nc6","Bc4","Bc5","c3"],
+    "moves": [
+      "e4",
+      "e5",
+      "Nf3",
+      "Nc6",
+      "Bc4",
+      "Bc5",
+      "c3"
+    ],
     "idea": "White prepares the d4 pawn push to claim the center while keeping the bishop on c4 pointed at f7.",
     "whitePlan": "Play d4 to open the center, then activate rooks and dominate with a space advantage.",
     "blackPlan": "Counter with ...Nf6 and ...d5, or prepare ...d6 and a solid setup to neutralize the center push.",
-    "trap": "If Black plays ...Nxe4 carelessly after d4, the fork trick with d5 and Qd5 wins material."
+    "trap": "If Black plays ...Nxe4 carelessly after d4, the fork trick with d5 and Qd5 wins material.",
+    "ideaDe": "Wei\u00df bereitet den Bauernvorsto\u00df d4 vor, um das Zentrum zu beanspruchen, w\u00e4hrend der L\u00e4ufer auf c4 weiterhin auf f7 zielt.",
+    "plansWhiteDe": "d4 spielen, um das Zentrum zu \u00f6ffnen, dann die T\u00fcrme aktivieren und mit Raumvorteil dominieren.",
+    "plansBlackDe": "Mit ...Sf6 und ...d5 kontern oder ...d6 und eine solide Aufstellung vorbereiten, um den Zentrumsvorsto\u00df zu neutralisieren.",
+    "trapDe": "Wenn Schwarz nach d4 unvorsichtig ...Sxe4 spielt, gewinnt der Gabeltrick mit d5 und Dd5 Material."
   },
   {
     "eco": "C51",
     "name": "Evans Gambit",
-    "moves": ["e4","e5","Nf3","Nc6","Bc4","Bc5","b4"],
+    "moves": [
+      "e4",
+      "e5",
+      "Nf3",
+      "Nc6",
+      "Bc4",
+      "Bc5",
+      "b4"
+    ],
     "idea": "White sacrifices the b4 pawn to deflect Black's bishop and gain a powerful pawn center with c3 and d4.",
     "whitePlan": "After ...Bxb4 c3 Ba5 d4, launch a rapid central attack and exploit the open lines for the pieces.",
     "blackPlan": "Accept the gambit and try to consolidate the extra pawn, or decline with ...Bb6 for a solid game.",
-    "trap": "In the accepted variation, ...Nxe4 too early runs into Qd5 forking f7 and the knight."
+    "trap": "In the accepted variation, ...Nxe4 too early runs into Qd5 forking f7 and the knight.",
+    "ideaDe": "Wei\u00df opfert den Bauern auf b4, um den schwarzen L\u00e4ufer abzulenken und mit c3 und d4 ein m\u00e4chtiges Bauernzentrum zu erlangen.",
+    "plansWhiteDe": "Nach ...Lxb4 c3 La5 d4 einen schnellen Zentrumsangriff starten und die offenen Linien f\u00fcr die Figuren ausnutzen.",
+    "plansBlackDe": "Das Gambit annehmen und den Mehrbauern konsolidieren oder mit ...Lb6 ablehnen, um ein solides Spiel zu erhalten.",
+    "trapDe": "In der angenommenen Variante l\u00e4uft ...Sxe4 zu fr\u00fch in Dd5 hinein, die f7 und den Springer gabelt."
   },
   {
     "eco": "C55",
     "name": "Two Knights Defense",
-    "moves": ["e4","e5","Nf3","Nc6","Bc4","Nf6"],
+    "moves": [
+      "e4",
+      "e5",
+      "Nf3",
+      "Nc6",
+      "Bc4",
+      "Nf6"
+    ],
     "idea": "Black immediately counterattacks e4 with the knight, prioritizing activity over the solid ...Bc5 approach.",
     "whitePlan": "Play Ng5 to attack f7, forcing complications, or choose the calmer d4 for central control.",
     "blackPlan": "After Ng5 d5 exd5, play ...Na5 or ...Nd4 to gain counterplay and avoid being overrun.",
-    "trap": "The Fried Liver Attack (Ng5 d5 exd5 Nxf7) sacrifices a piece for a devastating kingside attack if Black is unprepared."
+    "trap": "The Fried Liver Attack (Ng5 d5 exd5 Nxf7) sacrifices a piece for a devastating kingside attack if Black is unprepared.",
+    "ideaDe": "Schwarz greift sofort mit dem Springer e4 an und stellt Aktivit\u00e4t \u00fcber den soliden ...Lc5-Ansatz.",
+    "plansWhiteDe": "Sg5 spielen, um f7 anzugreifen und Komplikationen zu erzwingen, oder das ruhigere d4 f\u00fcr zentrale Kontrolle w\u00e4hlen.",
+    "plansBlackDe": "Nach Sg5 d5 exd5 ...Sa5 oder ...Sd4 spielen, um Gegenspiel zu erhalten und nicht \u00fcberrannt zu werden.",
+    "trapDe": "Der Fried-Liver-Angriff (Sg5 d5 exd5 Sxf7) opfert eine Figur f\u00fcr einen verheerenden Angriff am K\u00f6nigsfl\u00fcgel, falls Schwarz unvorbereitet ist."
   },
   {
     "eco": "C60",
     "name": "Ruy Lopez",
-    "moves": ["e4","e5","Nf3","Nc6","Bb5"],
+    "moves": [
+      "e4",
+      "e5",
+      "Nf3",
+      "Nc6",
+      "Bb5"
+    ],
     "idea": "White pins the knight that defends e5, indirectly pressuring the e5 pawn and fighting for long-term central dominance.",
     "whitePlan": "Castle kingside, play d4 to challenge the center, and build a space advantage with c3 and a methodical pawn structure.",
     "blackPlan": "Break the pin with ...a6, then contest the center with ...d5 or maintain tension with ...Nf6 and ...Be7.",
-    "trap": ""
+    "trap": "",
+    "ideaDe": "Wei\u00df fesselt den Springer, der e5 deckt, \u00fcbt indirekt Druck auf den Bauern e5 aus und k\u00e4mpft um langfristige Zentrumsdominanz.",
+    "plansWhiteDe": "Rochade am K\u00f6nigsfl\u00fcgel, d4, um das Zentrum herauszufordern, und mit c3 und einem methodischen Bauernaufbau einen Raumvorteil aufbauen.",
+    "plansBlackDe": "Die Fesselung mit ...a6 l\u00f6sen, dann das Zentrum mit ...d5 bestreiten oder die Spannung mit ...Sf6 und ...Le7 halten.",
+    "trapDe": ""
   },
   {
     "eco": "C65",
     "name": "Ruy Lopez: Berlin Defense",
-    "moves": ["e4","e5","Nf3","Nc6","Bb5","Nf6"],
+    "moves": [
+      "e4",
+      "e5",
+      "Nf3",
+      "Nc6",
+      "Bb5",
+      "Nf6"
+    ],
     "idea": "Black sidesteps the Morphy Defense and aims to trade off pieces, reaching an endgame where Black's solid structure compensates for the slightly inferior king position.",
     "whitePlan": "Play Nxe5 and d4, accepting the endgame after ...Nxe5 d4, and use the bishop pair for long-term pressure.",
     "blackPlan": "After 4.Nxe5 Nd6 5.Bxc6 dxc6, trade queens and enter the Berlin endgame with the goal of exploiting White's pawn structure.",
-    "trap": ""
+    "trap": "",
+    "ideaDe": "Schwarz umgeht die Morphy-Verteidigung und strebt Figurentausch an, um ein Endspiel zu erreichen, in dem die solide Struktur die etwas schlechtere K\u00f6nigstellung kompensiert.",
+    "plansWhiteDe": "Sxe5 und d4 spielen, das Endspiel nach ...Sxe5 d4 annehmen und das L\u00e4uferpaar f\u00fcr langfristigen Druck nutzen.",
+    "plansBlackDe": "Nach 4.Sxe5 Sd6 5.Lxc6 dxc6 die Damen tauschen und das Berliner Endspiel anstreben, um Wei\u00df' Bauernstruktur auszunutzen.",
+    "trapDe": ""
   },
   {
     "eco": "C78",
     "name": "Ruy Lopez: Morphy Defense",
-    "moves": ["e4","e5","Nf3","Nc6","Bb5","a6","Ba4"],
+    "moves": [
+      "e4",
+      "e5",
+      "Nf3",
+      "Nc6",
+      "Bb5",
+      "a6",
+      "Ba4"
+    ],
     "idea": "Black expels the bishop with ...a6 to resolve the pin, while White retreats to a4 to keep pressure on the c6 knight.",
     "whitePlan": "Castle, play Re1, then c3 and d4 to launch the classic Lopez central expansion.",
     "blackPlan": "Play ...b5 to gain space on the queenside and ...Bb7 to pressurize e4, or choose the Chigorin Defense with ...Na5.",
-    "trap": "The Noah's Ark Trap: after ...b5 Bb3 d5 exd5 c4, Black wins the bishop with ...c4 Bc2 d4 Ne4."
+    "trap": "The Noah's Ark Trap: after ...b5 Bb3 d5 exd5 c4, Black wins the bishop with ...c4 Bc2 d4 Ne4.",
+    "ideaDe": "Schwarz vertreibt den L\u00e4ufer mit ...a6, um die Fesselung zu l\u00f6sen, w\u00e4hrend Wei\u00df sich nach a4 zur\u00fcckzieht, um Druck auf den Springer auf c6 zu halten.",
+    "plansWhiteDe": "Rochieren, Te1 spielen, dann c3 und d4, um die klassische Lopez-Zentrumserweiterung zu starten.",
+    "plansBlackDe": "...b5 spielen, um Raum am Damenfl\u00fcgel zu gewinnen, und ...Lb7, um e4 unter Druck zu setzen, oder die Tschigorin-Verteidigung mit ...Sa5 w\u00e4hlen.",
+    "trapDe": "Die Noahs-Arche-Falle: nach ...b5 Lb3 d5 exd5 c4 gewinnt Schwarz den L\u00e4ufer mit ...c4 Lc2 d4 Se4."
   },
   {
     "eco": "C89",
     "name": "Ruy Lopez: Marshall Attack",
-    "moves": ["e4","e5","Nf3","Nc6","Bb5","a6","Ba4","Nf6","O-O","Be7","Re1","b5","Bb3","O-O","c3","d5"],
+    "moves": [
+      "e4",
+      "e5",
+      "Nf3",
+      "Nc6",
+      "Bb5",
+      "a6",
+      "Ba4",
+      "Nf6",
+      "O-O",
+      "Be7",
+      "Re1",
+      "b5",
+      "Bb3",
+      "O-O",
+      "c3",
+      "d5"
+    ],
     "idea": "Black sacrifices a central pawn on move 8 to get a powerful attack with piece activity and kingside threats against the castled White king.",
     "whitePlan": "Accept the pawn with exd5 Nxd5 Nxe5 Nxe5 Rxe5 and then defend precisely while trying to consolidate the extra material.",
     "blackPlan": "Generate massive piece activity, typical threats include ...Nxe4, ...Nd3, and a queen invasion to h4 or g4.",
-    "trap": "White playing Rxe4 too early can run into ...Qd6 attacking the rook and threatening ...Qg3 with a mating attack."
+    "trap": "White playing Rxe4 too early can run into ...Qd6 attacking the rook and threatening ...Qg3 with a mating attack.",
+    "ideaDe": "Schwarz opfert im 8. Zug einen Zentrumsbauern, um einen m\u00e4chtigen Angriff mit Figurenaktivit\u00e4t und K\u00f6nigsfl\u00fcgeldrohungen gegen den rochierten wei\u00dfen K\u00f6nig zu erhalten.",
+    "plansWhiteDe": "Den Bauern mit exd5 Sxd5 Sxe5 Sxe5 Txe5 annehmen und dann pr\u00e4zise verteidigen, w\u00e4hrend versucht wird, das Mehrmaterial zu konsolidieren.",
+    "plansBlackDe": "Massive Figurenaktivit\u00e4t erzeugen; typische Drohungen sind ...Sxe4, ...Sd3 und ein Dameneinbruch nach h4 oder g4.",
+    "trapDe": "Wenn Wei\u00df zu fr\u00fch Txe4 spielt, kann ...Dd6 folgen, die Turm und ...Dg3 mit Mattangriff droht."
   },
   {
     "eco": "C68",
     "name": "Ruy Lopez: Exchange Variation",
-    "moves": ["e4","e5","Nf3","Nc6","Bb5","a6","Bxc6"],
+    "moves": [
+      "e4",
+      "e5",
+      "Nf3",
+      "Nc6",
+      "Bb5",
+      "a6",
+      "Bxc6"
+    ],
     "idea": "White doubles Black's pawns immediately, giving up the bishop pair for a long-term structural advantage and an endgame edge.",
     "whitePlan": "Exchange all pieces and target the doubled c-pawns in the endgame, especially via d4 and a kingside pawn majority.",
     "blackPlan": "Use the bishop pair and open f-file for active counterplay, aiming to prove the two bishops outweigh the structural weakness.",
-    "trap": ""
+    "trap": "",
+    "ideaDe": "Wei\u00df verdoppelt sofort die schwarzen Bauern, gibt das L\u00e4uferpaar f\u00fcr einen langfristigen Strukturvorteil und einen Endspielvorteil auf.",
+    "plansWhiteDe": "Alle Figuren tauschen und im Endspiel die verdoppelten c-Bauern angreifen, besonders mittels d4 und eines K\u00f6nigsfl\u00fcgel-Mehrheitsbauern.",
+    "plansBlackDe": "Das L\u00e4uferpaar und die offene f-Linie f\u00fcr aktives Gegenspiel nutzen, um zu zeigen, dass die beiden L\u00e4ufer die strukturelle Schw\u00e4che aufwiegen.",
+    "trapDe": ""
   },
   {
     "eco": "C45",
     "name": "Scotch Game",
-    "moves": ["e4","e5","Nf3","Nc6","d4"],
+    "moves": [
+      "e4",
+      "e5",
+      "Nf3",
+      "Nc6",
+      "d4"
+    ],
     "idea": "White immediately challenges the center on move 3, seeking to resolve central tension early and open the position for piece activity.",
     "whitePlan": "After exd4 Nxd4, place the knight actively on d4, then develop with Bc4 or Nb5 targeting d6 and f7.",
     "blackPlan": "Play ...Bc5 or ...Nf6 to challenge the well-placed d4 knight and seek counterplay in the semi-open position.",
-    "trap": "In the Scotch after ...Nxd4 Qxd4, Black must not play ...Ne5 immediately, as Qxe5+ wins material."
+    "trap": "In the Scotch after ...Nxd4 Qxd4, Black must not play ...Ne5 immediately, as Qxe5+ wins material.",
+    "ideaDe": "Wei\u00df fordert das Zentrum sofort im 3. Zug heraus, sucht die fr\u00fche Aufl\u00f6sung der Zentrumsspannung und \u00f6ffnet die Stellung f\u00fcr Figurenaktivit\u00e4t.",
+    "plansWhiteDe": "Nach exd4 Sxd4 den Springer aktiv auf d4 postieren, dann mit Lc4 oder Sb5 entwickeln, das auf d6 und f7 zielt.",
+    "plansBlackDe": "...Lc5 oder ...Sf6 spielen, um den gut postierten Springer auf d4 anzugreifen und in der halboffenen Stellung Gegenspiel zu suchen.",
+    "trapDe": "Im Scotch darf Schwarz nach ...Sxd4 Dxd4 nicht sofort ...Se5 spielen, da Dxe5+ Material gewinnt."
   },
   {
     "eco": "C44",
     "name": "Scotch Gambit",
-    "moves": ["e4","e5","Nf3","Nc6","d4","exd4","Bc4"],
+    "moves": [
+      "e4",
+      "e5",
+      "Nf3",
+      "Nc6",
+      "d4",
+      "exd4",
+      "Bc4"
+    ],
     "idea": "Instead of recapturing on d4, White offers rapid development in the Italian style, sacrificing a pawn for open lines and an attacking position.",
     "whitePlan": "Castle quickly, connect rooks, and launch an attack on f7 using the Bc4 and Nf3 battery, often with Ng5.",
     "blackPlan": "Hold the extra pawn with ...Nf6 and ...d6, or play actively with ...Bc5 to fight for equality.",
-    "trap": "The Max Lange Attack arises after ...Bc5 c3 Nf6 e5 d5, leading to sharp complications where Black must know the theory."
+    "trap": "The Max Lange Attack arises after ...Bc5 c3 Nf6 e5 d5, leading to sharp complications where Black must know the theory.",
+    "ideaDe": "Wei\u00df bietet statt des R\u00fcckgewinns auf d4 eine schnelle Entwicklung im italienischen Stil an, opfert einen Bauern f\u00fcr offene Linien und eine Angriffsstellung.",
+    "plansWhiteDe": "Schnell rochieren, T\u00fcrme verbinden und mit der Batterie Lc4 und Sf3 einen Angriff auf f7 starten, oft mit Sg5.",
+    "plansBlackDe": "Den Mehrbauern mit ...Sf6 und ...d6 halten oder aktiv mit ...Lc5 spielen, um um Ausgleich zu k\u00e4mpfen.",
+    "trapDe": "Der Max-Lange-Angriff entsteht nach ...Lc5 c3 Sf6 e5 d5 und f\u00fchrt zu scharfen Komplikationen, bei denen Schwarz die Theorie kennen muss."
   },
   {
     "eco": "C25",
     "name": "Vienna Game",
-    "moves": ["e4","e5","Nc3"],
+    "moves": [
+      "e4",
+      "e5",
+      "Nc3"
+    ],
     "idea": "White supports the e4 pawn with the knight rather than the standard Nf3, preparing an f4 advance or a transposition to other openings.",
     "whitePlan": "Play f4 to launch the Vienna Gambit, or develop normally with Bc4 and Nf3 for a solid positional game.",
     "blackPlan": "Play ...Nf6 to attack e4 immediately, or ...Nc6 for a solid classical setup.",
-    "trap": ""
+    "trap": "",
+    "ideaDe": "Wei\u00df unterst\u00fctzt den Bauern e4 mit dem Springer statt des \u00fcblichen Sf3 und bereitet einen f4-Vorsto\u00df oder eine Transposition in andere Er\u00f6ffnungen vor.",
+    "plansWhiteDe": "f4 spielen, um das Wiener Gambit zu starten, oder normal mit Lc4 und Sf3 f\u00fcr ein solides positionelles Spiel entwickeln.",
+    "plansBlackDe": "...Sf6 spielen, um sofort e4 anzugreifen, oder ...Sc6 f\u00fcr eine solide klassische Aufstellung.",
+    "trapDe": ""
   },
   {
     "eco": "C26",
     "name": "Vienna Gambit",
-    "moves": ["e4","e5","Nc3","Nf6","f4"],
+    "moves": [
+      "e4",
+      "e5",
+      "Nc3",
+      "Nf6",
+      "f4"
+    ],
     "idea": "White gambitizes with f4 to gain central space and open the f-file, blending the Vienna Game with King's Gambit-style aggression.",
     "whitePlan": "After fxe5 Nxe4, play d4 and Nf3 to centralize rapidly and build an attack before Black can consolidate.",
     "blackPlan": "Accept with ...exf4 and try to hold the pawn with ...d5 and ...g5, or decline with ...d6 for solidity.",
-    "trap": "After ...exf4 e5 Ng8 Nf3 d6 d4 dxe5 Nxe5, Black's development is so poor that White has a dominant attacking position."
+    "trap": "After ...exf4 e5 Ng8 Nf3 d6 d4 dxe5 Nxe5, Black's development is so poor that White has a dominant attacking position.",
+    "ideaDe": "Wei\u00df gambitiert mit f4, um Zentrumsraum zu gewinnen und die f-Linie zu \u00f6ffnen, und verbindet das Wiener Spiel mit K\u00f6nigsgambit-Aggression.",
+    "plansWhiteDe": "Nach fxe5 Sxe4 d4 und Sf3 spielen, um sich schnell zu zentralisieren und einen Angriff aufzubauen, bevor Schwarz konsolidieren kann.",
+    "plansBlackDe": "Mit ...exf4 annehmen und den Bauern mit ...d5 und ...g5 halten oder mit ...d6 ablehnen, um Solidit\u00e4t zu bewahren.",
+    "trapDe": "Nach ...exf4 e5 Sg8 Sf3 d6 d4 dxe5 Sxe5 ist die Entwicklung von Schwarz so schlecht, dass Wei\u00df eine dominierende Angriffsstellung hat."
   },
   {
     "eco": "C33",
     "name": "King's Gambit Accepted",
-    "moves": ["e4","e5","f4","exf4"],
+    "moves": [
+      "e4",
+      "e5",
+      "f4",
+      "exf4"
+    ],
     "idea": "Black accepts the pawn, and White gains a strong pawn center with d4 while Black tries to hold the extra pawn and counterattack.",
     "whitePlan": "Play d4 and Nf3 to rapidly develop and build central dominance, then use the open f-file for a kingside attack.",
     "blackPlan": "Hold the f4 pawn with ...g5 (the Classical Defense) or return it for quick development with ...d5 or ...Nf6.",
-    "trap": "After ...g5 h4 g4, the Kieseritzky Gambit Nf3 d6 Nxg4 is extremely dangerous; ...gxf3?? loses immediately to Qxf3."
+    "trap": "After ...g5 h4 g4, the Kieseritzky Gambit Nf3 d6 Nxg4 is extremely dangerous; ...gxf3?? loses immediately to Qxf3.",
+    "ideaDe": "Schwarz nimmt den Bauern an, und Wei\u00df erh\u00e4lt ein starkes Bauernzentrum mit d4, w\u00e4hrend Schwarz versucht, den Mehrbauern zu halten und zu kontern.",
+    "plansWhiteDe": "d4 und Sf3 spielen, um sich schnell zu entwickeln und Zentrumsdominanz aufzubauen, dann die offene f-Linie f\u00fcr einen K\u00f6nigsfl\u00fcgelangriff nutzen.",
+    "plansBlackDe": "Den Bauern auf f4 mit ...g5 (die klassische Verteidigung) halten oder ihn f\u00fcr schnelle Entwicklung mit ...d5 oder ...Sf6 zur\u00fcckgeben.",
+    "trapDe": "Nach ...g5 h4 g4 ist das Kieseritzky-Gambit Sf3 d6 Sxg4 extrem gef\u00e4hrlich; ...gxf3?? verliert sofort durch Dxf3."
   },
   {
     "eco": "C30",
     "name": "King's Gambit Declined",
-    "moves": ["e4","e5","f4","Bc5"],
+    "moves": [
+      "e4",
+      "e5",
+      "f4",
+      "Bc5"
+    ],
     "idea": "Black declines the gambit and counterattacks d4 immediately with the bishop, avoiding the sharp pawn-grabbing complications.",
     "whitePlan": "Play Nf3 and c3 to support a d4 advance, then use the f-file after fxe5 for active play.",
     "blackPlan": "Develop solidly with ...d6, ...Nc6, and ...Nf6, keeping the bishop on c5 to restrain d4.",
-    "trap": "If White tries fxe5 too early without preparation, ...Qh4+ wins a pawn and gives Black a strong initiative."
+    "trap": "If White tries fxe5 too early without preparation, ...Qh4+ wins a pawn and gives Black a strong initiative.",
+    "ideaDe": "Schwarz lehnt das Gambit ab und greift sofort mit dem L\u00e4ufer d4 an, wodurch die scharfen, bauernraubenden Komplikationen vermieden werden.",
+    "plansWhiteDe": "Sf3 und c3 spielen, um einen d4-Vorsto\u00df zu unterst\u00fctzen, dann nach fxe5 die f-Linie f\u00fcr aktives Spiel nutzen.",
+    "plansBlackDe": "Solide mit ...d6, ...Sc6 und ...Sf6 entwickeln, den L\u00e4ufer auf c5 behalten, um d4 einzuschr\u00e4nken.",
+    "trapDe": "Wenn Wei\u00df zu fr\u00fch ohne Vorbereitung fxe5 spielt, gewinnt ...Dh4+ einen Bauern und gibt Schwarz eine starke Initiative."
   },
   {
     "eco": "C42",
     "name": "Petrov's Defense (Russian Game)",
-    "moves": ["e4","e5","Nf3","Nf6"],
+    "moves": [
+      "e4",
+      "e5",
+      "Nf3",
+      "Nf6"
+    ],
     "idea": "Black mirrors White's knight development and immediately counterattacks e4, aiming for solid equality rather than imbalanced play.",
     "whitePlan": "Play Nxe5 and then d4 after ...d6 Nf3 Nxe4 d4, seizing the center and pressing for a slight long-term advantage.",
     "blackPlan": "Equalize with the main line ...d6 Nf3 Nxe4 d4 d5 and maintain a solid, symmetrical structure.",
-    "trap": "After Nxe5, Black must not play ...Nxe4 immediately without first playing ...d6; Qe2! wins the knight."
+    "trap": "After Nxe5, Black must not play ...Nxe4 immediately without first playing ...d6; Qe2! wins the knight.",
+    "ideaDe": "Schwarz spiegelt Wei\u00df' Springerentwicklung und greift sofort e4 an, mit dem Ziel soliden Ausgleichs statt unausgeglichenen Spiels.",
+    "plansWhiteDe": "Sxe5 und dann d4 nach ...d6 Sf3 Sxe4 d4 spielen, das Zentrum erobern und auf einen leichten langfristigen Vorteil dr\u00e4ngen.",
+    "plansBlackDe": "In der Hauptvariante mit ...d6 Sf3 Sxe4 d4 d5 ausgleichen und eine solide, symmetrische Struktur bewahren.",
+    "trapDe": "Nach Sxe5 darf Schwarz nicht sofort ...Sxe4 spielen, ohne zuvor ...d6 gezogen zu haben; De2! gewinnt den Springer."
   },
   {
     "eco": "C41",
     "name": "Philidor Defense",
-    "moves": ["e4","e5","Nf3","d6"],
+    "moves": [
+      "e4",
+      "e5",
+      "Nf3",
+      "d6"
+    ],
     "idea": "Black solidly supports the e5 pawn with the d-pawn, accepting a slightly cramped but resilient structure.",
     "whitePlan": "Play d4 to challenge the center and exploit the space advantage, aiming for d5 to cramp Black's position.",
     "blackPlan": "Play ...Nf6, ...Be7, and ...O-O, then use counterplay with ...c6 and ...d5, or the Hanham Variation with ...Nd7.",
-    "trap": "The Philidor Counter-Gambit (...f5?!) is unsound and after exf5 e4 Ng5 d5 d6, Black gets a losing position."
+    "trap": "The Philidor Counter-Gambit (...f5?!) is unsound and after exf5 e4 Ng5 d5 d6, Black gets a losing position.",
+    "ideaDe": "Schwarz st\u00fctzt den Bauern e5 solide mit dem d-Bauern und akzeptiert eine etwas beengte, aber widerstandsf\u00e4hige Struktur.",
+    "plansWhiteDe": "d4 spielen, um das Zentrum herauszufordern und den Raumvorteil auszunutzen, mit d5, um Schwarz' Stellung einzuengen.",
+    "plansBlackDe": "...Sf6, ...Le7 und ...0-0 spielen, dann Gegenspiel mit ...c6 und ...d5 oder die Hanham-Variante mit ...Sd7 nutzen.",
+    "trapDe": "Das Philidor-Kontergambit (...f5?!) ist ungesund; nach exf5 e4 Sg5 d5 d6 erh\u00e4lt Schwarz eine Verluststellung."
   },
   {
     "eco": "C47",
     "name": "Four Knights Game",
-    "moves": ["e4","e5","Nf3","Nc6","Nc3","Nf6"],
+    "moves": [
+      "e4",
+      "e5",
+      "Nf3",
+      "Nc6",
+      "Nc3",
+      "Nf6"
+    ],
     "idea": "Both sides develop all four knights symmetrically, leading to a solid and classical game where piece coordination is key.",
     "whitePlan": "Play Bb5 for the Spanish Four Knights, pressuring c6, or Bc4 for the Italian version aiming at f7.",
     "blackPlan": "Mirror White's development or break symmetry with ...Nd4 or ...Bb4 for the Rubinstein Variation.",
-    "trap": "The Halloween Gambit (Nxe5 Nxe5 d4) sacrifices a knight for aggressive central play, but is objectively dubious with precise Black play."
+    "trap": "The Halloween Gambit (Nxe5 Nxe5 d4) sacrifices a knight for aggressive central play, but is objectively dubious with precise Black play.",
+    "ideaDe": "Beide Seiten entwickeln alle vier Springer symmetrisch, was zu einem soliden und klassischen Spiel f\u00fchrt, bei dem Figurenkoordination entscheidend ist.",
+    "plansWhiteDe": "Lb5 f\u00fcr die spanische Vierspringervariante spielen, die c6 bedr\u00e4ngt, oder Lc4 f\u00fcr die italienische Version, die auf f7 zielt.",
+    "plansBlackDe": "Wei\u00df' Entwicklung spiegeln oder die Symmetrie mit ...Sd4 oder ...Lb4 f\u00fcr die Rubinstein-Variante durchbrechen.",
+    "trapDe": "Das Halloween-Gambit (Sxe5 Sxe5 d4) opfert einen Springer f\u00fcr aggressives Zentrumsspiel, ist aber bei pr\u00e4zisem schwarzen Spiel objektiv zweifelhaft."
   },
   {
     "eco": "C46",
     "name": "Three Knights Game",
-    "moves": ["e4","e5","Nf3","Nc6","Nc3"],
+    "moves": [
+      "e4",
+      "e5",
+      "Nf3",
+      "Nc6",
+      "Nc3"
+    ],
     "idea": "White develops both knights but delays Nf6, keeping flexible options including the Vienna-style f4 advance.",
     "whitePlan": "Play Bb5 to transpose to the Four Knights, or choose d4 or f4 for a more direct central or attacking approach.",
     "blackPlan": "Play ...Nf6 to transpose to the Four Knights, or try ...g6 and ...Bg7 for a Pirc-like setup.",
-    "trap": ""
+    "trap": "",
+    "ideaDe": "Wei\u00df entwickelt beide Springer, verz\u00f6gert aber Sf6, um flexible Optionen zu behalten, einschlie\u00dflich des Wiener f4-Vorsto\u00dfes.",
+    "plansWhiteDe": "Lb5 spielen, um in die Vierspringer zu transponieren, oder d4 oder f4 f\u00fcr einen direkteren Zentrums- oder Angriffsansatz w\u00e4hlen.",
+    "plansBlackDe": "...Sf6 spielen, um in die Vierspringer zu transponieren, oder ...g6 und ...Lg7 f\u00fcr einen Pirc-\u00e4hnlichen Aufbau versuchen.",
+    "trapDe": ""
   },
   {
     "eco": "C23",
     "name": "Bishop's Opening",
-    "moves": ["e4","e5","Bc4"],
+    "moves": [
+      "e4",
+      "e5",
+      "Bc4"
+    ],
     "idea": "White develops the bishop immediately to attack f7 and control the center, keeping flexibility before committing the king's knight.",
     "whitePlan": "Play Nf3 and d4 to transition to the Italian Game or Scotch Gambit, using the c4 bishop as an attacking piece.",
     "blackPlan": "Play ...Nf6 to counterattack e4, or ...Nc6 and ...Bc5 to enter a classical Italian-style position.",
-    "trap": ""
+    "trap": "",
+    "ideaDe": "Wei\u00df entwickelt sofort den L\u00e4ufer, um f7 anzugreifen und das Zentrum zu kontrollieren, und beh\u00e4lt sich Flexibilit\u00e4t vor, bevor der K\u00f6nigsprunger festgelegt wird.",
+    "plansWhiteDe": "Sf3 und d4 spielen, um ins Italienische Spiel oder Scotch-Gambit \u00fcberzuleiten, und den L\u00e4ufer auf c4 als Angriffsfigur nutzen.",
+    "plansBlackDe": "...Sf6 spielen, um e4 zu kontern, oder ...Sc6 und ...Lc5, um in eine klassische italienische Stellung zu gelangen.",
+    "trapDe": ""
   },
   {
     "eco": "C44",
     "name": "Ponziani Opening",
-    "moves": ["e4","e5","Nf3","Nc6","c3"],
+    "moves": [
+      "e4",
+      "e5",
+      "Nf3",
+      "Nc6",
+      "c3"
+    ],
     "idea": "White prepares d4 with c3, aiming for a strong pawn center, but the move is slow and gives Black active counterplay.",
     "whitePlan": "Push d4 to claim the center, then develop normally aiming for a Ruy Lopez-like structure.",
     "blackPlan": "Play the aggressive ...f5 or the solid ...Nf6 to gain the initiative against the slow setup.",
-    "trap": "After ...Nf6 d4 Nxe4 d5 Ne7 Nxe5, White wins material due to the fork on c6 or f7 threats."
+    "trap": "After ...Nf6 d4 Nxe4 d5 Ne7 Nxe5, White wins material due to the fork on c6 or f7 threats.",
+    "ideaDe": "Wei\u00df bereitet d4 mit c3 vor, um ein starkes Bauernzentrum zu erlangen, aber der Zug ist langsam und gibt Schwarz aktives Gegenspiel.",
+    "plansWhiteDe": "d4 vorsto\u00dfen, um das Zentrum zu beanspruchen, dann normal entwickeln und eine Ruy-Lopez-\u00e4hnliche Struktur anstreben.",
+    "plansBlackDe": "Das aggressive ...f5 oder das solide ...Sf6 spielen, um gegen die langsame Aufstellung die Initiative zu ergreifen.",
+    "trapDe": "Nach ...Sf6 d4 Sxe4 d5 Se7 Sxe5 gewinnt Wei\u00df Material durch die Gabel auf c6 oder Drohungen gegen f7."
   },
   {
     "eco": "C22",
     "name": "Center Game",
-    "moves": ["e4","e5","d4","exd4","Qxd4"],
+    "moves": [
+      "e4",
+      "e5",
+      "d4",
+      "exd4",
+      "Qxd4"
+    ],
     "idea": "White captures on d4 with the queen, gaining an immediate central presence but exposing the queen to tempo-gaining attacks.",
     "whitePlan": "Develop rapidly with Nc3, Bc4, and Nge2, keeping the queen active in the center while avoiding harassment.",
     "blackPlan": "Attack the queen with ...Nc6 to gain a tempo, then develop quickly with ...Nf6 and ...Bb4 or ...Bc5.",
-    "trap": "If White plays Qe3 to avoid ...Nc6, Black can play ...Bb4+ Nc3 Nf6 e5 Ng4! with a strong attack."
+    "trap": "If White plays Qe3 to avoid ...Nc6, Black can play ...Bb4+ Nc3 Nf6 e5 Ng4! with a strong attack.",
+    "ideaDe": "Wei\u00df erobert auf d4 mit der Dame zur\u00fcck, erlangt eine sofortige Zentrumspr\u00e4senz, setzt die Dame aber tempogewinnbringenden Angriffen aus.",
+    "plansWhiteDe": "Sich schnell mit Sc3, Lc4 und Sge2 entwickeln, die Dame aktiv im Zentrum halten und Bel\u00e4stigungen vermeiden.",
+    "plansBlackDe": "Die Dame mit ...Sc6 angreifen, um ein Tempo zu gewinnen, dann schnell mit ...Sf6 und ...Lb4 oder ...Lc5 entwickeln.",
+    "trapDe": "Wenn Wei\u00df De3 spielt, um ...Sc6 zu vermeiden, kann Schwarz ...Lb4+ Sc3 Sf6 e5 Sg4! mit einem starken Angriff spielen."
   },
   {
     "eco": "C21",
     "name": "Danish Gambit",
-    "moves": ["e4","e5","d4","exd4","c3"],
+    "moves": [
+      "e4",
+      "e5",
+      "d4",
+      "exd4",
+      "c3"
+    ],
     "idea": "White sacrifices two pawns for devastating development and open lines, aiming to overwhelm Black before he can consolidate.",
     "whitePlan": "After ...dxc3 Bc4 cxb2 Bxb2, develop Nc3 and Nge2, then launch a direct kingside attack with all pieces active.",
     "blackPlan": "Decline with ...d5 for a solid game, or accept and try to hold the pawns with precise defense.",
-    "trap": "After accepting both pawns, ...Nf6 Nc3 Bb4 Nge2 O-O O-O, Black can often hold but the position requires exact knowledge."
+    "trap": "After accepting both pawns, ...Nf6 Nc3 Bb4 Nge2 O-O O-O, Black can often hold but the position requires exact knowledge.",
+    "ideaDe": "Wei\u00df opfert zwei Bauern f\u00fcr verheerende Entwicklung und offene Linien, um Schwarz zu \u00fcberw\u00e4ltigen, bevor dieser konsolidieren kann.",
+    "plansWhiteDe": "Nach ...dxc3 Lc4 cxb2 Lxb2 Sc3 und Sge2 entwickeln, dann mit allen aktiven Figuren einen direkten K\u00f6nigsfl\u00fcgelangriff starten.",
+    "plansBlackDe": "Mit ...d5 ablehnen, um ein solides Spiel zu erhalten, oder annehmen und versuchen, die Bauern mit pr\u00e4ziser Verteidigung zu halten.",
+    "trapDe": "Nach der Annahme beider Bauern k\u00f6nnen ...Sf6 Sc3 Lb4 Sge2 0-0 0-0, Schwarz kann oft halten, aber die Stellung erfordert genaue Kenntnis."
   },
   {
     "eco": "C50",
     "name": "Hungarian Defense",
-    "moves": ["e4","e5","Nf3","Nc6","Bc4","Be7"],
+    "moves": [
+      "e4",
+      "e5",
+      "Nf3",
+      "Nc6",
+      "Bc4",
+      "Be7"
+    ],
     "idea": "Black plays the passive ...Be7 instead of ...Bc5 or ...Nf6, aiming for a solid but somewhat cramped defensive setup.",
     "whitePlan": "Play d4 to challenge the center aggressively and exploit Black's lack of counterplay, building a large space advantage.",
     "blackPlan": "Develop solidly with ...Nf6, ...O-O, and ...d6, hoping to hold the position and counterattack later.",
-    "trap": ""
+    "trap": "",
+    "ideaDe": "Schwarz spielt das passive ...Le7 statt ...Lc5 oder ...Sf6, mit dem Ziel einer soliden, aber etwas beengten Verteidigungsaufstellung.",
+    "plansWhiteDe": "d4 spielen, um das Zentrum aggressiv herauszufordern und Schwarz' Mangel an Gegenspiel auszunutzen, um einen gro\u00dfen Raumvorteil aufzubauen.",
+    "plansBlackDe": "Solide mit ...Sf6, ...0-0 und ...d6 entwickeln, in der Hoffnung, die Stellung zu halten und sp\u00e4ter zu kontern.",
+    "trapDe": ""
   },
   {
     "eco": "C57",
     "name": "Italian Game: Fried Liver Attack",
-    "moves": ["e4","e5","Nf3","Nc6","Bc4","Nf6","Ng5","d5","exd5","Nxd5","Nxf7"],
+    "moves": [
+      "e4",
+      "e5",
+      "Nf3",
+      "Nc6",
+      "Bc4",
+      "Nf6",
+      "Ng5",
+      "d5",
+      "exd5",
+      "Nxd5",
+      "Nxf7"
+    ],
     "idea": "White sacrifices the knight on f7 to destroy Black's king position, exposing the king to a ferocious attack in the middlegame.",
     "whitePlan": "After ...Kxf7 Qf3+, bring the queen and bishop to bear on the king, using Nc3 and d4 to add more attackers rapidly.",
     "blackPlan": "Black must accept the sacrifice and try to survive with ...Ke6 or ...Kg8, returning material to stabilize if possible.",
-    "trap": "After Nxf7 Kxf7 Qf3+ Ke6 Nc3 Nb4 Qe4 c6 a3! Na6, the attack is so strong that most players blunder under pressure."
+    "trap": "After Nxf7 Kxf7 Qf3+ Ke6 Nc3 Nb4 Qe4 c6 a3! Na6, the attack is so strong that most players blunder under pressure.",
+    "ideaDe": "Wei\u00df opfert den Springer auf f7, um die schwarze K\u00f6nigstellung zu zerst\u00f6ren und den K\u00f6nig einem w\u00fctenden Angriff im Mittelspiel auszusetzen.",
+    "plansWhiteDe": "Nach ...Kxf7 Df3+ die Dame und den L\u00e4ufer auf den K\u00f6nig richten, mit Sc3 und d4 weitere Angreifer schnell heranf\u00fchren.",
+    "plansBlackDe": "Schwarz muss das Opfer annehmen und versuchen, mit ...Ke6 oder ...Kg8 zu \u00fcberleben und gegebenenfalls Material zur\u00fcckzugeben, um zu stabilisieren.",
+    "trapDe": "Nach Sxf7 Kxf7 Df3+ Ke6 Sc3 Sb4 De4 c6 a3! Sa6 ist der Angriff so stark, dass die meisten Spieler unter Druck einen Fehler machen."
   },
   {
     "eco": "B20",
     "name": "Sicilian Defense",
-    "moves": ["e4","c5"],
+    "moves": [
+      "e4",
+      "c5"
+    ],
     "idea": "Black fights for the center asymmetrically: c5 contests d4 without mirroring White's pawn structure, leading to imbalanced positions where Black can play for a win.",
     "whitePlan": "Open the center with d4, seize space, and launch a kingside attack.",
     "blackPlan": "Undermine White's center, create queenside counterplay, and exploit the half-open c-file.",
-    "trap": ""
+    "trap": "",
+    "ideaDe": "Schwarz k\u00e4mpft asymmetrisch ums Zentrum: c5 greift d4 an, ohne die wei\u00dfe Bauernstruktur zu spiegeln, was zu ungleichgewichtigen Stellungen f\u00fchrt, in denen Schwarz auf Gewinn spielen kann.",
+    "plansWhiteDe": "Das Zentrum mit d4 \u00f6ffnen, Raumgewinn betreiben und einen K\u00f6nigsfl\u00fcgelangriff starten.",
+    "plansBlackDe": "Das wei\u00dfe Zentrum untergraben, Damenfl\u00fcgelgegenspiel erzeugen und die halboffene c-Linie ausnutzen.",
+    "trapDe": ""
   },
   {
     "eco": "B90",
     "name": "Sicilian Defense: Najdorf Variation",
-    "moves": ["e4","c5","Nf3","d6","d4","cxd4","Nxd4","Nf6","Nc3","a6"],
+    "moves": [
+      "e4",
+      "c5",
+      "Nf3",
+      "d6",
+      "d4",
+      "cxd4",
+      "Nxd4",
+      "Nf6",
+      "Nc3",
+      "a6"
+    ],
     "idea": "a6 prevents Nb5 and Bb5+, giving Black maximum flexibility to choose between ...e5, ...e6, or queenside expansion depending on White's setup.",
     "whitePlan": "Launch a direct kingside attack with f4-f5 or the English Attack (Be3, f3, g4).",
     "blackPlan": "Expand on the queenside with ...b5-b4, attacking White's center and generating counterplay.",
-    "trap": "If Black plays ...b5 too early without ...Bb7, White can sacrifice on e6 or b5 to open lines against the uncastled king."
+    "trap": "If Black plays ...b5 too early without ...Bb7, White can sacrifice on e6 or b5 to open lines against the uncastled king.",
+    "ideaDe": "a6 verhindert Sb5 und Lb5+ und gibt Schwarz maximale Flexibilit\u00e4t, je nach wei\u00dfem Aufbau zwischen ...e5, ...e6 oder Damenfl\u00fcgelexpansion zu w\u00e4hlen.",
+    "plansWhiteDe": "Einen direkten K\u00f6nigsfl\u00fcgelangriff mit f4-f5 oder den English Attack (Le3, f3, g4) starten.",
+    "plansBlackDe": "Am Damenfl\u00fcgel mit ...b5-b4 expandieren, das wei\u00dfe Zentrum angreifen und Gegenspiel erzeugen.",
+    "trapDe": "Wenn Schwarz ...b5 zu fr\u00fch spielt, ohne ...Lb7 vorzubereiten, kann Wei\u00df auf e6 oder b5 opfern, um Linien gegen den noch nicht rochierten K\u00f6nig zu \u00f6ffnen."
   },
   {
     "eco": "B70",
     "name": "Sicilian Defense: Dragon Variation",
-    "moves": ["e4","c5","Nf3","d6","d4","cxd4","Nxd4","Nf6","Nc3","g6"],
+    "moves": [
+      "e4",
+      "c5",
+      "Nf3",
+      "d6",
+      "d4",
+      "cxd4",
+      "Nxd4",
+      "Nf6",
+      "Nc3",
+      "g6"
+    ],
     "idea": "Black fianchettoes the bishop to g7, creating a powerful long diagonal and a resilient kingside structure suited to endgame and counterattacking play.",
     "whitePlan": "Castle queenside and launch a mating attack with h4-h5, sacrificing material to break open the h-file.",
     "blackPlan": "Castle kingside, activate the dragon bishop, and counterattack on the c-file and queenside with ...Rc8 and ...d5.",
-    "trap": "In the Yugoslav Attack, if Black takes the h-pawn carelessly, White's Bxh6 often leads to a devastating mating attack before Black can coordinate."
+    "trap": "In the Yugoslav Attack, if Black takes the h-pawn carelessly, White's Bxh6 often leads to a devastating mating attack before Black can coordinate.",
+    "ideaDe": "Schwarz fianchettiert den L\u00e4ufer nach g7 und schafft eine m\u00e4chtige lange Diagonale sowie eine robuste K\u00f6nigsfl\u00fcgelstruktur, die sowohl f\u00fcrs Endspiel als auch f\u00fcr Gegenschlag geeignet ist.",
+    "plansWhiteDe": "Lange rochieren und mit h4-h5 einen Mattangriff starten, wobei Material geopfert wird, um die h-Linie aufzubrechen.",
+    "plansBlackDe": "Kurz rochieren, den Drachenl\u00e4ufer aktivieren und mit ...Tc8 und ...d5 auf der c-Linie und am Damenfl\u00fcgel kontern.",
+    "trapDe": "Im Jugoslawischen Angriff f\u00fchrt Lxh6 nach unbedachtem Schlagen des h-Bauern durch Schwarz oft zu einem vernichtenden Mattangriff, bevor Schwarz sich koordinieren kann."
   },
   {
     "eco": "B34",
     "name": "Sicilian Defense: Accelerated Dragon",
-    "moves": ["e4","c5","Nf3","Nc6","d4","cxd4","Nxd4","g6"],
+    "moves": [
+      "e4",
+      "c5",
+      "Nf3",
+      "Nc6",
+      "d4",
+      "cxd4",
+      "Nxd4",
+      "g6"
+    ],
     "idea": "Black fianchettoes immediately without committing to ...d6, keeping the option of ...d5 in one move and avoiding the Yugoslav Attack that plagues the regular Dragon.",
     "whitePlan": "Play the Maroczy Bind with c4 to clamp down on d5 and restrict Black's counterplay.",
     "blackPlan": "Break the bind with ...d5 at the right moment or generate queenside pressure with ...a5-a4.",
-    "trap": "If White delays c4, Black can achieve ...d5 immediately, equalizing easily and rendering many White setups ineffective."
+    "trap": "If White delays c4, Black can achieve ...d5 immediately, equalizing easily and rendering many White setups ineffective.",
+    "ideaDe": "Schwarz fianchettiert sofort, ohne sich auf ...d6 festzulegen, beh\u00e4lt die Option ...d5 in einem Zug und vermeidet den Jugoslawischen Angriff, der den normalen Drachen plagt.",
+    "plansWhiteDe": "Die Maroczy-Bindung mit c4 spielen, um d5 zu kontrollieren und das Gegenspiel von Schwarz einzuschr\u00e4nken.",
+    "plansBlackDe": "Die Bindung im richtigen Moment mit ...d5 sprengen oder mit ...a5-a4 Damenfl\u00fcgeldruck erzeugen.",
+    "trapDe": "Wenn Wei\u00df c4 verz\u00f6gert, kann Schwarz sofort ...d5 durchsetzen, leicht ausgleichen und viele wei\u00dfe Aufbauten wirkungslos machen."
   },
   {
     "eco": "B80",
     "name": "Sicilian Defense: Scheveningen Variation",
-    "moves": ["e4","c5","Nf3","d6","d4","cxd4","Nxd4","Nf6","Nc3","e6"],
+    "moves": [
+      "e4",
+      "c5",
+      "Nf3",
+      "d6",
+      "d4",
+      "cxd4",
+      "Nxd4",
+      "Nf6",
+      "Nc3",
+      "e6"
+    ],
     "idea": "Black builds a solid small center with ...e6 and ...d6, accepting a space disadvantage in exchange for a very solid structure and flexible piece development.",
     "whitePlan": "Launch the Keres Attack (g4) or English Attack to build a powerful kingside offensive.",
     "blackPlan": "Complete development, castle, and counterattack with ...d5 or queenside expansion.",
-    "trap": "The Keres Attack (g4 early) can catch Black off guard if they try to play normally; ...h6 is often punished by g5."
+    "trap": "The Keres Attack (g4 early) can catch Black off guard if they try to play normally; ...h6 is often punished by g5.",
+    "ideaDe": "Schwarz baut mit ...e6 und ...d6 ein solides kleines Zentrum auf und nimmt einen Raumnachteil in Kauf, im Austausch f\u00fcr eine sehr solide Struktur und flexible Figurenentwicklung.",
+    "plansWhiteDe": "Den Keres-Angriff (g4) oder English Attack starten, um eine m\u00e4chtige K\u00f6nigsfl\u00fcgeloffensive aufzubauen.",
+    "plansBlackDe": "Die Entwicklung abschlie\u00dfen, rochieren und mit ...d5 oder Damenfl\u00fcgelexpansion kontern.",
+    "trapDe": "Der Keres-Angriff (fr\u00fches g4) kann Schwarz kalt erwischen, wenn es normal weiterentwickeln will; ...h6 wird oft mit g5 bestraft."
   },
   {
     "eco": "B33",
     "name": "Sicilian Defense: Sveshnikov Variation",
-    "moves": ["e4","c5","Nf3","Nc6","d4","cxd4","Nxd4","Nf6","Nc3","e5"],
+    "moves": [
+      "e4",
+      "c5",
+      "Nf3",
+      "Nc6",
+      "d4",
+      "cxd4",
+      "Nxd4",
+      "Nf6",
+      "Nc3",
+      "e5"
+    ],
     "idea": "Black seizes central space with ...e5, driving the knight to b5 and accepting a permanent d5 weakness in exchange for active piece play and the bishop pair.",
     "whitePlan": "Occupy d5 with a knight, pressure the backward d6 pawn, and exploit the weak d5 outpost.",
     "blackPlan": "Use the powerful e5 pawn as a space anchor, activate the dark-squared bishop, and create counterplay on the kingside and c-file.",
-    "trap": "If Black plays carelessly, a knight planted on d5 that cannot be easily removed becomes a dominating piece that paralyzes Black's position."
+    "trap": "If Black plays carelessly, a knight planted on d5 that cannot be easily removed becomes a dominating piece that paralyzes Black's position.",
+    "ideaDe": "Schwarz erobert mit ...e5 Raum im Zentrum, treibt den Springer nach b5 und akzeptiert eine permanente Schw\u00e4che auf d5 im Austausch f\u00fcr aktives Figurenspiel und das L\u00e4uferpaar.",
+    "plansWhiteDe": "d5 mit einem Springer besetzen, den r\u00fcckst\u00e4ndigen d6-Bauern unter Druck setzen und den schwachen Vorposten auf d5 ausnutzen.",
+    "plansBlackDe": "Den m\u00e4chtigen e5-Bauern als Raumanker nutzen, den schwarzfeldrigen L\u00e4ufer aktivieren und am K\u00f6nigsfl\u00fcgel sowie auf der c-Linie Gegenspiel erzeugen.",
+    "trapDe": "Wenn Schwarz unachtsam spielt, wird ein auf d5 postierter Springer, der nicht leicht vertrieben werden kann, zu einer dominierenden Figur, die die schwarze Stellung l\u00e4hmt."
   },
   {
     "eco": "B58",
     "name": "Sicilian Defense: Classical Variation",
-    "moves": ["e4","c5","Nf3","Nc6","d4","cxd4","Nxd4","Nf6","Nc3","d6"],
+    "moves": [
+      "e4",
+      "c5",
+      "Nf3",
+      "Nc6",
+      "d4",
+      "cxd4",
+      "Nxd4",
+      "Nf6",
+      "Nc3",
+      "d6"
+    ],
     "idea": "Black develops naturally without early commitments, keeping the position flexible and steering toward a rich middlegame rather than a specific named plan.",
     "whitePlan": "Play Be2 and castle kingside for a solid approach, or Be3/f3 for an aggressive setup.",
     "blackPlan": "Complete kingside development, castle, and then decide on queenside expansion or central breaks based on White's setup.",
-    "trap": ""
+    "trap": "",
+    "ideaDe": "Schwarz entwickelt sich nat\u00fcrlich ohne fr\u00fche Festlegungen, h\u00e4lt die Stellung flexibel und strebt ein reichhaltiges Mittelspiel anstatt eines spezifischen benannten Plans an.",
+    "plansWhiteDe": "Le2 und kurze Rochade f\u00fcr einen soliden Ansatz spielen oder Le3/f3 f\u00fcr einen aggressiven Aufbau.",
+    "plansBlackDe": "Die K\u00f6nigsfl\u00fcgelentwicklung abschlie\u00dfen, rochieren und dann je nach wei\u00dfem Aufbau \u00fcber Damenfl\u00fcgelexpansion oder Zentrumsdurchbr\u00fcche entscheiden.",
+    "trapDe": ""
   },
   {
     "eco": "B46",
     "name": "Sicilian Defense: Taimanov Variation",
-    "moves": ["e4","c5","Nf3","e6","d4","cxd4","Nxd4","Nc6"],
+    "moves": [
+      "e4",
+      "c5",
+      "Nf3",
+      "e6",
+      "d4",
+      "cxd4",
+      "Nxd4",
+      "Nc6"
+    ],
     "idea": "Black develops the knight to c6 before committing the bishop, maintaining maximum flexibility and keeping options open for both ...a6 and ...Nge7 setups.",
     "whitePlan": "Play Nb5 ideas, or build with Be3, Be2, and castle to prepare a central or kingside offensive.",
     "blackPlan": "Play ...Nge7 or ...Nf6, complete development, and prepare ...d5 or queenside counterplay.",
-    "trap": "If Black plays ...a6 too slowly, White's Nb5 with pressure on d6 can force concessions before Black has consolidated."
+    "trap": "If Black plays ...a6 too slowly, White's Nb5 with pressure on d6 can force concessions before Black has consolidated.",
+    "ideaDe": "Schwarz entwickelt den Springer nach c6, bevor der L\u00e4ufer sich festlegt, bewahrt maximale Flexibilit\u00e4t und h\u00e4lt sich sowohl ...a6 als auch ...Sge7-Aufbauten offen.",
+    "plansWhiteDe": "Sb5-Ideen spielen oder mit Le3, Le2 und Rochade einen Zentrums- oder K\u00f6nigsfl\u00fcgelangriff vorbereiten.",
+    "plansBlackDe": "...Sge7 oder ...Sf6 spielen, die Entwicklung abschlie\u00dfen und ...d5 oder Damenfl\u00fcgelgegenspiel vorbereiten.",
+    "trapDe": "Wenn Schwarz ...a6 zu langsam spielt, kann Sb5 mit Druck auf d6 Zugest\u00e4ndnisse erzwingen, bevor Schwarz sich konsolidiert hat."
   },
   {
     "eco": "B41",
     "name": "Sicilian Defense: Kan Variation",
-    "moves": ["e4","c5","Nf3","e6","d4","cxd4","Nxd4","a6"],
+    "moves": [
+      "e4",
+      "c5",
+      "Nf3",
+      "e6",
+      "d4",
+      "cxd4",
+      "Nxd4",
+      "a6"
+    ],
     "idea": "The early ...a6 prevents Nb5 and sets up a flexible structure where Black can choose between Taimanov-style play with ...Nc6 or Scheveningen-style with ...d6.",
     "whitePlan": "Establish central control and prepare a kingside attack, often with f4 and a timely central push.",
     "blackPlan": "Expand on the queenside with ...b5 and ...Bb7, pressing on the long diagonal and the b-file.",
-    "trap": "If Black plays ...b5 prematurely, White can exploit the weakened queenside with a4, undermining the b5 pawn and gaining space."
+    "trap": "If Black plays ...b5 prematurely, White can exploit the weakened queenside with a4, undermining the b5 pawn and gaining space.",
+    "ideaDe": "Das fr\u00fche ...a6 verhindert Sb5 und schafft eine flexible Struktur, in der Schwarz zwischen Taimanov-artigem Spiel mit ...Sc6 oder Scheveninger Stil mit ...d6 w\u00e4hlen kann.",
+    "plansWhiteDe": "Zentrumskontrolle aufbauen und einen K\u00f6nigsfl\u00fcgelangriff vorbereiten, oft mit f4 und einem rechtzeitigen Zentrumsvorsto\u00df.",
+    "plansBlackDe": "Am Damenfl\u00fcgel mit ...b5 und ...Lb7 expandieren und Druck auf der langen Diagonale sowie der b-Linie aus\u00fcben.",
+    "trapDe": "Wenn Schwarz ...b5 voreilig spielt, kann Wei\u00df den geschw\u00e4chten Damenfl\u00fcgel mit a4 ausnutzen, den b5-Bauern untergraben und Raum gewinnen."
   },
   {
     "eco": "B22",
     "name": "Sicilian Defense: Alapin Variation",
-    "moves": ["e4","c5","c3"],
+    "moves": [
+      "e4",
+      "c5",
+      "c3"
+    ],
     "idea": "White prepares d4 with c3, aiming for a strong pawn center while avoiding the deeply theoretical open Sicilian main lines.",
     "whitePlan": "Build a solid center with d4, develop naturally, and exploit the space advantage in a positional middlegame.",
     "blackPlan": "Challenge the center immediately with ...d5 or ...Nf6, or play ...d6 and ...Nf6 for a flexible setup.",
-    "trap": "After 2...Nf6 3.e5 Nd5, if Black is not careful White can build a very strong center and Black's knight can become misplaced."
+    "trap": "After 2...Nf6 3.e5 Nd5, if Black is not careful White can build a very strong center and Black's knight can become misplaced.",
+    "ideaDe": "Wei\u00df bereitet mit c3 d4 vor und zielt auf ein starkes Bauernzentrum ab, w\u00e4hrend die tief theoretischen Hauptvarianten des offenen Sizilianers vermieden werden.",
+    "plansWhiteDe": "Ein solides Zentrum mit d4 aufbauen, sich nat\u00fcrlich entwickeln und den Raumvorteil in einem positionellen Mittelspiel ausnutzen.",
+    "plansBlackDe": "Das Zentrum sofort mit ...d5 oder ...Sf6 angreifen oder ...d6 und ...Sf6 f\u00fcr einen flexiblen Aufbau spielen.",
+    "trapDe": "Nach 2...Sf6 3.e5 Sd5 kann Wei\u00df ein sehr starkes Zentrum aufbauen und der schwarze Springer kann fehlplatziert werden, wenn Schwarz nicht aufpasst."
   },
   {
     "eco": "B23",
     "name": "Sicilian Defense: Closed Variation",
-    "moves": ["e4","c5","Nc3","Nc6","g3","g6","Bg2","Bg7"],
+    "moves": [
+      "e4",
+      "c5",
+      "Nc3",
+      "Nc6",
+      "g3",
+      "g6",
+      "Bg2",
+      "Bg7"
+    ],
     "idea": "White avoids the open Sicilian and builds a solid kingside fianchetto setup, aiming for a slow strategic game rather than sharp tactical battles.",
     "whitePlan": "Advance f4-f5 to create kingside pressure, or maneuver pieces to support a central d3-d4 break.",
     "blackPlan": "Expand on the queenside with ...d6, ...e6, and ...b5-b4, making use of the half-open c-file.",
-    "trap": ""
+    "trap": "",
+    "ideaDe": "Wei\u00df vermeidet das offene Sizilianisch und baut einen soliden K\u00f6nigsfl\u00fcgel-Fianchetto-Aufbau auf, der auf ein langsames strategisches Spiel statt auf scharfe taktische Gefechte abzielt.",
+    "plansWhiteDe": "Mit f4-f5 K\u00f6nigsfl\u00fcgeldruck erzeugen oder Figuren man\u00f6vrieren, um einen zentralen d3-d4-Durchbruch zu unterst\u00fctzen.",
+    "plansBlackDe": "Am Damenfl\u00fcgel mit ...d6, ...e6 und ...b5-b4 expandieren und die halboffene c-Linie nutzen.",
+    "trapDe": ""
   },
   {
     "eco": "B21",
     "name": "Sicilian Defense: Smith-Morra Gambit",
-    "moves": ["e4","c5","d4","cxd4","c3","dxc3","Nxc3"],
+    "moves": [
+      "e4",
+      "c5",
+      "d4",
+      "cxd4",
+      "c3",
+      "dxc3",
+      "Nxc3"
+    ],
     "idea": "White sacrifices a pawn for rapid development, an open c-file, and dangerous attacking chances before Black can fully consolidate.",
     "whitePlan": "Develop rapidly with Nf3, Bc4, O-O, and attack along the c-file and d5 square before Black finishes development.",
     "blackPlan": "Return material or consolidate the extra pawn with precise moves like ...d3, and complete development to defuse White's initiative.",
-    "trap": "If Black plays ...e6 and ...d6 passively without returning the pawn or activating pieces, White's rapid development creates overwhelming threats."
+    "trap": "If Black plays ...e6 and ...d6 passively without returning the pawn or activating pieces, White's rapid development creates overwhelming threats.",
+    "ideaDe": "Wei\u00df opfert einen Bauern f\u00fcr schnelle Entwicklung, eine offene c-Linie und gef\u00e4hrliche Angriffschancen, bevor Schwarz sich vollst\u00e4ndig konsolidieren kann.",
+    "plansWhiteDe": "Sich schnell mit Sf3, Lc4, O-O entwickeln und entlang der c-Linie und des d5-Feldes angreifen, bevor Schwarz seine Entwicklung abschlie\u00dft.",
+    "plansBlackDe": "Material zur\u00fcckgeben oder den Mehrbauern mit pr\u00e4zisen Z\u00fcgen wie ...d3 konsolidieren und die Entwicklung abschlie\u00dfen, um die wei\u00dfe Initiative zu entsch\u00e4rfen.",
+    "trapDe": "Wenn Schwarz passiv ...e6 und ...d6 spielt, ohne den Bauern zur\u00fcckzugeben oder Figuren zu aktivieren, schafft Wei\u00df' schnelle Entwicklung \u00fcberw\u00e4ltigende Drohungen."
   },
   {
     "eco": "B23",
     "name": "Sicilian Defense: Grand Prix Attack",
-    "moves": ["e4","c5","Nc3","Nc6","f4"],
+    "moves": [
+      "e4",
+      "c5",
+      "Nc3",
+      "Nc6",
+      "f4"
+    ],
     "idea": "White builds an immediate kingside attacking formation with f4, threatening f5 and a quick kingside offensive without the theoretical burden of d4 lines.",
     "whitePlan": "Play Nf3, Bb5 or Bc4, castle kingside, and launch f4-f5 to crack open Black's kingside.",
     "blackPlan": "Play ...g6 and ...Bg7 to create a solid defensive setup, or challenge with ...d5 to counter White's space.",
-    "trap": "If Black castles kingside carelessly, the f4-f5 advance can open the f-file for a devastating rook attack."
+    "trap": "If Black castles kingside carelessly, the f4-f5 advance can open the f-file for a devastating rook attack.",
+    "ideaDe": "Wei\u00df baut mit f4 sofort eine K\u00f6nigsfl\u00fcgel-Angriffsformation auf, droht f5 und eine schnelle K\u00f6nigsfl\u00fcgeloffensive ohne die theoretische Last der d4-Linien.",
+    "plansWhiteDe": "Sf3, Lb5 oder Lc4 spielen, kurz rochieren und f4-f5 starten, um den schwarzen K\u00f6nigsfl\u00fcgel aufzubrechen.",
+    "plansBlackDe": "...g6 und ...Lg7 spielen, um einen soliden Verteidigungsaufbau zu schaffen, oder mit ...d5 kontern, um Wei\u00df' Raum zu bek\u00e4mpfen.",
+    "trapDe": "Wenn Schwarz unvorsichtig kurz rochiert, kann der f4-f5-Vorsto\u00df die f-Linie f\u00fcr einen verheerenden Turmangriff \u00f6ffnen."
   },
   {
     "eco": "C00",
     "name": "French Defense",
-    "moves": ["e4","e6","d4","d5"],
+    "moves": [
+      "e4",
+      "e6",
+      "d4",
+      "d5"
+    ],
     "idea": "Black immediately challenges White's center with ...d5, accepting a potentially cramped position in exchange for a solid pawn structure and long-term counterplay.",
     "whitePlan": "Maintain central tension or advance e5 to gain space, then attack the kingside while Black is cramped.",
     "blackPlan": "Break with ...c5 to undermine White's d4 pawn and free the light-squared bishop, which is often hemmed in by ...e6.",
-    "trap": ""
+    "trap": "",
+    "ideaDe": "Schwarz greift das wei\u00dfe Zentrum sofort mit ...d5 an und nimmt eine potenziell beengte Stellung im Austausch f\u00fcr eine solide Bauernstruktur und langfristiges Gegenspiel in Kauf.",
+    "plansWhiteDe": "Die Zentrumsspannung aufrechterhalten oder e5 vorr\u00fccken, um Raum zu gewinnen, dann den K\u00f6nigsfl\u00fcgel angreifen, w\u00e4hrend Schwarz beengt ist.",
+    "plansBlackDe": "Mit ...c5 durchbrechen, um den wei\u00dfen d4-Bauern zu untergraben und den wei\u00dffeldrigen L\u00e4ufer zu befreien, der oft durch ...e6 eingesperrt ist.",
+    "trapDe": ""
   },
   {
     "eco": "C18",
     "name": "French Defense: Winawer Variation",
-    "moves": ["e4","e6","d4","d5","Nc3","Bb4"],
+    "moves": [
+      "e4",
+      "e6",
+      "d4",
+      "d5",
+      "Nc3",
+      "Bb4"
+    ],
     "idea": "Black pins the knight and threatens to double White's pawns on c3, creating a structural imbalance where Black's bishop pair and active play compensate for White's center.",
     "whitePlan": "Advance e5 to gain space, then use Qg4 ideas and kingside attacks exploiting Black's kingside weaknesses after ...Bxc3+.",
     "blackPlan": "Double White's pawns with ...Bxc3+, then attack the weakened c3 pawn complex and White's center with ...c5.",
-    "trap": "After Qg4 attacking g7, if Black plays ...Kf8 instead of castling, White's c1 bishop can join the attack with devastating effect."
+    "trap": "After Qg4 attacking g7, if Black plays ...Kf8 instead of castling, White's c1 bishop can join the attack with devastating effect.",
+    "ideaDe": "Schwarz fesselt den Springer und droht, Wei\u00df' Bauern auf c3 zu verdoppeln, was ein strukturelles Ungleichgewicht schafft, in dem Schwarz' L\u00e4uferpaar und aktives Spiel das wei\u00dfe Zentrum kompensiert.",
+    "plansWhiteDe": "e5 vorr\u00fccken, um Raum zu gewinnen, dann Dg4-Ideen und K\u00f6nigsfl\u00fcgelangriffe nutzen, die die schwarzen K\u00f6nigsfl\u00fcgelschw\u00e4chen nach ...Lxc3+ ausbeuten.",
+    "plansBlackDe": "Wei\u00df' Bauern mit ...Lxc3+ verdoppeln, dann den geschw\u00e4chten c3-Bauernkomplex und das wei\u00dfe Zentrum mit ...c5 angreifen.",
+    "trapDe": "Nach Dg4 mit Angriff auf g7 kann der wei\u00dfe L\u00e4ufer von c1 mit verheerender Wirkung in den Angriff eingreifen, wenn Schwarz ...Kf8 statt Rochade spielt."
   },
   {
     "eco": "C07",
     "name": "French Defense: Tarrasch Variation",
-    "moves": ["e4","e6","d4","d5","Nd2"],
+    "moves": [
+      "e4",
+      "e6",
+      "d4",
+      "d5",
+      "Nd2"
+    ],
     "idea": "White avoids doubling pawns by developing the knight to d2 instead of c3, maintaining a solid center and avoiding the complications of the Winawer.",
     "whitePlan": "Play Ngf3, Bd3, and castle, then build pressure with e5 or exchange on d5 for a favorable endgame.",
     "blackPlan": "Play ...c5 to challenge White's center and activate the light-squared bishop, aiming for active piece play.",
-    "trap": ""
+    "trap": "",
+    "ideaDe": "Wei\u00df vermeidet Bauernverdopplung, indem der Springer nach d2 statt c3 entwickelt wird, was ein solides Zentrum bewahrt und die Komplikationen des Winawer vermeidet.",
+    "plansWhiteDe": "Sgf3, Ld3 und Rochade spielen, dann mit e5 Druck aufbauen oder auf d5 tauschen, um ein g\u00fcnstiges Endspiel zu erreichen.",
+    "plansBlackDe": "...c5 spielen, um das wei\u00dfe Zentrum anzugreifen und den wei\u00dffeldrigen L\u00e4ufer zu aktivieren, mit dem Ziel aktiven Figurenspiels.",
+    "trapDe": ""
   },
   {
     "eco": "C02",
     "name": "French Defense: Advance Variation",
-    "moves": ["e4","e6","d4","d5","e5"],
+    "moves": [
+      "e4",
+      "e6",
+      "d4",
+      "d5",
+      "e5"
+    ],
     "idea": "White immediately closes the center and gains space, fixing a stronghold on e5 that restricts Black's pieces but gives Black a clear target to undermine.",
     "whitePlan": "Build on the e5 space advantage with f4, Nf3, and a kingside attack while keeping the center closed.",
     "blackPlan": "Attack the pawn chain base at d4 with ...c5 and ...Nc6, and activate the light-squared bishop via ...b6 and ...Ba6.",
-    "trap": "If Black plays ...Qb6 early attacking d4, White should not defend with c3 hastily; Nf3 or Be3 are better."
+    "trap": "If Black plays ...Qb6 early attacking d4, White should not defend with c3 hastily; Nf3 or Be3 are better.",
+    "ideaDe": "Wei\u00df schlie\u00dft sofort das Zentrum und gewinnt Raum, indem es einen St\u00fctzpunkt auf e5 fixiert, der die schwarzen Figuren einschr\u00e4nkt, Schwarz aber ein klares Ziel zum Untergraben bietet.",
+    "plansWhiteDe": "Den Raumvorteil auf e5 mit f4, Sf3 und einem K\u00f6nigsfl\u00fcgelangriff ausbauen, w\u00e4hrend das Zentrum geschlossen bleibt.",
+    "plansBlackDe": "Die Basis der Bauernkette auf d4 mit ...c5 und ...Sc6 angreifen und den wei\u00dffeldrigen L\u00e4ufer via ...b6 und ...La6 aktivieren.",
+    "trapDe": "Wenn Schwarz fr\u00fch ...Db6 spielt und d4 angreift, sollte Wei\u00df nicht \u00fcbereilt mit c3 verteidigen; Sf3 oder Le3 sind besser."
   },
   {
     "eco": "C01",
     "name": "French Defense: Exchange Variation",
-    "moves": ["e4","e6","d4","d5","exd5","exd5"],
+    "moves": [
+      "e4",
+      "e6",
+      "d4",
+      "d5",
+      "exd5",
+      "exd5"
+    ],
     "idea": "White exchanges pawns to reach a symmetrical pawn structure, eliminating the typical French tension in exchange for a slightly easier game for Black.",
     "whitePlan": "Develop actively and exploit the open e-file, aiming for a slight initiative in the symmetrical endgame.",
     "blackPlan": "Equalize quickly through natural development, as the symmetrical structure reduces White's winning chances significantly.",
-    "trap": ""
+    "trap": "",
+    "ideaDe": "Wei\u00df tauscht Bauern, um eine symmetrische Bauernstruktur zu erreichen, beseitigt die typische franz\u00f6sische Spannung im Austausch f\u00fcr ein etwas leichteres Spiel f\u00fcr Schwarz.",
+    "plansWhiteDe": "Sich aktiv entwickeln und die offene e-Linie ausnutzen, mit dem Ziel einer leichten Initiative im symmetrischen Endspiel.",
+    "plansBlackDe": "Durch nat\u00fcrliche Entwicklung schnell ausgleichen, da die symmetrische Struktur Wei\u00df' Gewinnchancen deutlich verringert.",
+    "trapDe": ""
   },
   {
     "eco": "C14",
     "name": "French Defense: Classical Variation",
-    "moves": ["e4","e6","d4","d5","Nc3","Nf6","Bg5"],
+    "moves": [
+      "e4",
+      "e6",
+      "d4",
+      "d5",
+      "Nc3",
+      "Nf6",
+      "Bg5"
+    ],
     "idea": "White pins the f6 knight with Bg5, maintaining pressure on d5 and preparing to advance e5, while Black seeks to break the pin and free the light-squared bishop.",
     "whitePlan": "Play e5 to gain space, then build a kingside attack with Qd2, Bxf6, and f4.",
     "blackPlan": "Break the pin with ...Be7, then challenge the center with ...c5 and activate the light-squared bishop.",
-    "trap": "If Black plays ...dxe4 prematurely before ...Be7, the undefended f6 knight can be exploited by Bxf6 followed by Nxe4."
+    "trap": "If Black plays ...dxe4 prematurely before ...Be7, the undefended f6 knight can be exploited by Bxf6 followed by Nxe4.",
+    "ideaDe": "Wei\u00df fesselt den Springer auf f6 mit Lg5, h\u00e4lt Druck auf d5 aufrecht und bereitet e5 vor, w\u00e4hrend Schwarz versucht, die Fesselung zu l\u00f6sen und den wei\u00dffeldrigen L\u00e4ufer zu befreien.",
+    "plansWhiteDe": "e5 spielen, um Raum zu gewinnen, dann mit Dd2, Lxf6 und f4 einen K\u00f6nigsfl\u00fcgelangriff aufbauen.",
+    "plansBlackDe": "Die Fesselung mit ...Le7 l\u00f6sen, dann das Zentrum mit ...c5 angreifen und den wei\u00dffeldrigen L\u00e4ufer aktivieren.",
+    "trapDe": "Wenn Schwarz ...dxe4 voreilig vor ...Le7 spielt, kann der ungedeckte Springer auf f6 durch Lxf6 gefolgt von Sxe4 ausgenutzt werden."
   },
   {
     "eco": "B10",
     "name": "Caro-Kann Defense",
-    "moves": ["e4","c6"],
+    "moves": [
+      "e4",
+      "c6"
+    ],
     "idea": "Black prepares ...d5 with c6, supporting the center pawn so that after ...d5, the pawn is defended and Black avoids the cramping issues of the French Defense.",
     "whitePlan": "Build central control with d4, develop actively, and try to exploit any passivity in Black's position.",
     "blackPlan": "Play ...d5 to challenge the center, then develop the light-squared bishop outside the pawn chain before closing it in.",
-    "trap": ""
+    "trap": "",
+    "ideaDe": "Schwarz bereitet ...d5 mit c6 vor, st\u00fctzt den Zentrumsbauern, sodass dieser nach ...d5 gedeckt ist, und vermeidet die beengten Probleme der Franz\u00f6sischen Verteidigung.",
+    "plansWhiteDe": "Zentrumskontrolle mit d4 aufbauen, sich aktiv entwickeln und versuchen, jede Passivit\u00e4t in Schwarz' Stellung auszunutzen.",
+    "plansBlackDe": "...d5 spielen, um das Zentrum anzugreifen, dann den wei\u00dffeldrigen L\u00e4ufer vor dem Einschlie\u00dfen au\u00dferhalb der Bauernkette entwickeln.",
+    "trapDe": ""
   },
   {
     "eco": "B12",
     "name": "Caro-Kann Defense: Advance Variation",
-    "moves": ["e4","c6","d4","d5","e5"],
+    "moves": [
+      "e4",
+      "c6",
+      "d4",
+      "d5",
+      "e5"
+    ],
     "idea": "White gains space with e5, but unlike the French, Black's light-squared bishop is already outside the pawn chain after ...c6, giving Black good counterplay.",
     "whitePlan": "Build on the e5 space with c3, Nf3, and a kingside attack using f4 or Be3.",
     "blackPlan": "Attack the pawn chain with ...c5 and ...Nc6, or use the free light-squared bishop on f5 to create active counterplay.",
-    "trap": "If Black plays ...Bf5 too early without supporting it, White's g4 can win the bishop or force it to an awkward square."
+    "trap": "If Black plays ...Bf5 too early without supporting it, White's g4 can win the bishop or force it to an awkward square.",
+    "ideaDe": "Wei\u00df gewinnt mit e5 Raum, aber anders als im Franz\u00f6sischen befindet sich der wei\u00dffeldrige L\u00e4ufer von Schwarz nach ...c6 bereits au\u00dferhalb der Bauernkette, was Schwarz gutes Gegenspiel gibt.",
+    "plansWhiteDe": "Den Raumvorteil auf e5 mit c3, Sf3 und einem K\u00f6nigsfl\u00fcgelangriff mittels f4 oder Le3 ausbauen.",
+    "plansBlackDe": "Die Bauernkette mit ...c5 und ...Sc6 angreifen oder den freien wei\u00dffeldrigen L\u00e4ufer auf f5 nutzen, um aktives Gegenspiel zu erzeugen.",
+    "trapDe": "Wenn Schwarz ...Lf5 zu fr\u00fch spielt, ohne es zu decken, kann Wei\u00df mit g4 den L\u00e4ufer gewinnen oder auf ein ung\u00fcnstiges Feld zwingen."
   },
   {
     "eco": "B18",
     "name": "Caro-Kann Defense: Classical Variation",
-    "moves": ["e4","c6","d4","d5","Nc3","dxe4","Nxe4","Bf5"],
+    "moves": [
+      "e4",
+      "c6",
+      "d4",
+      "d5",
+      "Nc3",
+      "dxe4",
+      "Nxe4",
+      "Bf5"
+    ],
     "idea": "Black develops the light-squared bishop to f5 before playing ...e6, solving the main problem of the Caro-Kann and achieving a solid, active position.",
     "whitePlan": "Play Ng3 to challenge the bishop, then develop with Nf3, Bd3, and castle for a slight space advantage.",
     "blackPlan": "Complete development with ...e6, ...Nd7, ...Ngf6, and castle, maintaining the solid and active bishop on f5.",
-    "trap": "If Black delays ...e6 and White plays Bd3, a sacrifice Bxh7 can be devastating if Black's king is still on e8."
+    "trap": "If Black delays ...e6 and White plays Bd3, a sacrifice Bxh7 can be devastating if Black's king is still on e8.",
+    "ideaDe": "Schwarz entwickelt den wei\u00dffeldrigen L\u00e4ufer nach f5, bevor ...e6 gespielt wird, l\u00f6st damit das Hauptproblem des Caro-Kann und erreicht eine solide, aktive Stellung.",
+    "plansWhiteDe": "Sg3 spielen, um den L\u00e4ufer anzugreifen, dann mit Sf3, Ld3 und Rochade entwickeln f\u00fcr einen leichten Raumvorteil.",
+    "plansBlackDe": "Die Entwicklung mit ...e6, ...Sd7, ...Sgf6 und Rochade abschlie\u00dfen, den soliden und aktiven L\u00e4ufer auf f5 behauptend.",
+    "trapDe": "Wenn Schwarz ...e6 verz\u00f6gert und Wei\u00df Ld3 spielt, kann ein Opfer Lxh7 verheerend sein, falls der schwarze K\u00f6nig noch auf e8 steht."
   },
   {
     "eco": "B13",
     "name": "Caro-Kann Defense: Panov-Botvinnik Attack",
-    "moves": ["e4","c6","d4","d5","exd5","cxd5","c4"],
+    "moves": [
+      "e4",
+      "c6",
+      "d4",
+      "d5",
+      "exd5",
+      "cxd5",
+      "c4"
+    ],
     "idea": "White creates an isolated queen pawn structure with active piece play, seeking dynamic compensation through piece activity rather than pawn structure.",
     "whitePlan": "Develop rapidly with Nc3, Nf3, and Bf4 or Bg5, using the d5 advance as a dynamic weapon in the middlegame.",
     "blackPlan": "Blockade the isolated d-pawn with a knight on d5 and trade pieces to reach a favorable endgame.",
-    "trap": "If Black tries to win the d4 pawn immediately without proper blockading pieces, White's active pieces create a dangerous initiative."
+    "trap": "If Black tries to win the d4 pawn immediately without proper blockading pieces, White's active pieces create a dangerous initiative.",
+    "ideaDe": "Wei\u00df schafft eine isolierte Damenbauern-Struktur mit aktivem Figurenspiel und sucht dynamische Kompensation durch Figurenaktivit\u00e4t statt Bauernstruktur.",
+    "plansWhiteDe": "Sich schnell mit Sc3, Sf3 und Lf4 oder Lg5 entwickeln und den d5-Vorsto\u00df als dynamische Waffe im Mittelspiel nutzen.",
+    "plansBlackDe": "Den isolierten d-Bauern mit einem Springer auf d5 blockieren und Figuren tauschen, um ein g\u00fcnstiges Endspiel zu erreichen.",
+    "trapDe": "Wenn Schwarz sofort den d4-Bauern gewinnen will, ohne die richtigen Blockadefiguren zu haben, erzeugen Wei\u00df' aktive Figuren eine gef\u00e4hrliche Initiative."
   },
   {
     "eco": "B07",
     "name": "Pirc Defense",
-    "moves": ["e4","d6","d4","Nf6","Nc3","g6"],
+    "moves": [
+      "e4",
+      "d6",
+      "d4",
+      "Nf6",
+      "Nc3",
+      "g6"
+    ],
     "idea": "Black allows White to build a large center and then plans to undermine and attack it from the flanks, using the g7 bishop and counterattacking with ...c5 or ...e5.",
     "whitePlan": "Build a strong center with f4 (Austrian Attack) or develop solidly with Be2 and castle, then expand.",
     "blackPlan": "Fianchetto the bishop, castle kingside, and counterattack the center with ...c5 or ...e5 at the right moment.",
-    "trap": "In the Austrian Attack, if Black castles kingside without first challenging the center, f5 followed by Rxf6 can shatter Black's king cover."
+    "trap": "In the Austrian Attack, if Black castles kingside without first challenging the center, f5 followed by Rxf6 can shatter Black's king cover.",
+    "ideaDe": "Schwarz l\u00e4sst Wei\u00df ein gro\u00dfes Zentrum aufbauen und plant dann, es von den Flanken aus zu untergraben und anzugreifen, indem der L\u00e4ufer auf g7 genutzt und mit ...c5 oder ...e5 kontert wird.",
+    "plansWhiteDe": "Ein starkes Zentrum mit f4 (\u00d6sterreichischer Angriff) aufbauen oder solide mit Le2 und Rochade entwickeln, dann expandieren.",
+    "plansBlackDe": "Den L\u00e4ufer fianchettieren, kurz rochieren und das Zentrum im richtigen Moment mit ...c5 oder ...e5 kontern.",
+    "trapDe": "Im \u00d6sterreichischen Angriff kann f5 gefolgt von Txf6 die schwarze K\u00f6nigsdeckung zerst\u00f6ren, wenn Schwarz kurz rochiert, ohne zuvor das Zentrum anzugreifen."
   },
   {
     "eco": "B06",
     "name": "Modern Defense",
-    "moves": ["e4","g6","d4","Bg7"],
+    "moves": [
+      "e4",
+      "g6",
+      "d4",
+      "Bg7"
+    ],
     "idea": "Black delays ...d6 and ...Nf6, keeping extra flexibility and allowing the bishop to exert pressure on the center from g7 without committing to a knight on f6.",
     "whitePlan": "Build a large center with d4 and f4 or c4, and attempt to exploit Black's delayed development with a space advantage.",
     "blackPlan": "Allow White to overextend, then strike the center with ...c5 or ...d5 when White's pawns become vulnerable.",
-    "trap": "If Black delays too long in challenging the center, White's space advantage can become overwhelming and Black's counterplay may come too late."
+    "trap": "If Black delays too long in challenging the center, White's space advantage can become overwhelming and Black's counterplay may come too late.",
+    "ideaDe": "Schwarz verz\u00f6gert ...d6 und ...Sf6, bewahrt zus\u00e4tzliche Flexibilit\u00e4t und erlaubt dem L\u00e4ufer, von g7 aus Druck auf das Zentrum auszu\u00fcben, ohne sich auf einen Springer auf f6 festzulegen.",
+    "plansWhiteDe": "Ein gro\u00dfes Zentrum mit d4 und f4 oder c4 aufbauen und versuchen, Schwarz' verz\u00f6gerte Entwicklung mit einem Raumvorteil auszunutzen.",
+    "plansBlackDe": "Wei\u00df sich \u00fcberdehnen lassen, dann mit ...c5 oder ...d5 zuschlagen, wenn die wei\u00dfen Bauern verwundbar werden.",
+    "trapDe": "Wenn Schwarz zu lange z\u00f6gert, das Zentrum anzugreifen, kann Wei\u00df' Raumvorteil \u00fcberw\u00e4ltigend werden und Schwarz' Gegenspiel kommt m\u00f6glicherweise zu sp\u00e4t."
   },
   {
     "eco": "B01",
     "name": "Scandinavian Defense",
-    "moves": ["e4","d5","exd5","Qxd5","Nc3","Qa5"],
+    "moves": [
+      "e4",
+      "d5",
+      "exd5",
+      "Qxd5",
+      "Nc3",
+      "Qa5"
+    ],
     "idea": "Black immediately challenges White's e4 pawn and develops the queen early, accepting some tempo loss in exchange for rapid piece activity.",
     "whitePlan": "Develop rapidly with d4, Nf3, and Bc4 or Bd2, gaining time by attacking the queen and building a natural center.",
     "blackPlan": "Keep the queen active on a5, develop pieces naturally with ...Nf6, ...Bf5, and castle queenside or kingside.",
-    "trap": "If Black retreats the queen passively, White gains a very comfortable lead in development and space without any concessions."
+    "trap": "If Black retreats the queen passively, White gains a very comfortable lead in development and space without any concessions.",
+    "ideaDe": "Schwarz greift sofort den wei\u00dfen e4-Bauern an und entwickelt die Dame fr\u00fch, akzeptiert dabei einen gewissen Tempoverlust im Austausch f\u00fcr schnelle Figurenaktivit\u00e4t.",
+    "plansWhiteDe": "Schnell entwickeln mit d4, Sf3 und Lc4 oder Ld2, Zeitgewinn durch Angriffe auf die Dame und Aufbau eines nat\u00fcrlichen Zentrums.",
+    "plansBlackDe": "Die Dame auf a5 aktiv halten, Figuren nat\u00fcrlich entwickeln mit ...Sf6, ...Lf5 und die Rochade auf dem Damen- oder K\u00f6nigsfl\u00fcgel durchf\u00fchren.",
+    "trapDe": "Zieht sich die Dame passiv zur\u00fcck, erlangt Wei\u00df eine sehr bequeme Entwicklungs- und Raumvorteil ohne Zugest\u00e4ndnisse."
   },
   {
     "eco": "B02",
     "name": "Alekhine's Defense",
-    "moves": ["e4","Nf6","e5","Nd5","d4","d6","c4","Nb6"],
+    "moves": [
+      "e4",
+      "Nf6",
+      "e5",
+      "Nd5",
+      "d4",
+      "d6",
+      "c4",
+      "Nb6"
+    ],
     "idea": "Black provocatively invites White to advance pawns and create a large center, then plans to undermine and attack this overextended center rather than contest it directly.",
     "whitePlan": "Maintain and advance the center with the Four Pawns Attack (f4) or play solidly with c4, Nf3, and Be2.",
     "blackPlan": "Challenge the overextended pawns with ...dxe5 or ...c5, targeting the d4 and e5 pawns as weaknesses.",
-    "trap": "If Black attacks the center too early before completing development, White can consolidate and the b6 knight becomes passive."
+    "trap": "If Black attacks the center too early before completing development, White can consolidate and the b6 knight becomes passive.",
+    "ideaDe": "Schwarz provoziert Wei\u00df zum Vorr\u00fccken der Bauern und zur Bildung eines gro\u00dfen Zentrums, um dieses \u00fcberdehnte Zentrum dann zu untergraben und anzugreifen, anstatt es direkt zu bestreiten.",
+    "plansWhiteDe": "Das Zentrum mit dem Vierbauernangriff (f4) halten und vorr\u00fccken oder solide mit c4, Sf3 und Le2 spielen.",
+    "plansBlackDe": "Die \u00fcberdehnten Bauern mit ...dxe5 oder ...c5 angreifen, die Bauern auf d4 und e5 als Schw\u00e4chen anvisieren.",
+    "trapDe": "Greift Schwarz das Zentrum zu fr\u00fch vor vollendeter Entwicklung an, kann Wei\u00df konsolidieren und der Springer auf b6 wird passiv."
   },
   {
     "eco": "D30",
     "name": "Queen's Gambit Declined",
-    "moves": ["d4","d5","c4","e6","Nc3","Nf6","Bg5","Be7","e3","O-O","Nf3","Nbd7"],
+    "moves": [
+      "d4",
+      "d5",
+      "c4",
+      "e6",
+      "Nc3",
+      "Nf6",
+      "Bg5",
+      "Be7",
+      "e3",
+      "O-O",
+      "Nf3",
+      "Nbd7"
+    ],
     "idea": "Black solidly supports the center with e6 and d5, accepting a slightly cramped position in exchange for a sound pawn structure and long-term counterplay.",
     "whitePlan": "Exploit the extra space with a minority attack on the queenside (a4-b4-b5) or a central break with e4.",
     "blackPlan": "Free the game with ...c5 or ...e5 breaks, targeting White's center once pieces are fully developed.",
-    "trap": "Black must not play ...dxc4 carelessly without follow-up, allowing White to establish a broad center with e4."
+    "trap": "Black must not play ...dxc4 carelessly without follow-up, allowing White to establish a broad center with e4.",
+    "ideaDe": "Schwarz st\u00fctzt das Zentrum solide mit e6 und d5, akzeptiert eine etwas beengte Stellung im Austausch f\u00fcr eine solide Bauernstruktur und langfristiges Gegenspiel.",
+    "plansWhiteDe": "Den Raumvorteil mit einem Minorit\u00e4tsangriff auf dem Damenfl\u00fcgel (a4-b4-b5) oder einem zentralen Durchbruch mit e4 ausnutzen.",
+    "plansBlackDe": "Das Spiel mit ...c5 oder ...e5 befreien und nach vollst\u00e4ndiger Entwicklung das wei\u00dfe Zentrum anvisieren.",
+    "trapDe": "Schwarz darf ...dxc4 nicht ohne Folgeschritte spielen, da Wei\u00df so ein breites Zentrum mit e4 aufbauen kann."
   },
   {
     "eco": "D20",
     "name": "Queen's Gambit Accepted",
-    "moves": ["d4","d5","c4","dxc4","Nf3","Nf6","e3","e6","Bxc4","c5"],
+    "moves": [
+      "d4",
+      "d5",
+      "c4",
+      "dxc4",
+      "Nf3",
+      "Nf6",
+      "e3",
+      "e6",
+      "Bxc4",
+      "c5"
+    ],
     "idea": "Black accepts the pawn to concede the center temporarily, then fights back with ...c5 to challenge White's d4 pawn and achieve dynamic equality.",
     "whitePlan": "Regain the pawn and build a central advantage, aiming to use the open c-file and active piece play.",
     "blackPlan": "Target d4 with ...c5 and ...Nc6, seeking to dissolve White's center and equalize.",
-    "trap": "After 1.d4 d5 2.c4 dxc4 3.Nf3, playing 3...b5 to hold the pawn runs into 4.a4 with strong queenside pressure."
+    "trap": "After 1.d4 d5 2.c4 dxc4 3.Nf3, playing 3...b5 to hold the pawn runs into 4.a4 with strong queenside pressure.",
+    "ideaDe": "Schwarz nimmt das Bauernopfer an, gibt das Zentrum vor\u00fcbergehend auf, kontert dann mit ...c5 gegen den wei\u00dfen d4-Bauern und erreicht dynamisches Gleichgewicht.",
+    "plansWhiteDe": "Den Bauern zur\u00fcckgewinnen und einen zentralen Vorteil aufbauen, mit dem Ziel, die offene c-Linie und aktives Figurenspiel zu nutzen.",
+    "plansBlackDe": "d4 mit ...c5 und ...Sc6 anvisieren, um das wei\u00dfe Zentrum aufzul\u00f6sen und auszugleichen.",
+    "trapDe": "Nach 1.d4 d5 2.c4 dxc4 3.Sf3 f\u00fchrt 3...b5 zum Halten des Bauern auf 4.a4 mit starkem Druck auf dem Damenfl\u00fcgel."
   },
   {
     "eco": "D10",
     "name": "Slav Defense",
-    "moves": ["d4","d5","c4","c6","Nf3","Nf6","Nc3","dxc4","a4","Bf5","e3","e6"],
+    "moves": [
+      "d4",
+      "d5",
+      "c4",
+      "c6",
+      "Nf3",
+      "Nf6",
+      "Nc3",
+      "dxc4",
+      "a4",
+      "Bf5",
+      "e3",
+      "e6"
+    ],
     "idea": "Black supports d5 with c6, keeping the c8-bishop outside the pawn chain before it gets locked in, giving a solid yet active setup.",
     "whitePlan": "Recover the c4 pawn and build central control, often targeting the b7 square or launching a kingside attack.",
     "blackPlan": "Develop actively with ...Bf5 and ...e6, then pursue queenside counterplay with ...Bb4 or ...c5.",
-    "trap": "In the Slav Exchange (cxd5 cxd5), Black must avoid ...Nc6 too early allowing Nb5 targeting d6."
+    "trap": "In the Slav Exchange (cxd5 cxd5), Black must avoid ...Nc6 too early allowing Nb5 targeting d6.",
+    "ideaDe": "Schwarz st\u00fctzt d5 mit c6, h\u00e4lt den c8-L\u00e4ufer au\u00dferhalb der Bauernkette, bevor er eingeschlossen wird, was eine solide und dennoch aktive Aufstellung ergibt.",
+    "plansWhiteDe": "Den Bauern auf c4 zur\u00fcckgewinnen und die zentrale Kontrolle aufbauen, oft mit Angriff auf b7 oder einem K\u00f6nigsfl\u00fcgelangriff.",
+    "plansBlackDe": "Aktiv entwickeln mit ...Lf5 und ...e6, dann Gegenspiel auf dem Damenfl\u00fcgel mit ...Lb4 oder ...c5 suchen.",
+    "trapDe": "Im abgetauschten Slawisch (cxd5 cxd5) sollte Schwarz ...Sc6 nicht zu fr\u00fch spielen, da Sb5 d6 anvisieren kann."
   },
   {
     "eco": "D43",
     "name": "Semi-Slav Defense",
-    "moves": ["d4","d5","c4","c6","Nc3","Nf6","Nf3","e6","Bg5","dxc4"],
+    "moves": [
+      "d4",
+      "d5",
+      "c4",
+      "c6",
+      "Nc3",
+      "Nf6",
+      "Nf3",
+      "e6",
+      "Bg5",
+      "dxc4"
+    ],
     "idea": "Black combines features of the Slav and QGD, keeping options open for both ...Bf5 and solid e6 setups, often leading to razor-sharp play.",
     "whitePlan": "Use the pin on f6 to generate tactical complications, often entering the sharp Botvinnik Variation with e4.",
     "blackPlan": "Hold the c4 pawn and launch queenside counterplay, or enter chaotic positions in the Botvinnik System.",
-    "trap": "The Botvinnik Variation (5.Bg5 dxc4 6.e4 b5 7.e5 h6 8.Bh4 g5) is extremely sharp; Black must know exact theory or face catastrophe."
+    "trap": "The Botvinnik Variation (5.Bg5 dxc4 6.e4 b5 7.e5 h6 8.Bh4 g5) is extremely sharp; Black must know exact theory or face catastrophe.",
+    "ideaDe": "Schwarz kombiniert Merkmale des Slawisch und des QGD, h\u00e4lt sich sowohl ...Lf5 als auch solide e6-Aufstellungen offen, was oft zu messerscharfem Spiel f\u00fchrt.",
+    "plansWhiteDe": "Die Fesselung auf f6 nutzen, um taktische Komplikationen zu erzeugen, oft durch die scharfe Botwinnik-Variante mit e4.",
+    "plansBlackDe": "Den Bauern auf c4 halten und Gegenspiel auf dem Damenfl\u00fcgel starten oder chaotische Stellungen im Botwinnik-System eingehen.",
+    "trapDe": "Die Botwinnik-Variante (5.Lg5 dxc4 6.e4 b5 7.e5 h6 8.Lh4 g5) ist extrem scharf; Schwarz muss die genaue Theorie kennen oder eine Katastrophe riskieren."
   },
   {
     "eco": "D32",
     "name": "QGD Tarrasch Defense",
-    "moves": ["d4","d5","c4","e6","Nc3","c5","cxd5","exd5","Nf3","Nc6","g3"],
+    "moves": [
+      "d4",
+      "d5",
+      "c4",
+      "e6",
+      "Nc3",
+      "c5",
+      "cxd5",
+      "exd5",
+      "Nf3",
+      "Nc6",
+      "g3"
+    ],
     "idea": "Black accepts an isolated queen's pawn in exchange for active piece play and open lines for the bishops.",
     "whitePlan": "Blockade the isolated d5 pawn and pressure it with Bg5 and Nf3, aiming to exploit it in the endgame.",
     "blackPlan": "Use the IQP to generate dynamic piece activity, aiming for a kingside attack or tactics before the endgame.",
-    "trap": "Black must not trade off all attacking pieces early, as the IQP becomes a long-term weakness in simplified positions."
+    "trap": "Black must not trade off all attacking pieces early, as the IQP becomes a long-term weakness in simplified positions.",
+    "ideaDe": "Schwarz akzeptiert einen isolierten Damenbauern im Austausch f\u00fcr aktives Figurenspiel und offene Linien f\u00fcr die L\u00e4ufer.",
+    "plansWhiteDe": "Den isolierten Bauern auf d5 blockieren und mit Lg5 und Sf3 unter Druck setzen, um ihn im Endspiel auszunutzen.",
+    "plansBlackDe": "Den IDB f\u00fcr dynamisches Figurenspiel nutzen, mit dem Ziel eines K\u00f6nigsfl\u00fcgelangriffs oder taktischer Aktionen vor dem Endspiel.",
+    "trapDe": "Schwarz sollte nicht fr\u00fch alle Angriffsfiguren tauschen, da der IDB in vereinfachten Stellungen zu einer langfristigen Schw\u00e4che wird."
   },
   {
     "eco": "D35",
     "name": "QGD Exchange Variation",
-    "moves": ["d4","d5","c4","e6","Nc3","Nf6","cxd5","exd5","Bg5","Be7","e3","O-O"],
+    "moves": [
+      "d4",
+      "d5",
+      "c4",
+      "e6",
+      "Nc3",
+      "Nf6",
+      "cxd5",
+      "exd5",
+      "Bg5",
+      "Be7",
+      "e3",
+      "O-O"
+    ],
     "idea": "White trades on d5 to fix Black's pawn structure and pursue a minority attack with b4-b5, creating a backward pawn on c6.",
     "whitePlan": "Advance b4-b5 to exchange the b5 pawn for c6, leaving Black with a weak pawn that is hard to defend.",
     "blackPlan": "Activate the rooks on central files, aim for ...c5 breaks, and seek counterplay through the e-file.",
-    "trap": ""
+    "trap": "",
+    "ideaDe": "Wei\u00df tauscht auf d5, um die schwarze Bauernstruktur zu fixieren und einen Minorit\u00e4tsangriff mit b4-b5 durchzuf\u00fchren, der einen r\u00fcckst\u00e4ndigen Bauern auf c6 erzeugt.",
+    "plansWhiteDe": "b4-b5 vorr\u00fccken, um den b5-Bauern gegen c6 zu tauschen, wodurch Schwarz einen schwer verteidigbaren schwachen Bauern erh\u00e4lt.",
+    "plansBlackDe": "Die T\u00fcrme auf den Zentrumslinien aktivieren, auf ...c5-Durchbr\u00fcche zielen und Gegenspiel \u00fcber die e-Linie suchen.",
+    "trapDe": ""
   },
   {
     "eco": "D02",
     "name": "London System",
-    "moves": ["d4","d5","Nf3","Nf6","Bf4","e6","e3","Bd6","Bxd6","Qxd6","Nbd2"],
+    "moves": [
+      "d4",
+      "d5",
+      "Nf3",
+      "Nf6",
+      "Bf4",
+      "e6",
+      "e3",
+      "Bd6",
+      "Bxd6",
+      "Qxd6",
+      "Nbd2"
+    ],
     "idea": "White builds a solid triangle of e3, d4, c3 with the bishop outside on f4, then develops methodically without weaknesses.",
     "whitePlan": "Complete development with Bd3, O-O, and c3, then expand with c4 or a kingside pawn advance.",
     "blackPlan": "Challenge with ...c5 or ...Ne4 to trade the active f4 bishop, reducing White's slight edge.",
-    "trap": "If Black plays ...Nh5 to win the bishop, White can respond Bg3 and follow with Ne5, gaining a strong outpost."
+    "trap": "If Black plays ...Nh5 to win the bishop, White can respond Bg3 and follow with Ne5, gaining a strong outpost.",
+    "ideaDe": "Wei\u00df baut ein solides Dreieck aus e3, d4, c3 mit dem L\u00e4ufer auf f4 auf und entwickelt sich dann methodisch ohne Schw\u00e4chen.",
+    "plansWhiteDe": "Die Entwicklung mit Ld3, 0-0 und c3 abschlie\u00dfen, dann mit c4 oder einem K\u00f6nigsfl\u00fcgel-Bauernvorsto\u00df expandieren.",
+    "plansBlackDe": "Mit ...c5 oder ...Se4 den aktiven L\u00e4ufer auf f4 herausfordern, um den wei\u00dfen Vorteil zu reduzieren.",
+    "trapDe": "Spielt Schwarz ...Sh5, um den L\u00e4ufer zu gewinnen, kann Wei\u00df mit Lg3 antworten und mit Se5 einen starken Vorposten errichten."
   },
   {
     "eco": "D05",
     "name": "Colle System",
-    "moves": ["d4","d5","Nf3","Nf6","e3","e6","Bd3","c5","c3","Nc6","Nbd2"],
+    "moves": [
+      "d4",
+      "d5",
+      "Nf3",
+      "Nf6",
+      "e3",
+      "e6",
+      "Bd3",
+      "c5",
+      "c3",
+      "Nc6",
+      "Nbd2"
+    ],
     "idea": "White builds a restrained triangle of e3, d4, c3, planning to launch a kingside attack with e4 at the right moment.",
     "whitePlan": "Prepare and execute the e4 break, often following with e5 to cramp Black's kingside and attack the king.",
     "blackPlan": "Challenge with ...c5 and ...Nc6 to undermine d4 before White can carry out e4.",
-    "trap": "After e4 dxe4 Nxe4 Nxe4 Bxe4, White often wins material or launches a devastating attack if Black is unprepared."
+    "trap": "After e4 dxe4 Nxe4 Nxe4 Bxe4, White often wins material or launches a devastating attack if Black is unprepared.",
+    "ideaDe": "Wei\u00df baut ein zur\u00fcckhaltendes Dreieck aus e3, d4, c3 auf und plant, zur richtigen Zeit einen K\u00f6nigsfl\u00fcgelangriff mit e4 zu starten.",
+    "plansWhiteDe": "Den e4-Durchbruch vorbereiten und ausf\u00fchren, oft gefolgt von e5, um den schwarzen K\u00f6nigsfl\u00fcgel einzuengen und den K\u00f6nig anzugreifen.",
+    "plansBlackDe": "Mit ...c5 und ...Sc6 d4 untergraben, bevor Wei\u00df e4 durchf\u00fchren kann.",
+    "trapDe": "Nach e4 dxe4 Sxe4 Sxe4 Lxe4 gewinnt Wei\u00df oft Material oder startet einen verheerenden Angriff, falls Schwarz unvorbereitet ist."
   },
   {
     "eco": "A46",
     "name": "Torre Attack",
-    "moves": ["d4","Nf6","Nf3","e6","Bg5","d5","e3","Be7","Nbd2","O-O"],
+    "moves": [
+      "d4",
+      "Nf6",
+      "Nf3",
+      "e6",
+      "Bg5",
+      "d5",
+      "e3",
+      "Be7",
+      "Nbd2",
+      "O-O"
+    ],
     "idea": "White pins the f6 knight early to slow Black's counterplay and maintains flexibility in pawn structure while preparing a solid buildup.",
     "whitePlan": "Play c3 and Bd3, then either launch the e4 advance or a kingside attack with h4 and Ne5.",
     "blackPlan": "Unpin with ...h6 and ...Ne4 or ...c5, trading the bishop to relieve the pressure.",
-    "trap": ""
+    "trap": "",
+    "ideaDe": "Wei\u00df fesselt den Springer auf f6 fr\u00fch, um das schwarze Gegenspiel zu verlangsamen, und beh\u00e4lt Flexibilit\u00e4t in der Bauernstruktur bei, w\u00e4hrend er einen soliden Aufbau vorbereitet.",
+    "plansWhiteDe": "c3 und Ld3 spielen, dann entweder den e4-Vorsto\u00df oder einen K\u00f6nigsfl\u00fcgelangriff mit h4 und Se5 starten.",
+    "plansBlackDe": "Mit ...h6 und ...Se4 oder ...c5 entfesseln, den L\u00e4ufer tauschen, um den Druck zu lindern.",
+    "trapDe": ""
   },
   {
     "eco": "A45",
     "name": "Trompowsky Attack",
-    "moves": ["d4","Nf6","Bg5","e6","e4","h6","Bxf6","Qxf6","Nc3","d6"],
+    "moves": [
+      "d4",
+      "Nf6",
+      "Bg5",
+      "e6",
+      "e4",
+      "h6",
+      "Bxf6",
+      "Qxf6",
+      "Nc3",
+      "d6"
+    ],
     "idea": "White immediately pins and often trades the f6 knight, damaging Black's pawn structure and seizing central space with e4.",
     "whitePlan": "Exploit the bishop pair and lead with central control via Nf3, Bd3, and O-O, pressuring the doubled pawns.",
     "blackPlan": "Use the two bishops and active queen to generate compensation, aiming for ...e5 to challenge White's center.",
-    "trap": "After 2...Ne4 3.Bf4 c5 4.f3 Qa5+ 5.c3 Nf6 6.d5, Black's queen is awkwardly placed and White gains space."
+    "trap": "After 2...Ne4 3.Bf4 c5 4.f3 Qa5+ 5.c3 Nf6 6.d5, Black's queen is awkwardly placed and White gains space.",
+    "ideaDe": "Wei\u00df fesselt und tauscht oft sofort den Springer auf f6, besch\u00e4digt die schwarze Bauernstruktur und erobert mit e4 zentralen Raum.",
+    "plansWhiteDe": "Das L\u00e4uferpaar ausnutzen und mit zentraler Kontrolle durch Sf3, Ld3 und 0-0 f\u00fchren, die Doppelbauern unter Druck setzen.",
+    "plansBlackDe": "Die beiden L\u00e4ufer und die aktive Dame nutzen, um Kompensation zu erzeugen, mit ...e5 das wei\u00dfe Zentrum herausfordern.",
+    "trapDe": "Nach 2...Se4 3.Lf4 c5 4.f3 Da5+ 5.c3 Sf6 6.d5 steht die schwarze Dame ung\u00fcnstig und Wei\u00df gewinnt Raum."
   },
   {
     "eco": "E20",
     "name": "Nimzo-Indian Defense",
-    "moves": ["d4","Nf6","c4","e6","Nc3","Bb4","e3","O-O","Bd3","d5","Nf3","c5"],
+    "moves": [
+      "d4",
+      "Nf6",
+      "c4",
+      "e6",
+      "Nc3",
+      "Bb4",
+      "e3",
+      "O-O",
+      "Bd3",
+      "d5",
+      "Nf3",
+      "c5"
+    ],
     "idea": "Black pins the c3 knight to prevent e4 and create doubled c-pawns, seeking long-term pressure against White's pawn structure.",
     "whitePlan": "Resolve the pin favorably, build a strong pawn center with e4, and exploit the bishop pair in open positions.",
     "blackPlan": "Double White's c-pawns with ...Bxc3, then blockade with ...Ne4 or ...d5 to exploit the structural weakness.",
-    "trap": "The Hübner Variation leads to a complex French-like structure where White must avoid passive play."
+    "trap": "The H\u00fcbner Variation leads to a complex French-like structure where White must avoid passive play.",
+    "ideaDe": "Schwarz fesselt den Springer auf c3, um e4 zu verhindern und wei\u00dfe c-Doppelbauern zu erzeugen, und sucht langfristigen Druck gegen die wei\u00dfe Bauernstruktur.",
+    "plansWhiteDe": "Die Fesselung vorteilhaft aufl\u00f6sen, ein starkes Bauernzentrum mit e4 aufbauen und das L\u00e4uferpaar in offenen Stellungen ausnutzen.",
+    "plansBlackDe": "Die wei\u00dfen c-Bauern mit ...Lxc3 doppeln, dann mit ...Se4 oder ...d5 blockieren, um die strukturelle Schw\u00e4che auszunutzen.",
+    "trapDe": "Die H\u00fcbner-Variante f\u00fchrt zu einer komplexen franz\u00f6sisch\u00e4hnlichen Struktur, in der Wei\u00df passives Spiel vermeiden muss."
   },
   {
     "eco": "E12",
     "name": "Queen's Indian Defense",
-    "moves": ["d4","Nf6","c4","e6","Nf3","b6","g3","Bb7","Bg2","Be7","O-O","O-O"],
+    "moves": [
+      "d4",
+      "Nf6",
+      "c4",
+      "e6",
+      "Nf3",
+      "b6",
+      "g3",
+      "Bb7",
+      "Bg2",
+      "Be7",
+      "O-O",
+      "O-O"
+    ],
     "idea": "Black controls e4 indirectly with the b7 bishop fianchetto, avoiding the Nimzo-Indian and maintaining flexibility in pawn structure.",
     "whitePlan": "Expand in the center with Nc3 and then e4, or play on the queenside with b3 and Bb2 for a battle of fianchettos.",
     "blackPlan": "Pressure e4 along the long diagonal and look for ...d5 or ...c5 breaks to free the game.",
-    "trap": "After 4.Nc3 Bb4, White must not play 5.Bg5 as 5...h6 6.Bh4 g5 7.Bg3 Ne4 gives Black excellent play."
+    "trap": "After 4.Nc3 Bb4, White must not play 5.Bg5 as 5...h6 6.Bh4 g5 7.Bg3 Ne4 gives Black excellent play.",
+    "ideaDe": "Schwarz kontrolliert e4 indirekt durch den Fianchetto-L\u00e4ufer auf b7, vermeidet das Nimzowitsch-Indisch und beh\u00e4lt Flexibilit\u00e4t in der Bauernstruktur.",
+    "plansWhiteDe": "Im Zentrum mit Sc3 und dann e4 expandieren oder mit b3 und Lb2 auf dem Damenfl\u00fcgel spielen \u2013 ein Kampf der Fianchettos.",
+    "plansBlackDe": "Druck auf e4 entlang der langen Diagonale aus\u00fcben und nach ...d5- oder ...c5-Durchbr\u00fcchen suchen, um das Spiel zu befreien.",
+    "trapDe": "Nach 4.Sc3 Lb4 darf Wei\u00df nicht 5.Lg5 spielen, da 5...h6 6.Lh4 g5 7.Lg3 Se4 Schwarz ausgezeichnetes Spiel gibt."
   },
   {
     "eco": "E60",
     "name": "King's Indian Defense",
-    "moves": ["d4","Nf6","c4","g6","Nc3","Bg7","e4","d6","Nf3","O-O","Be2","e5"],
+    "moves": [
+      "d4",
+      "Nf6",
+      "c4",
+      "g6",
+      "Nc3",
+      "Bg7",
+      "e4",
+      "d6",
+      "Nf3",
+      "O-O",
+      "Be2",
+      "e5"
+    ],
     "idea": "Black allows White to build a broad center, then counterattacks it with ...e5, aiming for fierce kingside play against White's queenside expansion.",
     "whitePlan": "Close the center with d5 and expand on the queenside with c5, a4-b4, or keep the center fluid for tactical battles.",
     "blackPlan": "After d5 closes, launch a kingside attack with ...f5-f4, while White advances on the queenside in a classic pawn race.",
-    "trap": "In the Four Pawns Attack, Black must avoid ...Nxe4 without precise calculation as White's central mass can crash through."
+    "trap": "In the Four Pawns Attack, Black must avoid ...Nxe4 without precise calculation as White's central mass can crash through.",
+    "ideaDe": "Schwarz erlaubt Wei\u00df den Aufbau eines breiten Zentrums, kontert es dann mit ...e5 und zielt auf heftiges K\u00f6nigsfl\u00fcgelspiel gegen die wei\u00dfe Damenfl\u00fcgelexpansion.",
+    "plansWhiteDe": "Das Zentrum mit d5 schlie\u00dfen und auf dem Damenfl\u00fcgel expandieren mit c5, a4-b4, oder das Zentrum f\u00fcr taktische K\u00e4mpfe fl\u00fcssig halten.",
+    "plansBlackDe": "Nach d5-Schlie\u00dfung einen K\u00f6nigsfl\u00fcgelangriff mit ...f5-f4 starten, w\u00e4hrend Wei\u00df auf dem Damenfl\u00fcgel vorr\u00fcckt \u2013 ein klassischer Bauernwettlauf.",
+    "trapDe": "Im Vierbauernangriff muss Schwarz ...Sxe4 ohne pr\u00e4zise Berechnung vermeiden, da der wei\u00dfe Zentrumsballen durchbrechen kann."
   },
   {
     "eco": "D85",
-    "name": "Grünfeld Defense",
-    "moves": ["d4","Nf6","c4","g6","Nc3","d5","cxd5","Nxd5","e4","Nxc3","bxc3","Bg7"],
+    "name": "Gr\u00fcnfeld Defense",
+    "moves": [
+      "d4",
+      "Nf6",
+      "c4",
+      "g6",
+      "Nc3",
+      "d5",
+      "cxd5",
+      "Nxd5",
+      "e4",
+      "Nxc3",
+      "bxc3",
+      "Bg7"
+    ],
     "idea": "Black allows White to build a massive pawn center, then immediately attacks it with pieces from the flanks, especially via the g7 bishop.",
     "whitePlan": "Defend and advance the d4-e4 center with moves like Bc4, Ne2, and O-O, then convert central space into a winning endgame.",
     "blackPlan": "Undermine d4 with ...c5 and ...Qa5 or ...Bg4, proving the center is a target rather than a strength.",
-    "trap": "The Russian System (7.Bc4) hides tactical shots that win material if Black plays carelessly."
+    "trap": "The Russian System (7.Bc4) hides tactical shots that win material if Black plays carelessly.",
+    "ideaDe": "Schwarz erlaubt Wei\u00df den Aufbau eines massiven Bauernzentrums und greift es sofort mit Figuren von den Fl\u00fcgeln an, insbesondere \u00fcber den g7-L\u00e4ufer.",
+    "plansWhiteDe": "Das d4-e4-Zentrum mit Z\u00fcgen wie Lc4, Se2 und 0-0 verteidigen und vorr\u00fccken, dann den zentralen Raum in ein gewinnendes Endspiel umwandeln.",
+    "plansBlackDe": "d4 mit ...c5 und ...Da5 oder ...Lg4 untergraben und beweisen, dass das Zentrum ein Angriffsziel und keine St\u00e4rke ist.",
+    "trapDe": "Das russische System (7.Lc4) birgt taktische Fallen, die Materialgewinn bringen, falls Schwarz unvorsichtig spielt."
   },
   {
     "eco": "A43",
     "name": "Old Benoni",
-    "moves": ["d4","c5","d5","e5","e4","d6","Nc3","Be7","Nf3","Bg4"],
+    "moves": [
+      "d4",
+      "c5",
+      "d5",
+      "e5",
+      "e4",
+      "d6",
+      "Nc3",
+      "Be7",
+      "Nf3",
+      "Bg4"
+    ],
     "idea": "Black uses ...c5 and ...e5 to fix a space-grabbing wedge in the center, accepting a locked structure for long-term positional pressure.",
     "whitePlan": "Expand on the queenside with a4 and b4-b5, or maneuver pieces to exploit the d5 outpost and space advantage.",
     "blackPlan": "Generate kingside counterplay with ...f5 and piece activity, targeting White's queenside pawns once they advance.",
-    "trap": ""
+    "trap": "",
+    "ideaDe": "Schwarz nutzt ...c5 und ...e5, um einen raumgreifenden Keil im Zentrum zu fixieren, und akzeptiert eine blockierte Struktur f\u00fcr langfristigen positionellen Druck.",
+    "plansWhiteDe": "Mit a4 und b4-b5 auf dem Damenfl\u00fcgel expandieren oder Figuren man\u00f6vrieren, um den Vorposten auf d5 und den Raumvorteil auszunutzen.",
+    "plansBlackDe": "K\u00f6nigsfl\u00fcgel-Gegenspiel mit ...f5 und Figurenaktivit\u00e4t erzeugen, die wei\u00dfen Damenfl\u00fcgelbauern anvisieren, sobald sie vorr\u00fccken.",
+    "trapDe": ""
   },
   {
     "eco": "A70",
     "name": "Modern Benoni",
-    "moves": ["d4","Nf6","c4","c5","d5","e6","Nc3","exd5","cxd5","d6","e4","g6","Nf3","Bg7"],
+    "moves": [
+      "d4",
+      "Nf6",
+      "c4",
+      "c5",
+      "d5",
+      "e6",
+      "Nc3",
+      "exd5",
+      "cxd5",
+      "d6",
+      "e4",
+      "g6",
+      "Nf3",
+      "Bg7"
+    ],
     "idea": "Black creates an asymmetric pawn structure with a majority on the queenside vs. White's space, leading to dynamic imbalances.",
     "whitePlan": "Dominate the central squares with pawns on d5 and e4, advance f4-f5 for kingside attack, and use the d5 outpost.",
     "blackPlan": "Break with ...b5 or ...e5 and exploit the queenside majority, using the g7 bishop to pressure White's center.",
-    "trap": "The Taimanov Attack (5.f4 d6 6.e5) is very dangerous if Black plays passively; the e-file and d6 weakness can be decisive."
+    "trap": "The Taimanov Attack (5.f4 d6 6.e5) is very dangerous if Black plays passively; the e-file and d6 weakness can be decisive.",
+    "ideaDe": "Schwarz erzeugt eine asymmetrische Bauernstruktur mit einer Mehrheit auf dem Damenfl\u00fcgel gegen den wei\u00dfen Raum, was zu dynamischen Ungleichgewichten f\u00fchrt.",
+    "plansWhiteDe": "Die zentralen Felder mit Bauern auf d5 und e4 beherrschen, f4-f5 f\u00fcr den K\u00f6nigsfl\u00fcgelangriff vorr\u00fccken und den Vorposten auf d5 nutzen.",
+    "plansBlackDe": "Mit ...b5 oder ...e5 durchbrechen und die Damenfl\u00fcgelmehrheit ausnutzen, den g7-L\u00e4ufer zur Druckaus\u00fcbung auf das wei\u00dfe Zentrum nutzen.",
+    "trapDe": "Der Taimanow-Angriff (5.f4 d6 6.e5) ist sehr gef\u00e4hrlich, wenn Schwarz passiv spielt; die e-Linie und der schwache d6-Bauer k\u00f6nnen entscheidend sein."
   },
   {
     "eco": "A57",
     "name": "Benko Gambit",
-    "moves": ["d4","Nf6","c4","c5","d5","b5","cxb5","a6","bxa6","Bxa6","Nc3","d6"],
+    "moves": [
+      "d4",
+      "Nf6",
+      "c4",
+      "c5",
+      "d5",
+      "b5",
+      "cxb5",
+      "a6",
+      "bxa6",
+      "Bxa6",
+      "Nc3",
+      "d6"
+    ],
     "idea": "Black sacrifices two queenside pawns to permanently open the a- and b-files, generating lasting pressure on White's queenside.",
     "whitePlan": "Return or keep the extra pawns while consolidating with e4 and defending the queenside with precise piece placement.",
     "blackPlan": "Use the open a- and b-files with Ra8 and Rb8 to create unrelenting pressure on White's queenside structure.",
-    "trap": "If White plays too slowly after accepting, Black generates overwhelming queenside pressure before White castles."
+    "trap": "If White plays too slowly after accepting, Black generates overwhelming queenside pressure before White castles.",
+    "ideaDe": "Schwarz opfert zwei Damenfl\u00fcgelbauern, um die a- und b-Linien dauerhaft zu \u00f6ffnen und anhaltenden Druck auf den wei\u00dfen Damenfl\u00fcgel zu erzeugen.",
+    "plansWhiteDe": "Die Mehrbauern zur\u00fcckgeben oder behalten, dabei mit e4 konsolidieren und den Damenfl\u00fcgel mit pr\u00e4ziser Figurenaufstellung verteidigen.",
+    "plansBlackDe": "Die offenen a- und b-Linien mit Ta8 und Tb8 nutzen, um unerbittlichen Druck auf die wei\u00dfe Damenfl\u00fcgelstruktur auszu\u00fcben.",
+    "trapDe": "Wenn Wei\u00df nach der Annahme zu langsam spielt, erzeugt Schwarz \u00fcberw\u00e4ltigenden Damenfl\u00fcgeldruck, bevor Wei\u00df rochieren kann."
   },
   {
     "eco": "E00",
     "name": "Catalan Opening",
-    "moves": ["d4","Nf6","c4","e6","g3","d5","Bg2","Be7","Nf3","O-O","O-O","dxc4"],
+    "moves": [
+      "d4",
+      "Nf6",
+      "c4",
+      "e6",
+      "g3",
+      "d5",
+      "Bg2",
+      "Be7",
+      "Nf3",
+      "O-O",
+      "O-O",
+      "dxc4"
+    ],
     "idea": "White combines the Queen's Gambit with a kingside fianchetto, using the g2 bishop to press along the long diagonal toward Black's queenside.",
     "whitePlan": "Recover c4 and exploit the powerful g2 bishop's pressure on d5 and the queenside in the endgame.",
     "blackPlan": "Hold c4 with ...b5 and ...a6 for counterplay, or return it for free piece activity and a solid position.",
-    "trap": "In the Open Catalan, holding c4 too greedily can leave Black's queenside overextended and weak."
+    "trap": "In the Open Catalan, holding c4 too greedily can leave Black's queenside overextended and weak.",
+    "ideaDe": "Wei\u00df kombiniert das Damengambit mit einem K\u00f6nigsfl\u00fcgel-Fianchetto und nutzt den g2-L\u00e4ufer zum Druck entlang der langen Diagonale auf den schwarzen Damenfl\u00fcgel.",
+    "plansWhiteDe": "c4 zur\u00fcckgewinnen und den starken Druck des g2-L\u00e4ufers auf d5 und den Damenfl\u00fcgel im Endspiel ausnutzen.",
+    "plansBlackDe": "c4 mit ...b5 und ...a6 f\u00fcr Gegenspiel halten oder f\u00fcr freies Figurenspiel und eine solide Stellung zur\u00fcckgeben.",
+    "trapDe": "Im offenen Catalan kann das zu gierige Halten von c4 den schwarzen Damenfl\u00fcgel \u00fcberdehnt und schwach machen."
   },
   {
     "eco": "E11",
     "name": "Bogo-Indian Defense",
-    "moves": ["d4","Nf6","c4","e6","Nf3","Bb4+","Bd2","a5","g3","d5","Bg2","O-O"],
+    "moves": [
+      "d4",
+      "Nf6",
+      "c4",
+      "e6",
+      "Nf3",
+      "Bb4+",
+      "Bd2",
+      "a5",
+      "g3",
+      "d5",
+      "Bg2",
+      "O-O"
+    ],
     "idea": "Black checks on b4 to either exchange on d2 or retreat with ...Be7, avoiding the main Nimzo while getting a solid setup.",
     "whitePlan": "Expand with b3 or c5, then challenge Black's center once the bishop concedes to Bd2 or after Bxd2+ Qxd2.",
     "blackPlan": "Use the ...a5 push to prevent White's b4 and maintain the bishop's influence, preparing ...d5 and ...c5 counterplay.",
-    "trap": ""
+    "trap": "",
+    "ideaDe": "Schwarz gibt Schach auf b4, um entweder auf d2 zu tauschen oder sich mit ...Le7 zur\u00fcckzuziehen, vermeidet das Haupt-Nimzo und erh\u00e4lt eine solide Aufstellung.",
+    "plansWhiteDe": "Mit b3 oder c5 expandieren, dann das schwarze Zentrum herausfordern, sobald der L\u00e4ufer nach Ld2 nachgibt oder nach Lxd2+ Dxd2.",
+    "plansBlackDe": "Den ...a5-Vorsto\u00df nutzen, um wei\u00dfes b4 zu verhindern und den L\u00e4ufer einflussreich zu halten, ...d5- und ...c5-Gegenspiel vorbereiten.",
+    "trapDe": ""
   },
   {
     "eco": "A80",
     "name": "Dutch Defense",
-    "moves": ["d4","f5","g3","Nf6","Bg2","e6","Nf3","Be7","O-O","O-O","c4","d6"],
+    "moves": [
+      "d4",
+      "f5",
+      "g3",
+      "Nf6",
+      "Bg2",
+      "e6",
+      "Nf3",
+      "Be7",
+      "O-O",
+      "O-O",
+      "c4",
+      "d6"
+    ],
     "idea": "Black controls e4 with ...f5, aiming for an eventual kingside attack while accepting a slightly weakened kingside pawn structure.",
     "whitePlan": "Probe with c4 and Nc3, then expand on the queenside or exploit Black's weak e6 and g6 squares.",
     "blackPlan": "Build a kingside attack with ...Ne4, ...Qe8-h5, or march the g/h pawns, using the f5 pawn as the spearhead.",
-    "trap": "The Staunton Gambit (2.e4 fxe4 3.Nc3) is dangerous; Black must know 3...Nf6 4.Bg5 g6 to avoid trouble."
+    "trap": "The Staunton Gambit (2.e4 fxe4 3.Nc3) is dangerous; Black must know 3...Nf6 4.Bg5 g6 to avoid trouble.",
+    "ideaDe": "Schwarz kontrolliert e4 mit ...f5, zielt auf einen eventuellen K\u00f6nigsfl\u00fcgelangriff und akzeptiert eine leicht geschw\u00e4chte K\u00f6nigsfl\u00fcgel-Bauernstruktur.",
+    "plansWhiteDe": "Mit c4 und Sc3 sondieren, dann auf dem Damenfl\u00fcgel expandieren oder die schwachen schwarzen e6- und g6-Felder ausnutzen.",
+    "plansBlackDe": "Einen K\u00f6nigsfl\u00fcgelangriff mit ...Se4, ...De8-h5 oder einem Bauernsturm der g/h-Bauern aufbauen, den f5-Bauern als Speerspitze nutzen.",
+    "trapDe": "Das Staunton-Gambit (2.e4 fxe4 3.Sc3) ist gef\u00e4hrlich; Schwarz muss 3...Sf6 4.Lg5 g6 kennen, um \u00c4rger zu vermeiden."
   },
   {
     "eco": "A81",
     "name": "Dutch Defense: Leningrad Variation",
-    "moves": ["d4","f5","g3","Nf6","Bg2","g6","Nf3","Bg7","O-O","O-O","c4","d6"],
+    "moves": [
+      "d4",
+      "f5",
+      "g3",
+      "Nf6",
+      "Bg2",
+      "g6",
+      "Nf3",
+      "Bg7",
+      "O-O",
+      "O-O",
+      "c4",
+      "d6"
+    ],
     "idea": "Black fianchettos the g7 bishop alongside f5, creating a flexible setup that combines kingside attack with solid long-diagonal pressure.",
     "whitePlan": "Expand on the queenside with Nc3, b4-b5, and c5, or take advantage of the weakened dark squares around Black's king.",
     "blackPlan": "Launch a kingside attack with ...Ne4, ...Qe8, and pawn advances, using the g7 bishop to assist from afar.",
-    "trap": "White can play Nh4 to exploit the g6 weakness and target f5; Black must respond accurately or lose the f5 pawn."
+    "trap": "White can play Nh4 to exploit the g6 weakness and target f5; Black must respond accurately or lose the f5 pawn.",
+    "ideaDe": "Schwarz fianchettiert den g7-L\u00e4ufer neben f5 und schafft so eine flexible Aufstellung, die K\u00f6nigsfl\u00fcgelangriff mit solidem Druck auf der langen Diagonale verbindet.",
+    "plansWhiteDe": "Mit Sc3, b4-b5 und c5 auf dem Damenfl\u00fcgel expandieren oder die geschw\u00e4chten schwarzen Felder um den schwarzen K\u00f6nig ausnutzen.",
+    "plansBlackDe": "Einen K\u00f6nigsfl\u00fcgelangriff mit ...Se4, ...De8 und Bauernvorst\u00f6\u00dfen starten, den g7-L\u00e4ufer zur Unterst\u00fctzung aus der Ferne nutzen.",
+    "trapDe": "Wei\u00df kann Sh4 spielen, um die g6-Schw\u00e4che auszunutzen und f5 anzugreifen; Schwarz muss genau antworten oder den Bauern auf f5 verlieren."
   },
   {
     "eco": "A90",
     "name": "Dutch Defense: Stonewall Variation",
-    "moves": ["d4","f5","c4","Nf6","g3","e6","Bg2","d5","Nf3","c6","O-O","Bd6"],
+    "moves": [
+      "d4",
+      "f5",
+      "c4",
+      "Nf6",
+      "g3",
+      "e6",
+      "Bg2",
+      "d5",
+      "Nf3",
+      "c6",
+      "O-O",
+      "Bd6"
+    ],
     "idea": "Black erects a rigid pawn structure (d5, e6, f5, c6) creating a stonewall, controlling e4 permanently at the cost of the e5 square.",
     "whitePlan": "Occupy the e5 hole with a knight via Ne5, and pressure Black's position on the queenside with b3 and Ba3.",
     "blackPlan": "Mount a direct kingside attack with ...Ne4, ...Qe8-h5, and eventually a ...g5 pawn storm.",
-    "trap": "White's knight on e5 combined with Ba3 (trading Black's bishop) is a classic plan that cripples Black if not met with ...b6 and ...Ba6."
+    "trap": "White's knight on e5 combined with Ba3 (trading Black's bishop) is a classic plan that cripples Black if not met with ...b6 and ...Ba6.",
+    "ideaDe": "Schwarz errichtet eine starre Bauernstruktur (d5, e6, f5, c6) als Steinmauer, kontrolliert e4 dauerhaft auf Kosten des Feldes e5.",
+    "plansWhiteDe": "Das e5-Loch mit einem Springer \u00fcber Se5 besetzen und die schwarze Stellung mit b3 und La3 auf dem Damenfl\u00fcgel unter Druck setzen.",
+    "plansBlackDe": "Einen direkten K\u00f6nigsfl\u00fcgelangriff mit ...Se4, ...De8-h5 und schlie\u00dflich einem ...g5-Bauernsturm durchf\u00fchren.",
+    "trapDe": "Der wei\u00dfe Springer auf e5 in Kombination mit La3 (Tausch des schwarzen L\u00e4ufers) ist ein klassischer Plan, der Schwarz l\u00e4hmt, wenn nicht mit ...b6 und ...La6 beantwortet."
   },
   {
     "eco": "A51",
     "name": "Budapest Gambit",
-    "moves": ["d4","Nf6","c4","e5","dxe5","Ng4","Nf3","Bc5","e3","Nc6","Be2","O-O"],
+    "moves": [
+      "d4",
+      "Nf6",
+      "c4",
+      "e5",
+      "dxe5",
+      "Ng4",
+      "Nf3",
+      "Bc5",
+      "e3",
+      "Nc6",
+      "Be2",
+      "O-O"
+    ],
     "idea": "Black sacrifices a pawn immediately for rapid development and pressure on e5, targeting the premature pawn advance with piece activity.",
     "whitePlan": "Consolidate the e5 pawn with careful play, Nf3, and Be2, then return extra material only on favorable terms.",
     "blackPlan": "Generate fast development pressure on e5 and f2, using the Bc5, Ng4, and Nc6 battery to regain the pawn advantageously.",
-    "trap": "3.e4 is refuted by 3...Nxe4 4.Ne2 Nf6 followed by ...Bc5 with overwhelming pressure on the e5 pawn."
+    "trap": "3.e4 is refuted by 3...Nxe4 4.Ne2 Nf6 followed by ...Bc5 with overwhelming pressure on the e5 pawn.",
+    "ideaDe": "Schwarz opfert sofort einen Bauern f\u00fcr schnelle Entwicklung und Druck auf e5, zielt mit Figurenaktivit\u00e4t auf den verfr\u00fchten Bauernvorsto\u00df.",
+    "plansWhiteDe": "Den Bauern auf e5 mit vorsichtigem Spiel, Sf3 und Le2 konsolidieren, dann das zus\u00e4tzliche Material nur zu g\u00fcnstigen Bedingungen zur\u00fcckgeben.",
+    "plansBlackDe": "Schnellen Entwicklungsdruck auf e5 und f2 erzeugen, die Batterie aus Lc5, Sg4 und Sc6 nutzen, um den Bauern vorteilhaft zur\u00fcckzugewinnen.",
+    "trapDe": "3.e4 wird widerlegt durch 3...Sxe4 4.Se2 Sf6 gefolgt von ...Lc5 mit \u00fcberw\u00e4ltigendem Druck auf den e5-Bauern."
   },
   {
     "eco": "D08",
     "name": "Albin Countergambit",
-    "moves": ["d4","d5","c4","e5","dxe5","d4","Nf3","Nc6","g3","Be6","Nbd2"],
+    "moves": [
+      "d4",
+      "d5",
+      "c4",
+      "e5",
+      "dxe5",
+      "d4",
+      "Nf3",
+      "Nc6",
+      "g3",
+      "Be6",
+      "Nbd2"
+    ],
     "idea": "Black sacrifices a pawn to plant a supported passed pawn on d4, cramping White's position and seeking fast piece activity.",
     "whitePlan": "Return the pawn favorably with e3 or Ng5, dissolve the d4 pawn and develop with the bishop pair advantage.",
     "blackPlan": "Advance ...d3 to force concessions, then exploit the pawn's cramping effect with rapid queenside development.",
-    "trap": "The trap 4.e3?? Bb4+ 5.Bd2 dxe3!! wins material as 6.Bxb4 exf2+ 7.Ke2 fxg1=N+! is devastating."
+    "trap": "The trap 4.e3?? Bb4+ 5.Bd2 dxe3!! wins material as 6.Bxb4 exf2+ 7.Ke2 fxg1=N+! is devastating.",
+    "ideaDe": "Schwarz opfert einen Bauern, um einen unterst\u00fctzten Freibauern auf d4 zu etablieren, die wei\u00dfe Stellung einzuengen und schnelle Figurenaktivit\u00e4t zu suchen.",
+    "plansWhiteDe": "Den Bauern mit e3 oder Sg5 g\u00fcnstig zur\u00fcckgeben, den d4-Bauern aufl\u00f6sen und mit dem L\u00e4uferpaar-Vorteil entwickeln.",
+    "plansBlackDe": "...d3 vorziehen, um Zugest\u00e4ndnisse zu erzwingen, dann den einengenden Effekt des Bauern mit schneller Damenfl\u00fcgelentwicklung ausnutzen.",
+    "trapDe": "Die Falle 4.e3?? Lb4+ 5.Ld2 dxe3!! gewinnt Material, da 6.Lxb4 exf2+ 7.Ke2 fxg1=S+! verheerend ist."
   },
   {
     "eco": "D07",
     "name": "Chigorin Defense",
-    "moves": ["d4","d5","c4","Nc6","Nc3","dxc4","Nf3","Nf6","e4","e6","Bxc4"],
+    "moves": [
+      "d4",
+      "d5",
+      "c4",
+      "Nc6",
+      "Nc3",
+      "dxc4",
+      "Nf3",
+      "Nf6",
+      "e4",
+      "e6",
+      "Bxc4"
+    ],
     "idea": "Black develops the c6 knight early, accepting pressure on d5 for dynamic piece play and the option to pressure White's center with ...e5.",
     "whitePlan": "Exploit the d5 weakness and central space with e4 and active piece play, often winning the d5 square outright.",
     "blackPlan": "Use dynamic knight activity and the semi-open d-file to create complications and pressure against White's center.",
-    "trap": "Black's premature ...e5 can backfire, leaving White a slight but stable advantage."
+    "trap": "Black's premature ...e5 can backfire, leaving White a slight but stable advantage.",
+    "ideaDe": "Schwarz entwickelt den Springer nach c6 fr\u00fch, nimmt Druck auf d5 f\u00fcr dynamisches Figurenspiel in Kauf und beh\u00e4lt die Option, das wei\u00dfe Zentrum mit ...e5 unter Druck zu setzen.",
+    "plansWhiteDe": "Die d5-Schw\u00e4che und den Zentrumsraum mit e4 und aktivem Figurenspiel ausnutzen, oft das Feld d5 direkt gewinnen.",
+    "plansBlackDe": "Dynamische Springeraktivit\u00e4t und die halboffene d-Linie nutzen, um Komplikationen zu schaffen und Druck auf das wei\u00dfe Zentrum auszu\u00fcben.",
+    "trapDe": "Ein vorschnelles ...e5 von Schwarz kann nach hinten losgehen und Wei\u00df einen leichten, aber stabilen Vorteil verschaffen."
   },
   {
     "eco": "D38",
     "name": "Ragozin Defense",
-    "moves": ["d4","Nf6","c4","e6","Nf3","d5","Nc3","Bb4","Bg5","dxc4","e4","c5"],
+    "moves": [
+      "d4",
+      "Nf6",
+      "c4",
+      "e6",
+      "Nf3",
+      "d5",
+      "Nc3",
+      "Bb4",
+      "Bg5",
+      "dxc4",
+      "e4",
+      "c5"
+    ],
     "idea": "Black pins the c3 knight with ...Bb4 within the QGD framework, combining Nimzo-Indian ideas with Queen's Gambit structures.",
     "whitePlan": "Resolve the pin with a2-a3 and then build central control, using the bishop pair in an open position.",
     "blackPlan": "Use ...Bb4 to prevent e4 and create complications similar to the Nimzo-Indian, aiming for active counterplay.",
-    "trap": "5.Qa4+ is a tricky move order where Black must avoid an early ...O-O and ...dxc4 as White's center can become very strong."
+    "trap": "5.Qa4+ is a tricky move order where Black must avoid an early ...O-O and ...dxc4 as White's center can become very strong.",
+    "ideaDe": "Schwarz fesselt den Springer auf c3 mit ...Lb4 im QGD-Rahmen und kombiniert Nimzo-Indische Ideen mit Damengambit-Strukturen.",
+    "plansWhiteDe": "Die Fesselung mit a2-a3 aufl\u00f6sen und dann zentrale Kontrolle aufbauen, das L\u00e4uferpaar in offener Stellung nutzen.",
+    "plansBlackDe": "...Lb4 nutzen, um e4 zu verhindern und \u00e4hnlich wie im Nimzo-Indischen Komplikationen zu schaffen, mit dem Ziel aktiven Gegenspiels.",
+    "trapDe": "5.Da4+ ist ein trickreicher Zug, bei dem Schwarz ein fr\u00fches ...O-O und ...dxc4 vermeiden muss, da das wei\u00dfe Zentrum sonst sehr stark werden kann."
   },
   {
     "eco": "E81",
-    "name": "King's Indian: Sämisch Variation",
-    "moves": ["d4","Nf6","c4","g6","Nc3","Bg7","e4","d6","f3","O-O","Be3","e5"],
+    "name": "King's Indian: S\u00e4misch Variation",
+    "moves": [
+      "d4",
+      "Nf6",
+      "c4",
+      "g6",
+      "Nc3",
+      "Bg7",
+      "e4",
+      "d6",
+      "f3",
+      "O-O",
+      "Be3",
+      "e5"
+    ],
     "idea": "White builds the ultimate pawn center with f3, sealing e4 permanently and preparing a g4-h4 kingside storm or central advance.",
     "whitePlan": "Advance g4-h4-h5 for a direct kingside attack or close with d5 and play on the queenside.",
     "blackPlan": "Counter with ...c5 (Benoni structure) or ...e5 then ...Nh5 and ...f5, launching a counterstrike before White's attack hits.",
-    "trap": "Black's 6...Nbd7?! allows 7.d5 closing the center, after which White's g4-h4-h5 attack often crashes through."
+    "trap": "Black's 6...Nbd7?! allows 7.d5 closing the center, after which White's g4-h4-h5 attack often crashes through.",
+    "ideaDe": "Wei\u00df baut mit f3 das ultimative Bauernzentrum auf, versiegelt e4 dauerhaft und bereitet einen K\u00f6nigsfl\u00fcgel-Sturm mit g4-h4 oder einen zentralen Vorsto\u00df vor.",
+    "plansWhiteDe": "g4-h4-h5 f\u00fcr einen direkten K\u00f6nigsfl\u00fcgelangriff vorr\u00fccken oder mit d5 schlie\u00dfen und am Damenfl\u00fcgel spielen.",
+    "plansBlackDe": "Mit ...c5 (Benoni-Struktur) oder ...e5, dann ...Sh5 und ...f5 kontern und einen Gegenschlag starten, bevor Wei\u00df' Angriff trifft.",
+    "trapDe": "Schwarz' 6...Sbd7?! erlaubt 7.d5, das Zentrum zu schlie\u00dfen, wonach Wei\u00df' g4-h4-h5-Angriff oft durchbricht."
   },
   {
     "eco": "D63",
     "name": "Queen's Gambit Declined: Orthodox Defense",
-    "moves": ["d4","d5","c4","e6","Nc3","Nf6","Bg5","Be7","e3","O-O","Nf3","Nbd7","Rc1","c6"],
+    "moves": [
+      "d4",
+      "d5",
+      "c4",
+      "e6",
+      "Nc3",
+      "Nf6",
+      "Bg5",
+      "Be7",
+      "e3",
+      "O-O",
+      "Nf3",
+      "Nbd7",
+      "Rc1",
+      "c6"
+    ],
     "idea": "Black adopts the classical Orthodox setup with ...Nbd7, keeping the queenside flexible and preparing the standard freeing moves ...dxc4 or ...e5.",
     "whitePlan": "Execute the minority attack (b4-b5) to create a weakness on c6, or play for central control and kingside pressure.",
     "blackPlan": "Free the game with ...dxc4 and ...e5, or play ...Ne4 to trade the awkwardly placed g5 bishop.",
-    "trap": "The Cambridge Springs ideas (...Qa5) can trap the g5 bishop after ...Ne4 if White plays Bxe7 Qxc3."
+    "trap": "The Cambridge Springs ideas (...Qa5) can trap the g5 bishop after ...Ne4 if White plays Bxe7 Qxc3.",
+    "ideaDe": "Schwarz \u00fcbernimmt das klassische orthodoxe Aufbauschema mit ...Sbd7, h\u00e4lt den Damenfl\u00fcgel flexibel und bereitet die Standard-Befreiungsz\u00fcge ...dxc4 oder ...e5 vor.",
+    "plansWhiteDe": "Den Minorit\u00e4tsangriff (b4-b5) durchf\u00fchren, um eine Schw\u00e4che auf c6 zu schaffen, oder auf zentrale Kontrolle und K\u00f6nigsfl\u00fcgeldruck spielen.",
+    "plansBlackDe": "Das Spiel mit ...dxc4 und ...e5 befreien oder ...Se4 spielen, um den ung\u00fcnstig postierten L\u00e4ufer auf g5 zu tauschen.",
+    "trapDe": "Die Cambridge-Springs-Ideen (...Da5) k\u00f6nnen den L\u00e4ufer auf g5 nach ...Se4 fangen, wenn Wei\u00df Lxe7 Dxc3 spielt."
   },
   {
     "eco": "A10",
     "name": "English Opening",
-    "moves": ["c4"],
+    "moves": [
+      "c4"
+    ],
     "idea": "White controls the d5 square and aims for a queenside space advantage while keeping a flexible pawn structure.",
     "whitePlan": "Expand on the queenside with Nc3, g3, Bg2, and d3 or d4 depending on Black's setup.",
     "blackPlan": "Mirror with ...c5, stake the center with ...e5 or ...d5, or adopt an Indian setup with ...Nf6 and ...g6.",
-    "trap": ""
+    "trap": "",
+    "ideaDe": "Wei\u00df kontrolliert das Feld d5 und strebt nach einem Damenfl\u00fcgel-Raumvorteil bei flexibler Bauernstruktur.",
+    "plansWhiteDe": "Am Damenfl\u00fcgel mit Sc3, g3, Lg2 und d3 oder d4 expandieren, je nach schwarzer Aufstellung.",
+    "plansBlackDe": "Mit ...c5 spiegeln, das Zentrum mit ...e5 oder ...d5 beanspruchen oder eine indische Aufstellung mit ...Sf6 und ...g6 w\u00e4hlen.",
+    "trapDe": ""
   },
   {
     "eco": "A34",
     "name": "English: Symmetrical Variation",
-    "moves": ["c4","c5","Nf3","Nf6","Nc3","Nc6","g3","g6","Bg2","Bg7"],
+    "moves": [
+      "c4",
+      "c5",
+      "Nf3",
+      "Nf6",
+      "Nc3",
+      "Nc6",
+      "g3",
+      "g6",
+      "Bg2",
+      "Bg7"
+    ],
     "idea": "Both sides mirror each other's queenside expansion, leading to rich positional maneuvering where small tempo gains decide the advantage.",
     "whitePlan": "Play d4 to break the symmetry and seize central space, activating the g2 bishop's long diagonal.",
     "blackPlan": "Break symmetry with ...d5 or ...e5, or wait for White to overextend before countering.",
-    "trap": ""
+    "trap": "",
+    "ideaDe": "Beide Seiten spiegeln die Damenfl\u00fcgelexpansion des Gegners, was zu reichhaltigem positionellem Man\u00f6vrieren f\u00fchrt, bei dem kleine Tempogewinne den Vorteil entscheiden.",
+    "plansWhiteDe": "d4 spielen, um die Symmetrie zu brechen und zentralen Raum zu ergreifen, die gro\u00dfe Diagonale des g2-L\u00e4ufers aktivieren.",
+    "plansBlackDe": "Die Symmetrie mit ...d5 oder ...e5 brechen oder warten, bis Wei\u00df sich \u00fcberdehnt, um dann zu kontern.",
+    "trapDe": ""
   },
   {
     "eco": "A22",
     "name": "English: Reversed Sicilian",
-    "moves": ["c4","e5","Nc3","Nf6","g3","d5","cxd5","Nxd5"],
+    "moves": [
+      "c4",
+      "e5",
+      "Nc3",
+      "Nf6",
+      "g3",
+      "d5",
+      "cxd5",
+      "Nxd5"
+    ],
     "idea": "White plays a Sicilian Dragon structure with an extra tempo, aiming for pressure on the d5 square and a kingside fianchetto.",
     "whitePlan": "Develop with Bg2, Nf3, and O-O, then target the d5 knight and expand with d3-d4.",
     "blackPlan": "Centralize the knight on d5 and aim for quick piece activity with ...Nc6, ...Be6, and ...c6 to solidify.",
-    "trap": "If Black plays ...Nxc3 too early, White recaptures bxc3 with good central control and the bishop pair."
+    "trap": "If Black plays ...Nxc3 too early, White recaptures bxc3 with good central control and the bishop pair.",
+    "ideaDe": "Wei\u00df spielt eine Sizilianisch-Drachen-Struktur mit einem Extratempo und zielt auf Druck auf das Feld d5 sowie ein K\u00f6nigsfl\u00fcgel-Fianchetto ab.",
+    "plansWhiteDe": "Mit Lg2, Sf3 und O-O entwickeln, dann den Springer auf d5 angreifen und mit d3-d4 expandieren.",
+    "plansBlackDe": "Den Springer auf d5 zentralisieren und auf schnelle Figurenaktivit\u00e4t mit ...Sc6, ...Le6 und ...c6 zur Verfestigung abzielen.",
+    "trapDe": "Wenn Schwarz ...Sxc3 zu fr\u00fch spielt, nimmt Wei\u00df mit bxc3 zur\u00fcck und erh\u00e4lt gute zentrale Kontrolle und das L\u00e4uferpaar."
   },
   {
     "eco": "A28",
     "name": "English: Four Knights",
-    "moves": ["c4","e5","Nc3","Nf6","Nf3","Nc6","e3"],
+    "moves": [
+      "c4",
+      "e5",
+      "Nc3",
+      "Nf6",
+      "Nf3",
+      "Nc6",
+      "e3"
+    ],
     "idea": "Both sides develop naturally toward the center, leading to a solid positional battle with mutual piece pressure.",
     "whitePlan": "Castle kingside, play d4 to challenge the center, and use the c-file for queenside pressure.",
     "blackPlan": "Transpose to symmetrical lines or strike with ...d5 or ...Bb4 to create imbalances.",
-    "trap": "After ...Bb4, if White plays d4 without preparation, Black wins a pawn with ...Nxe4 exploiting the pin on c3."
+    "trap": "After ...Bb4, if White plays d4 without preparation, Black wins a pawn with ...Nxe4 exploiting the pin on c3.",
+    "ideaDe": "Beide Seiten entwickeln sich nat\u00fcrlich zum Zentrum hin, was zu einem soliden positionellen Kampf mit gegenseitigem Figurendruck f\u00fchrt.",
+    "plansWhiteDe": "K\u00f6nigsfl\u00fcgel rochieren, d4 spielen, um das Zentrum herauszufordern, und die c-Linie f\u00fcr Damenfl\u00fcgeldruck nutzen.",
+    "plansBlackDe": "In symmetrische Linien einlenken oder mit ...d5 oder ...Lb4 zuschlagen, um Ungleichgewichte zu schaffen.",
+    "trapDe": "Nach ...Lb4, wenn Wei\u00df d4 ohne Vorbereitung spielt, gewinnt Schwarz mit ...Sxe4 einen Bauern, indem er die Fesselung auf c3 ausnutzt."
   },
   {
     "eco": "A04",
-    "name": "Réti Opening",
-    "moves": ["Nf3","d5","c4"],
+    "name": "R\u00e9ti Opening",
+    "moves": [
+      "Nf3",
+      "d5",
+      "c4"
+    ],
     "idea": "White attacks Black's central pawn from the flank, avoiding direct confrontation and aiming to undermine d5 with c4.",
     "whitePlan": "Fianchetto with g3 and Bg2, then attack the d5 pawn while maintaining a flexible pawn structure.",
     "blackPlan": "Advance ...d4 to grab space, or play ...e6 and ...c6 to solidify the center.",
-    "trap": "If Black grabs the c4 pawn with ...dxc4, White ignores it and builds central control with d4, regaining the pawn favorably."
+    "trap": "If Black grabs the c4 pawn with ...dxc4, White ignores it and builds central control with d4, regaining the pawn favorably.",
+    "ideaDe": "Wei\u00df greift den zentralen Bauern von Schwarz von der Flanke an, vermeidet direkte Konfrontation und versucht, d5 mit c4 zu unterminieren.",
+    "plansWhiteDe": "Mit g3 und Lg2 fianchettieren, dann den d5-Bauern angreifen, w\u00e4hrend eine flexible Bauernstruktur erhalten bleibt.",
+    "plansBlackDe": "...d4 vorr\u00fccken, um Raum zu gewinnen, oder ...e6 und ...c6 spielen, um das Zentrum zu verfestigen.",
+    "trapDe": "Wenn Schwarz den c4-Bauern mit ...dxc4 nimmt, ignoriert Wei\u00df ihn und baut mit d4 zentrale Kontrolle auf, um den Bauern g\u00fcnstig zur\u00fcckzugewinnen."
   },
   {
     "eco": "A07",
     "name": "King's Indian Attack",
-    "moves": ["Nf3","d5","g3","Nf6","Bg2","e6","O-O","Be7","d3"],
+    "moves": [
+      "Nf3",
+      "d5",
+      "g3",
+      "Nf6",
+      "Bg2",
+      "e6",
+      "O-O",
+      "Be7",
+      "d3"
+    ],
     "idea": "White builds a flexible kingside setup and launches a thematic f4-f5 pawn advance to crack open the kingside.",
     "whitePlan": "Play e4, Nbd2, Re1, and then e5 or f4-f5 to generate a direct kingside attack.",
     "blackPlan": "Counterattack on the queenside with ...c5, ...b5-b4 before White's kingside storm arrives.",
-    "trap": ""
+    "trap": "",
+    "ideaDe": "Wei\u00df baut eine flexible K\u00f6nigsfl\u00fcgel-Aufstellung auf und startet einen thematischen f4-f5-Bauernvorsto\u00df, um den K\u00f6nigsfl\u00fcgel aufzubrechen.",
+    "plansWhiteDe": "e4, Sbd2, Te1 und dann e5 oder f4-f5 spielen, um einen direkten K\u00f6nigsfl\u00fcgelangriff zu erzeugen.",
+    "plansBlackDe": "Am Damenfl\u00fcgel mit ...c5, ...b5-b4 kontern, bevor Wei\u00df' K\u00f6nigsfl\u00fcgel-Sturm eintrifft.",
+    "trapDe": ""
   },
   {
     "eco": "A02",
     "name": "Bird's Opening",
-    "moves": ["f4"],
+    "moves": [
+      "f4"
+    ],
     "idea": "White controls the e5 square from the flank, preparing for a Dutch Defense structure with colors reversed.",
     "whitePlan": "Develop with Nf3, e3, Be2, and O-O, then build pressure along the f-file and on e5.",
     "blackPlan": "Challenge with ...e5 (the From's Gambit) or play ...d5 and ...Nf6 for solid central counterplay.",
-    "trap": "The From's Gambit 1.f4 e5 2.fxe5 d6 3.exd6 Bxd6 gives Black dangerous attacking compensation if White plays passively."
+    "trap": "The From's Gambit 1.f4 e5 2.fxe5 d6 3.exd6 Bxd6 gives Black dangerous attacking compensation if White plays passively.",
+    "ideaDe": "Wei\u00df kontrolliert das Feld e5 von der Flanke aus und bereitet eine Holl\u00e4ndisch-Struktur mit vertauschten Farben vor.",
+    "plansWhiteDe": "Mit Sf3, e3, Le2 und O-O entwickeln, dann Druck entlang der f-Linie und auf e5 aufbauen.",
+    "plansBlackDe": "Mit ...e5 (das From-Gambit) herausfordern oder ...d5 und ...Sf6 f\u00fcr solides zentrales Gegenspiel spielen.",
+    "trapDe": "Das From-Gambit 1.f4 e5 2.fxe5 d6 3.exd6 Lxd6 gibt Schwarz gef\u00e4hrliche Angriffskompensation, wenn Wei\u00df passiv spielt."
   },
   {
     "eco": "A01",
     "name": "Nimzo-Larsen Attack",
-    "moves": ["b3","e5","Bb2","Nc6","e3","Nf6","Bb5"],
+    "moves": [
+      "b3",
+      "e5",
+      "Bb2",
+      "Nc6",
+      "e3",
+      "Nf6",
+      "Bb5"
+    ],
     "idea": "White fianchettoes the queen's bishop to exert long-diagonal pressure toward g7 and e5, aiming for active piece play.",
     "whitePlan": "Develop with Nf3, O-O, then f4 or d4 to challenge Black's center after piece coordination.",
     "blackPlan": "Seize the center with ...d5 and ...e4, restricting the b2 bishop's scope.",
-    "trap": "If Black plays ...e4 prematurely without preparation, White can exploit the weakened d4 square and uncoordinated Black pieces."
+    "trap": "If Black plays ...e4 prematurely without preparation, White can exploit the weakened d4 square and uncoordinated Black pieces.",
+    "ideaDe": "Wei\u00df fianchettiert den Damenl\u00e4ufer, um Druck entlang der gro\u00dfen Diagonale auf g7 und e5 auszu\u00fcben, mit dem Ziel aktiven Figurenspiels.",
+    "plansWhiteDe": "Mit Sf3, O-O entwickeln, dann f4 oder d4, um das schwarze Zentrum nach erfolgter Figurenkoordination herauszufordern.",
+    "plansBlackDe": "Das Zentrum mit ...d5 und ...e4 ergreifen, den Aktionsradius des b2-L\u00e4ufers einschr\u00e4nken.",
+    "trapDe": "Wenn Schwarz ...e4 verfr\u00fcht ohne Vorbereitung spielt, kann Wei\u00df das geschw\u00e4chte Feld d4 und die unkoordinierten schwarzen Figuren ausnutzen."
   },
   {
     "eco": "A00",
     "name": "Polish Opening (Sokolsky)",
-    "moves": ["b4","e5","Bb2","f6","e4","Bxb4","Bc4"],
+    "moves": [
+      "b4",
+      "e5",
+      "Bb2",
+      "f6",
+      "e4",
+      "Bxb4",
+      "Bc4"
+    ],
     "idea": "White sacrifices the b-pawn to gain the bishop pair and rapid development, aiming to exploit the open b-file and diagonal pressure.",
     "whitePlan": "Develop quickly with Nc3, Nf3, and castle, using the b-file and long diagonal for active piece play.",
     "blackPlan": "Return the extra pawn if necessary and consolidate with ...d6, ...Ne7, and ...O-O.",
-    "trap": "If Black greedily holds the b4 pawn with ...a5, White plays c3 and gains strong central control while Black's queenside is weakened."
+    "trap": "If Black greedily holds the b4 pawn with ...a5, White plays c3 and gains strong central control while Black's queenside is weakened.",
+    "ideaDe": "Wei\u00df opfert den b-Bauern, um das L\u00e4uferpaar und schnelle Entwicklung zu erlangen, mit dem Ziel, die offene b-Linie und Diagonaldruck auszunutzen.",
+    "plansWhiteDe": "Schnell mit Sc3, Sf3 entwickeln und rochieren, die b-Linie und die gro\u00dfe Diagonale f\u00fcr aktives Figurenspiel nutzen.",
+    "plansBlackDe": "Den Mehrbauern n\u00f6tigenfalls zur\u00fcckgeben und mit ...d6, ...Se7 und ...O-O konsolidieren.",
+    "trapDe": "Wenn Schwarz den b4-Bauern gierig mit ...a5 h\u00e4lt, spielt Wei\u00df c3 und erlangt starke zentrale Kontrolle, w\u00e4hrend der schwarze Damenfl\u00fcgel geschw\u00e4cht wird."
   },
   {
     "eco": "A00",
     "name": "Grob Opening",
-    "moves": ["g4"],
+    "moves": [
+      "g4"
+    ],
     "idea": "A highly unorthodox flank advance that weakens White's kingside but aims to create immediate chaos and unbalance the position.",
     "whitePlan": "Follow up with Bg2, h3, d3, and c4, hoping to confuse opponents unfamiliar with the resulting positions.",
     "blackPlan": "Accept the challenge with ...d5 and ...e5, seizing the center while White's kingside is compromised.",
-    "trap": "After 1.g4 d5 2.Bg2 Bxg4 3.c4, White regains the bishop with c5 threatening to trap it, so Black must play ...Be6 carefully."
+    "trap": "After 1.g4 d5 2.Bg2 Bxg4 3.c4, White regains the bishop with c5 threatening to trap it, so Black must play ...Be6 carefully.",
+    "ideaDe": "Ein h\u00f6chst unorthodoxer Flankenvorsto\u00df, der den wei\u00dfen K\u00f6nigsfl\u00fcgel schw\u00e4cht, aber sofortiges Chaos anstrebt und die Stellung aus dem Gleichgewicht bringen will.",
+    "plansWhiteDe": "Mit Lg2, h3, d3 und c4 fortsetzen, in der Hoffnung, Gegner zu verwirren, die mit den entstehenden Stellungen nicht vertraut sind.",
+    "plansBlackDe": "Die Herausforderung mit ...d5 und ...e5 annehmen, das Zentrum ergreifen, w\u00e4hrend der wei\u00dfe K\u00f6nigsfl\u00fcgel kompromittiert ist.",
+    "trapDe": "Nach 1.g4 d5 2.Lg2 Lxg4 3.c4 gewinnt Wei\u00df den L\u00e4ufer mit c5 zur\u00fcck, das ihn einzufangen droht, daher muss Schwarz vorsichtig ...Le6 spielen."
   },
   {
     "eco": "A40",
     "name": "Englund Gambit",
-    "moves": ["d4","e5","dxe5","Nc6","Nf3","Qe7","Qd5","f6"],
+    "moves": [
+      "d4",
+      "e5",
+      "dxe5",
+      "Nc6",
+      "Nf3",
+      "Qe7",
+      "Qd5",
+      "f6"
+    ],
     "idea": "Black sacrifices a pawn on move one to avoid positional play and lure White into an unfamiliar middlegame full of tactical tricks.",
     "whitePlan": "Decline the gambit complications with Nf3 and e3, returning to normal development without overextending.",
     "blackPlan": "Recover the pawn while gaining active piece play with ...Nge7, ...Ng6 targeting e5, and quick castling.",
-    "trap": "After 1.d4 e5 2.dxe5 Nc6 3.Nf3 Qe7 4.Bf4 Qb4+, Black forks b2 and f4, winning material if White is unprepared."
+    "trap": "After 1.d4 e5 2.dxe5 Nc6 3.Nf3 Qe7 4.Bf4 Qb4+, Black forks b2 and f4, winning material if White is unprepared.",
+    "ideaDe": "Schwarz opfert bereits im ersten Zug einen Bauern, um positionelles Spiel zu vermeiden und Wei\u00df in ein ungewohntes, taktisch reiches Mittelspiel zu locken.",
+    "plansWhiteDe": "Die Gambitkomplikationen mit Sf3 und e3 ablehnen und zu normaler Entwicklung zur\u00fcckkehren, ohne sich zu \u00fcberdehnen.",
+    "plansBlackDe": "Den Bauern zur\u00fcckgewinnen und dabei aktives Figurenspiel mit ...Sge7, ...Sg6 (zielt auf e5) und schneller Rochade erlangen.",
+    "trapDe": "Nach 1.d4 e5 2.dxe5 Sc6 3.Sf3 De7 4.Lf4 Db4+ gabelt Schwarz b2 und f4 und gewinnt Material, wenn Wei\u00df unvorbereitet ist."
   },
   {
     "eco": "C40",
     "name": "Latvian Gambit",
-    "moves": ["e4","e5","Nf3","f5"],
+    "moves": [
+      "e4",
+      "e5",
+      "Nf3",
+      "f5"
+    ],
     "idea": "Black immediately counterattacks in the center at the cost of positional soundness, aiming for wild tactical complications.",
     "whitePlan": "Play Nxe5 or d4 to exploit Black's weakened king and e4 pawn, maintaining a lasting material or structural advantage.",
     "blackPlan": "Recover material with ...fxe4 and activate pieces rapidly, sacrificing safety for attacking chances.",
-    "trap": "After 3.Nxe5 Qf6 4.d4 d6 5.Nc4 fxe4 6.Nc3, Black's position is already very difficult to hold."
+    "trap": "After 3.Nxe5 Qf6 4.d4 d6 5.Nc4 fxe4 6.Nc3, Black's position is already very difficult to hold.",
+    "ideaDe": "Schwarz kontert sofort im Zentrum auf Kosten positioneller Solidit\u00e4t und zielt auf wilde taktische Komplikationen ab.",
+    "plansWhiteDe": "Sxe5 oder d4 spielen, um den geschw\u00e4chten schwarzen K\u00f6nig und den e4-Bauern auszunutzen und einen dauerhaften Material- oder Strukturvorteil zu behalten.",
+    "plansBlackDe": "Material mit ...fxe4 zur\u00fcckgewinnen und Figuren schnell aktivieren, Sicherheit f\u00fcr Angriffschancen opfern.",
+    "trapDe": "Nach 3.Sxe5 Df6 4.d4 d6 5.Sc4 fxe4 6.Sc3 ist die schwarze Stellung bereits sehr schwer zu halten."
   },
   {
     "eco": "C40",
     "name": "Elephant Gambit",
-    "moves": ["e4","e5","Nf3","d5"],
+    "moves": [
+      "e4",
+      "e5",
+      "Nf3",
+      "d5"
+    ],
     "idea": "Black offers a central pawn on move two to seize the initiative and disrupt White's standard development plans.",
     "whitePlan": "Accept with exd5 and develop normally with Bc4 or Nc3, maintaining the extra pawn while neutralizing Black's activity.",
     "blackPlan": "After exd5, play ...e4 to push back the knight and gain central space, then develop with ...Bc5 and ...Nf6.",
-    "trap": "After 3.exd5 e4 4.Qe2, White pins the e4 pawn and wins it back, leaving Black with nothing for the gambit."
+    "trap": "After 3.exd5 e4 4.Qe2, White pins the e4 pawn and wins it back, leaving Black with nothing for the gambit.",
+    "ideaDe": "Schwarz bietet im zweiten Zug einen Zentrumsbauern an, um die Initiative zu ergreifen und die wei\u00dfen Standardentwicklungspl\u00e4ne zu st\u00f6ren.",
+    "plansWhiteDe": "Mit exd5 annehmen und normal mit Lc4 oder Sc3 entwickeln, den Mehrbauern behalten und gleichzeitig die schwarze Aktivit\u00e4t neutralisieren.",
+    "plansBlackDe": "Nach exd5 ...e4 spielen, um den Springer zur\u00fcckzudr\u00e4ngen und zentralen Raum zu gewinnen, dann mit ...Lc5 und ...Sf6 entwickeln.",
+    "trapDe": "Nach 3.exd5 e4 4.De2 fesselt Wei\u00df den e4-Bauern und gewinnt ihn zur\u00fcck, sodass Schwarz f\u00fcr das Gambit nichts erh\u00e4lt."
   },
   {
     "eco": "B00",
     "name": "Owen's Defense",
-    "moves": ["e4","b6","d4","Bb7","Bd3","e6","Nf3","c5"],
+    "moves": [
+      "e4",
+      "b6",
+      "d4",
+      "Bb7",
+      "Bd3",
+      "e6",
+      "Nf3",
+      "c5"
+    ],
     "idea": "Black fianchettoes the queen's bishop to pressure White's e4-d4 pawn chain from a distance rather than contesting the center directly.",
     "whitePlan": "Advance e5 or d5 to gain space, or develop quickly and target f7 and the e6 weakness.",
     "blackPlan": "Strike with ...c5 and ...d5 to undermine White's center once the bishop is safely deployed.",
-    "trap": "If Black plays ...Bxe4 prematurely trying to win a pawn, White replies Bxe4 with a clear development lead."
+    "trap": "If Black plays ...Bxe4 prematurely trying to win a pawn, White replies Bxe4 with a clear development lead.",
+    "ideaDe": "Schwarz fianchettiert den Damenl\u00e4ufer, um die wei\u00dfe Bauernkette e4-d4 aus der Distanz unter Druck zu setzen, anstatt das Zentrum direkt zu bestreiten.",
+    "plansWhiteDe": "e5 oder d5 vorr\u00fccken, um Raum zu gewinnen, oder schnell entwickeln und auf f7 und die Schw\u00e4che auf e6 zielen.",
+    "plansBlackDe": "Mit ...c5 und ...d5 zuschlagen, um das wei\u00dfe Zentrum zu unterminieren, sobald der L\u00e4ufer sicher postiert ist.",
+    "trapDe": "Wenn Schwarz verfr\u00fcht ...Lxe4 spielt, um einen Bauern zu gewinnen, antwortet Wei\u00df mit Lxe4 und hat einen klaren Entwicklungsvorsprung."
   },
   {
     "eco": "B01",
     "name": "Scandinavian Defense: Modern Variation",
-    "moves": ["e4","d5","exd5","Nf6","d4","Nxd5","Nf3","g6"],
+    "moves": [
+      "e4",
+      "d5",
+      "exd5",
+      "Nf6",
+      "d4",
+      "Nxd5",
+      "Nf3",
+      "g6"
+    ],
     "idea": "Instead of the classical Qxd5, Black recaptures with the knight to avoid tempo loss and build a solid, flexible position.",
     "whitePlan": "Play c4 to gain space and drive the d5 knight, then develop with Nc3 and Be2 for a classical advantage.",
     "blackPlan": "Fianchetto with ...g6-Bg7 and castle kingside, using the solid knight on d5 as a central anchor.",
-    "trap": ""
+    "trap": "",
+    "ideaDe": "Anstatt des klassischen Dxd5 nimmt Schwarz mit dem Springer zur\u00fcck, um Tempoverlust zu vermeiden und eine solide, flexible Stellung aufzubauen.",
+    "plansWhiteDe": "c4 spielen, um Raum zu gewinnen und den Springer auf d5 zu vertreiben, dann mit Sc3 und Le2 f\u00fcr einen klassischen Vorteil entwickeln.",
+    "plansBlackDe": "Mit ...g6-Lg7 fianchettieren und kurz rochieren, den soliden Springer auf d5 als zentralen Anker nutzen.",
+    "trapDe": ""
   },
   {
     "eco": "B00",
     "name": "Nimzowitsch Defense",
-    "moves": ["e4","Nc6","d4","d5","e5","f6"],
+    "moves": [
+      "e4",
+      "Nc6",
+      "d4",
+      "d5",
+      "e5",
+      "f6"
+    ],
     "idea": "Black immediately challenges White's e4 pawn with the knight rather than pawns, aiming for unorthodox piece-based counterplay.",
     "whitePlan": "Play d4 and Nf3 to maintain central control, not allowing Black to easily free the position with ...d5 or ...e5.",
     "blackPlan": "Aim for ...f6 or ...e5 breaks to undermine White's center and activate the c6 knight.",
-    "trap": "After 3.e5 f6 4.f4, Black must be careful as 4...fxe5 5.fxe5 gives White a powerful central duo."
+    "trap": "After 3.e5 f6 4.f4, Black must be careful as 4...fxe5 5.fxe5 gives White a powerful central duo.",
+    "ideaDe": "Schwarz fordert den wei\u00dfen Bauern auf e4 sofort mit dem Springer statt mit Bauern heraus, mit dem Ziel unorthodoxen figurenbasierten Gegenspiels.",
+    "plansWhiteDe": "d4 und Sf3 spielen, um die zentrale Kontrolle zu behalten und Schwarz nicht zu erlauben, die Stellung leicht mit ...d5 oder ...e5 zu befreien.",
+    "plansBlackDe": "Auf ...f6- oder ...e5-Durchbr\u00fcche zielen, um das wei\u00dfe Zentrum zu unterminieren und den Springer auf c6 zu aktivieren.",
+    "trapDe": "Nach 3.e5 f6 4.f4 muss Schwarz vorsichtig sein, da 4...fxe5 5.fxe5 Wei\u00df ein m\u00e4chtiges zentrales Duo verschafft."
   },
   {
     "eco": "A00",
     "name": "Van't Kruijs Opening",
-    "moves": ["e3"],
+    "moves": [
+      "e3"
+    ],
     "idea": "A very passive first move that keeps options open but concedes the initiative; mainly used as a move-order tool.",
     "whitePlan": "Transpose into d4 systems with Nf3, d4, and Bd3, or play c4 for an English-type position after Nc3.",
     "blackPlan": "Seize the center immediately with ...e5 or ...d5, exploiting White's lack of central ambition.",
-    "trap": ""
+    "trap": "",
+    "ideaDe": "Ein sehr passiver erster Zug, der Optionen offenh\u00e4lt, aber die Initiative abgibt; haupts\u00e4chlich als Zugreihenfolge-Instrument genutzt.",
+    "plansWhiteDe": "In d4-Systeme mit Sf3, d4 und Ld3 \u00fcberleiten oder c4 f\u00fcr eine englischartige Stellung nach Sc3 spielen.",
+    "plansBlackDe": "Das Zentrum sofort mit ...e5 oder ...d5 ergreifen und die fehlende zentrale Ambition von Wei\u00df ausnutzen.",
+    "trapDe": ""
   },
   {
     "eco": "A00",
     "name": "Anderssen Opening",
-    "moves": ["a3"],
+    "moves": [
+      "a3"
+    ],
     "idea": "White makes a waiting move to see Black's setup before committing, at the cost of immediate initiative and a tempo.",
     "whitePlan": "Follow up with e4 or d4 depending on Black's response, using a3 as later prophylaxis against ...Bb4.",
     "blackPlan": "Develop normally with ...e5 or ...d5, treating the position as a standard opening minus a White tempo.",
-    "trap": ""
+    "trap": "",
+    "ideaDe": "Wei\u00df macht einen abwartenden Zug, um die schwarze Aufstellung zu sehen, bevor er sich festlegt, auf Kosten der sofortigen Initiative und eines Tempos.",
+    "plansWhiteDe": "Je nach schwarzer Antwort mit e4 oder d4 fortsetzen und a3 als sp\u00e4tere Prophylaxe gegen ...Lb4 nutzen.",
+    "plansBlackDe": "Normal mit ...e5 oder ...d5 entwickeln und die Stellung wie eine Standarder\u00f6ffnung minus einem wei\u00dfen Tempo behandeln.",
+    "trapDe": ""
   },
   {
     "eco": "A00",
     "name": "King's Fianchetto Opening",
-    "moves": ["g3","d5","Bg2","e5","d3","Nf6","Nd2"],
+    "moves": [
+      "g3",
+      "d5",
+      "Bg2",
+      "e5",
+      "d3",
+      "Nf6",
+      "Nd2"
+    ],
     "idea": "White builds a solid kingside fianchetto setup similar to the King's Indian Attack, aiming for long-term pressure and flexibility.",
     "whitePlan": "Play e4 to challenge Black's center, then develop Nf3, O-O, and Re1 for a classic KIA attack.",
     "blackPlan": "Occupy the center with ...d5-e5, develop naturally, and castle before White's kingside pressure becomes dangerous.",
-    "trap": ""
+    "trap": "",
+    "ideaDe": "Wei\u00df baut ein solides K\u00f6nigsfl\u00fcgel-Fianchetto auf, \u00e4hnlich dem K\u00f6nigindischen Angriff, mit dem Ziel langfristigen Drucks und Flexibilit\u00e4t.",
+    "plansWhiteDe": "e4 spielen, um das schwarze Zentrum herauszufordern, dann Sf3, O-O und Te1 f\u00fcr einen klassischen KIA-Angriff entwickeln.",
+    "plansBlackDe": "Das Zentrum mit ...d5-e5 besetzen, nat\u00fcrlich entwickeln und rochieren, bevor der wei\u00dfe K\u00f6nigsfl\u00fcgeldruck gef\u00e4hrlich wird.",
+    "trapDe": ""
   },
   {
     "eco": "A00",
     "name": "Hippopotamus Defense",
-    "moves": ["e4","Nh6","d4","g6","Nf3","f6","Nc3","d6","Be3","Nd7","Bc4","c6"],
+    "moves": [
+      "e4",
+      "Nh6",
+      "d4",
+      "g6",
+      "Nf3",
+      "f6",
+      "Nc3",
+      "d6",
+      "Be3",
+      "Nd7",
+      "Bc4",
+      "c6"
+    ],
     "idea": "Black builds an ultra-defensive setup with all pieces behind the pawn chain, waiting to counterattack once White overextends.",
     "whitePlan": "Seize maximum central space with pawns on d4 and e4, then look for kingside breakthroughs before Black's pieces activate.",
     "blackPlan": "Complete the Hippo setup with ...e6, ...b6, ...Bb7, and ...O-O, then strike back with ...e5 or ...c5 once consolidated.",
-    "trap": "If White advances e5 too early without preparation, Black plays ...fxe5 dxe5 and follows with ...Ng4 hitting e3 while the center collapses."
+    "trap": "If White advances e5 too early without preparation, Black plays ...fxe5 dxe5 and follows with ...Ng4 hitting e3 while the center collapses.",
+    "ideaDe": "Schwarz baut eine ultra-defensive Aufstellung mit allen Figuren hinter der Bauernkette auf und wartet darauf, zu kontern, sobald Wei\u00df sich \u00fcberdehnt.",
+    "plansWhiteDe": "Maximalen zentralen Raum mit Bauern auf d4 und e4 ergreifen, dann nach K\u00f6nigsfl\u00fcgel-Durchbr\u00fcchen suchen, bevor die schwarzen Figuren aktiv werden.",
+    "plansBlackDe": "Das Hippo-Aufbauschema mit ...e6, ...b6, ...Lb7 und ...O-O vervollst\u00e4ndigen, dann nach erfolgter Konsolidierung mit ...e5 oder ...c5 zur\u00fcckschlagen.",
+    "trapDe": "Wenn Wei\u00df e5 zu fr\u00fch ohne Vorbereitung vorr\u00fcckt, spielt Schwarz ...fxe5 dxe5 und setzt mit ...Sg4 fort, das e3 angreift, w\u00e4hrend das Zentrum zusammenbricht."
   }
 ]

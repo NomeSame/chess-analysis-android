@@ -3,6 +3,7 @@ package com.example.chessanalysis
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
@@ -126,6 +127,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var swAnalysisArrows: SwitchCompat
     private var gemmaDownloading = false
 
+    // Q2b: flip button visible in setup mode after screenshot import
+    private var btnFlipBoard: Button? = null
+
+    // Q8: correction loop state
+    private var lastImportStyle: String? = null
+    private var lastImportBoard: Bitmap? = null
+    private var lastSetupBoard: Array<Array<ChessBoardView.Piece?>>? = null
+    private var lastImportPerspective: ScreenshotImporter.Perspective? = null
+
     private var soundPool: android.media.SoundPool? = null
     private var sndMove = 0; private var sndCapture = 0
     private var sndCastle = 0; private var sndCheck = 0
@@ -229,6 +239,7 @@ class MainActivity : AppCompatActivity() {
 
         btnSetup.setOnClickListener {
             if (!chessBoard.setupMode) {
+                hideFlipButton()
                 vsEngine = false
                 chessBoard.setupMode = true
                 btnSetup.text = getString(R.string.play_from_here)
@@ -255,6 +266,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         AiCoachManager.init(this)
+        ScreenshotImporter.init(this)
         if (AiCoachManager.isFallbackActive(this)) {
             Snackbar.make(findViewById(R.id.drawerLayout), R.string.ai_coach_fallback_snackbar, Snackbar.LENGTH_LONG)
                 .setDuration(5000).show()
@@ -643,6 +655,8 @@ class MainActivity : AppCompatActivity() {
 
     /** Leave setup mode and start playing (vs engine) or analyzing. */
     private fun startPlaying(vs: Boolean) {
+        reportSetupCorrections()
+        hideFlipButton()
         vsEngine = vs
         chessBoard.setupMode = false
         btnSetup.text = getString(R.string.setup_board)
@@ -651,11 +665,56 @@ class MainActivity : AppCompatActivity() {
         maybeEngineMove()
     }
 
+    /** Compare initial vs final board after setup-mode corrections, report differences to the template matcher. */
+    private fun reportSetupCorrections() {
+        val style = lastImportStyle ?: return
+        val boardBmp = lastImportBoard ?: return
+        val initial = lastSetupBoard ?: return
+        val finalBoard = chessBoard.board
+        val perspective = lastImportPerspective
+
+        var corrections = 0
+        for (r in 0 until 8) {
+            for (c in 0 until 8) {
+                val initPiece = initial[r][c]
+                val finalPiece = finalBoard[r][c]
+                if (initPiece?.type != finalPiece?.type || initPiece?.isWhite != finalPiece?.isWhite) {
+                    val correctPiece = finalPiece ?: continue
+                    // Map board coordinates to bitmap coordinates
+                    var bitmapRow = r
+                    // If the board display was UI-flipped, invert the row
+                    if (chessBoard.flipBoard) bitmapRow = 7 - bitmapRow
+                    // If the original screenshot had black at bottom, invert again
+                    if (perspective == ScreenshotImporter.Perspective.BLACK_BOTTOM) bitmapRow = 7 - bitmapRow
+                    val crop = ScreenshotImporter.extractCellCrop(boardBmp, bitmapRow, c)
+                    if (crop != null) {
+                        val pieceChar = if (correctPiece.isWhite) correctPiece.type else correctPiece.type.lowercaseChar()
+                        ScreenshotImporter.getTemplateMatcher()?.reportCorrection(style, crop, pieceChar)
+                        corrections++
+                    }
+                }
+            }
+        }
+        if (corrections > 0) {
+            android.widget.Toast.makeText(this, "Learning from corrections…", android.widget.Toast.LENGTH_SHORT).show()
+        }
+        lastImportBoard?.recycle()
+        lastImportBoard = null
+        lastSetupBoard = null
+        lastImportStyle = null
+        lastImportPerspective = null
+    }
+
     private fun isGameOver(): Boolean = chessBoard.isCheckmate() || chessBoard.isStalemate()
 
     /** If it's the engine's turn (VS Engine mode), ask it for a move at the game strength. */
     private fun maybeEngineMove() {
         if (!vsEngine || !engineReady || isGameOver()) return
+        if (!StockfishEngine.isValidFenPlacement(currentFen)) {
+            Log.w("EngineMove", "Invalid FEN (king count), not sending to engine: $currentFen")
+            Snackbar.make(chessBoard, R.string.invalid_position_for_engine, Snackbar.LENGTH_LONG).show()
+            return
+        }
         val engineToMove = (chessBoard.sideToMove == 'w') == engineIsWhite
         if (!engineToMove) return
         tvStatus.text = getString(R.string.engine_thinking)
@@ -1173,6 +1232,11 @@ class MainActivity : AppCompatActivity() {
     /** Trigger live analysis of the current position (no-op during board setup). */
     private fun requestAnalysis() {
         if (!engineReady || chessBoard.setupMode) return
+        if (!StockfishEngine.isValidFenPlacement(currentFen)) {
+            Log.w("Analysis", "Invalid FEN (king count), not sending to engine: $currentFen")
+            Snackbar.make(chessBoard, R.string.invalid_position_for_engine, Snackbar.LENGTH_LONG).show()
+            return
+        }
         analyzedFen = currentFen
         analyzer.analyze(currentFen)
     }
@@ -1620,13 +1684,21 @@ class MainActivity : AppCompatActivity() {
         Snackbar.make(chessBoard, R.string.import_screenshot_working, Snackbar.LENGTH_SHORT).show()
         lifecycleScope.launch(Dispatchers.IO) {
             val bmp = decodeDownsampled(uri)
+            val board = bmp?.let { ScreenshotImporter.cropBoard(it) }
             val result = bmp?.let { ScreenshotImporter.recognize(it) }
             bmp?.recycle()
             withContext(Dispatchers.Main) {
                 if (result == null) {
+                    hideFlipButton()
                     Snackbar.make(chessBoard, R.string.import_screenshot_none, Snackbar.LENGTH_LONG).show()
+                    board?.recycle()
                 } else {
+                    lastImportStyle = result.style
+                    lastImportBoard = board
+                    lastImportPerspective = result.perspective
+                    chessBoard.flipBoard = false
                     enterSetupWithFen(result.fen)
+                    showFlipButton()
                     if (result.uncertain) {
                         Snackbar.make(chessBoard, R.string.screenshot_uncertain, Snackbar.LENGTH_LONG).show()
                     } else {
@@ -1660,6 +1732,45 @@ class MainActivity : AppCompatActivity() {
         chessBoard.onBoardChanged?.invoke(chessBoard.board)
         chessBoard.requestLayout()
         analyzer.idle()
+        lastSetupBoard = snapshotBoard()
+    }
+
+    /** Deep-copy the current board state. */
+    private fun snapshotBoard(): Array<Array<ChessBoardView.Piece?>> =
+        chessBoard.board.map { row -> row.map { it?.copy() }.toTypedArray() }.toTypedArray()
+
+    // ---- Q2b: flip toggle -----------------------------------------------------------
+
+    /** Show the flip-board button (visible only in setup mode after screenshot import). */
+    private fun showFlipButton() {
+        if (btnFlipBoard == null) {
+            btnFlipBoard = Button(this).apply {
+                text = getString(R.string.flip_board)
+                setOnClickListener { toggleBoardFlip() }
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply { marginStart = (8 * resources.displayMetrics.density).toInt() }
+            }
+            val parent = btnSetup.parent as? LinearLayout ?: return
+            val idx = parent.indexOfChild(btnSetup)
+            if (idx >= 0) parent.addView(btnFlipBoard, idx + 1)
+        }
+        btnFlipBoard?.visibility = View.VISIBLE
+    }
+
+    private fun hideFlipButton() {
+        btnFlipBoard?.visibility = View.GONE
+    }
+
+    /** Flip the board: toggle [flipBoard], re-apply FEN with mirrored rows and swapped colors. */
+    private fun toggleBoardFlip() {
+        val fen = chessBoard.getFen()
+        val flipped = ScreenshotImporter.flipFen(fen)
+        chessBoard.flipBoard = !chessBoard.flipBoard
+        enterSetupWithFen(flipped)
+        chessBoard.requestLayout()
+        chessBoard.invalidate()
     }
 
     /** Parse PGN, replay it through the board to build the position history, then enter review mode. */
@@ -1777,7 +1888,7 @@ class MainActivity : AppCompatActivity() {
         val path = effectiveUciPath()
         val sb = StringBuilder()
         sb.append(if (entry.eco.isNotEmpty()) "${entry.name} (${entry.eco})" else entry.name)
-        if (entry.idea.isNotEmpty()) sb.append("\n\n").append(entry.idea)
+        if (entry.getIdea().isNotEmpty()) sb.append("\n\n").append(entry.getIdea())
 
         if (exploring) {
             // The user played a move off the main line: identify it and ask the engine for a verdict.
@@ -1793,12 +1904,12 @@ class MainActivity : AppCompatActivity() {
             tvCoachBody.text = sb.toString()
             theoryDeviationVerdict(sb.toString())   // appends an engine verdict asynchronously
         } else {
-            if (entry.whitePlan.isNotEmpty())
-                sb.append("\n\n").append(getString(R.string.theory_white_plan)).append(": ").append(entry.whitePlan)
-            if (entry.blackPlan.isNotEmpty())
-                sb.append('\n').append(getString(R.string.theory_black_plan)).append(": ").append(entry.blackPlan)
-            if (entry.trap.isNotEmpty())
-                sb.append("\n\n⚠ ").append(entry.trap)
+            if (entry.getWhitePlan().isNotEmpty())
+                sb.append("\n\n").append(getString(R.string.theory_white_plan)).append(": ").append(entry.getWhitePlan())
+            if (entry.getBlackPlan().isNotEmpty())
+                sb.append('\n').append(getString(R.string.theory_black_plan)).append(": ").append(entry.getBlackPlan())
+            if (entry.getTrap().isNotEmpty())
+                sb.append("\n\n⚠ ").append(entry.getTrap())
             val conts = TheoryRepository.continuationsFrom(path)
             if (conts.isNotEmpty()) {
                 sb.append("\n\n").append(getString(R.string.theory_continuations)).append(':')

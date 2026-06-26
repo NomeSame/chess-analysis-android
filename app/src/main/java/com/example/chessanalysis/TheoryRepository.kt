@@ -26,9 +26,25 @@ object TheoryRepository {
         val idea: String,
         val whitePlan: String,
         val blackPlan: String,
-        val trap: String              // "" if none
+        val trap: String,             // "" if none
+        val ideaDe: String = "",
+        val whitePlanDe: String = "",
+        val blackPlanDe: String = "",
+        val trapDe: String = ""
     ) {
         val key: String get() = uciPath.joinToString(" ")
+
+        fun getIdea(locale: java.util.Locale = java.util.Locale.getDefault()): String =
+            if (locale.language == "de" && ideaDe.isNotEmpty()) ideaDe else idea
+
+        fun getWhitePlan(locale: java.util.Locale = java.util.Locale.getDefault()): String =
+            if (locale.language == "de" && whitePlanDe.isNotEmpty()) whitePlanDe else whitePlan
+
+        fun getBlackPlan(locale: java.util.Locale = java.util.Locale.getDefault()): String =
+            if (locale.language == "de" && blackPlanDe.isNotEmpty()) blackPlanDe else blackPlan
+
+        fun getTrap(locale: java.util.Locale = java.util.Locale.getDefault()): String =
+            if (locale.language == "de" && trapDe.isNotEmpty()) trapDe else trap
     }
 
     @Volatile private var entries: List<Entry> = emptyList()
@@ -63,7 +79,11 @@ object TheoryRepository {
                     idea = o.optString("idea", ""),
                     whitePlan = o.optString("whitePlan", ""),
                     blackPlan = o.optString("blackPlan", ""),
-                    trap = o.optString("trap", "")
+                    trap = o.optString("trap", ""),
+                    ideaDe = o.optString("ideaDe", ""),
+                    whitePlanDe = o.optString("plansWhiteDe", ""),
+                    blackPlanDe = o.optString("plansBlackDe", ""),
+                    trapDe = o.optString("trapDe", "")
                 )
                 list.add(e)
                 prefix[e.key] = e

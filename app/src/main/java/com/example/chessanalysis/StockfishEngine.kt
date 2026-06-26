@@ -6,6 +6,7 @@ import java.io.File
 
 class StockfishEngine {
     companion object {
+        private const val TAG = "StockfishEngine"
         init {
             System.loadLibrary("stockfish_jni")
         }
@@ -13,6 +14,13 @@ class StockfishEngine {
         const val MIN_ELO = 50
         const val MAX_ELO = 3200   // >= MAX_ELO means "full strength" (UCI_LimitStrength off)
         const val ELO_FLOOR = 1320 // Stockfish's lowest valid UCI_Elo; below this we use Skill Level
+
+        fun isValidFenPlacement(fen: String): Boolean {
+            val placement = fen.split(" ").firstOrNull() ?: return false
+            var wK = 0; var bK = 0
+            for (c in placement) { if (c == 'K') wK++; else if (c == 'k') bK++ }
+            return wK == 1 && bK == 1
+        }
     }
 
     private var initialized = false
@@ -111,6 +119,11 @@ class StockfishEngine {
     }
 
     fun setPosition(fen: String, moves: List<String> = emptyList()) {
+        if (!isValidFenPlacement(fen)) {
+            Log.e(TAG, "setPosition: invalid FEN (king count != 1 per side), falling back to startpos: $fen")
+            setPositionStartpos(moves)
+            return
+        }
         val moveStr = if (moves.isNotEmpty()) " moves ${moves.joinToString(" ")}" else ""
         sendCommand("position fen $fen$moveStr")
     }

@@ -90,6 +90,10 @@ dependencies {
 
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
+
+    // TFLite — optional model-based piece classifier (Q6). Falls back to heuristics if model absent.
+    implementation("org.tensorflow:tensorflow-lite:2.14.0")
+
     // NOTE: on-device LLM runs via the bundled llama.cpp native runner (GGUF), not MediaPipe.
 }
 

@@ -356,6 +356,27 @@
                 android:maxLines="1"
                 android:singleLine="true" />
 
+        </LinearLayout>
+
+        <!-- Game History header + Learn Theory button (same line) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="6dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tvGameHistoryHeader"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/game_history"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFFFF"
+                android:visibility="gone" />
+
             <Button
                 android:id="@+id/btnLearnTheory"
                 android:layout_width="0dp"
@@ -367,18 +388,6 @@
                 android:maxLines="1"
                 android:singleLine="true" />
         </LinearLayout>
-
-        <!-- Game History (inline list, visible only when entries exist) -->
-        <TextView
-            android:id="@+id/tvGameHistoryHeader"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="@string/game_history"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="#FFFFFFFF"
-            android:visibility="gone" />
 
         <LinearLayout
             android:layout_width="match_parent"

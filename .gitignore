@@ -43,6 +43,13 @@ obj/
 # Auto-downloaded big NNUE network (~70MB, fetched at build time by downloadBigNet)
 app/src/main/res/raw/nnue_big.nnue
 
+# llama.cpp source tree — cloned at CMake-configure time (see cpp/CMakeLists.txt), not our source
+app/src/main/cpp/llama.cpp/
+
+# Python bytecode cache (dev tools)
+__pycache__/
+
 # Documentation / status files — removed from history
 SVG_IMPLEMENTATION.md
 status.md
+.claude/
