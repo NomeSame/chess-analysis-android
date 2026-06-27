@@ -62,12 +62,17 @@
     <string name="analysis_depth">Analysis Depth</string>
     <string name="show_analysis_arrows">Show best-move arrows in analysis</string>
     <string name="piece_sounds">Piece Sounds</string>
+    <string name="sound_theme">Sound Theme</string>
+    <string name="sound_theme_classic">Classic (beep)</string>
+    <string name="sound_theme_wood">Wood</string>
     <string name="game_history">Game History</string>
     <string name="game_saved">Game saved to history</string>
     <string name="analysis_updated">Analysis updated</string>
     <string name="export_history">Export</string>
     <string name="import_history">Import</string>
     <string name="export_pgn">Export PGN</string>
+    <string name="export_templates">Export learned recognition data</string>
+    <string name="export_templates_empty">Nothing learned yet — correct an imported screenshot first</string>
     <string name="import_done">Import complete</string>
     <string name="import_how_title">Import — how?</string>
     <string name="import_pgn_manual">Enter PGN manually</string>
@@ -91,6 +96,7 @@
     <!-- Piece styles -->
     <string name="piece_original">Original</string>
     <string name="piece_classic_outline">Classic Outline</string>
+    <string name="piece_classic">Classic</string>
     <string name="piece_svg">SVG Pieces</string>
     <string name="piece_staunty">Staunty</string>
     <string name="piece_mpchess">MP Chess</string>
@@ -185,4 +191,48 @@
     <string name="tactic_win_minor">Wins a minor piece</string>
     <string name="tactic_win_pawn">Wins a pawn</string>
     <string name="tactic_missed_cp_fmt">+%1$s pawns</string>
+
+    <!-- Puzzles -->
+    <string name="puzzles">Puzzles</string>
+    <string name="puzzle_setup_title">Puzzle Setup</string>
+    <string name="puzzle_elo_min">Min Rating</string>
+    <string name="puzzle_elo_max">Max Rating</string>
+    <string name="puzzle_themes">Themes</string>
+    <string name="puzzle_select_all">Select All</string>
+    <string name="puzzle_deselect_all">None</string>
+    <string name="puzzle_start">Start Puzzle</string>
+    <string name="puzzle_loading">Loading puzzles…</string>
+    <string name="puzzle_none_found">No puzzles match your criteria.</string>
+    <string name="puzzle_rating_fmt">Rating: %1$d</string>
+    <string name="puzzle_solved">✓ Solved</string>
+    <string name="puzzle_wrong">Wrong!</string>
+    <string name="puzzle_correct_move">✓ Correct!</string>
+    <string name="puzzle_retry">Retry</string>
+    <string name="puzzle_give_up">Show Solution</string>
+    <string name="puzzle_next">Next Puzzle</string>
+    <string name="puzzle_your_move">Your move:</string>
+    <string name="puzzle_correct_move_was">Correct move:</string>
+    <string name="puzzle_complete">Puzzle complete!</string>
+    <string name="puzzle_progress_fmt">Solved: %1$d/%2$d</string>
+    <string name="puzzle_load_more">Download more puzzles</string>
+    <string name="puzzle_download_title">Download puzzles</string>
+    <string name="puzzle_download_msg">Download additional puzzles from Lichess? This will use mobile data if Wi-Fi is not available.</string>
+    <string name="puzzle_download_start">Download</string>
+    <string name="puzzle_downloading_fmt">Downloading puzzles… %1$d%%</string>
+    <string name="puzzle_download_done">%1$d puzzles downloaded.</string>
+    <string name="puzzle_back">← Back to puzzles</string>
+    <string name="puzzle_theme_mate_basic">Mates</string>
+    <string name="puzzle_theme_mate_in_n">Mate in N</string>
+    <string name="puzzle_theme_mate_patterns">Mate Patterns</string>
+    <string name="puzzle_theme_forks_pins">Forks/Pins/Skewers</string>
+    <string name="puzzle_theme_discovered">Discovered/Double Check</string>
+    <string name="puzzle_theme_deflection">Deflection/Attraction</string>
+    <string name="puzzle_theme_hanging">Hanging/Trapped</string>
+    <string name="puzzle_theme_king_attack">King Attack</string>
+    <string name="puzzle_theme_sacrifice">Sacrifice</string>
+    <string name="puzzle_theme_quiet">Quiet/Defensive</string>
+    <string name="puzzle_theme_pawns">Pawn Play</string>
+    <string name="puzzle_theme_endgame">Endgame</string>
+    <string name="puzzle_theme_phase">Phase</string>
+    <string name="puzzle_theme_length">Length</string>
 </resources>

@@ -508,75 +508,91 @@ object ScreenshotImporter {
      * Default: WHITE_BOTTOM with 0.3 confidence.
      */
     private fun detectPerspective(px: IntArray, rows: Array<CharArray>): Pair<Perspective, Float> {
-        val border = (WORK * 0.05f).toInt().coerceAtLeast(4)
+        // Primary cue: piece mass over the WHOLE board. Whichever color occupies the bottom half of
+        // the image is the side sitting at the bottom (e.g. black-bottom = screenshot from Black's view).
+        // This is far more reliable than reading the faint coordinate labels, which chess.com often
+        // draws inside the squares.
+        var whiteTop = 0; var whiteBot = 0; var blackTop = 0; var blackBot = 0
+        for (r in 0..7) for (c in 0..7) {
+            val ch = rows[r][c]
+            if (ch == ' ') continue
+            val bottom = r >= 4
+            if (ch.isUpperCase()) { if (bottom) whiteBot++ else whiteTop++ }
+            else { if (bottom) blackBot++ else blackTop++ }
+        }
+        val pieceTotal = whiteTop + whiteBot + blackTop + blackBot
+        if (pieceTotal >= 8) {
+            // signal > 0 → White dominates the bottom (WHITE_BOTTOM); < 0 → Black dominates (BLACK_BOTTOM).
+            val signal = (whiteBot - whiteTop) - (blackBot - blackTop)
+            val ratio = abs(signal).toFloat() / pieceTotal
+            if (ratio > 0.15f) {
+                val conf = (ratio * 0.6f + 0.35f).coerceIn(0f, 0.95f)
+                return if (signal > 0) Perspective.WHITE_BOTTOM to conf else Perspective.BLACK_BOTTOM to conf
+            }
+        }
 
-        // Mean luma of inner 60% as board-background reference
+        // Secondary cue (weak): coordinate-label contrast in the outermost edge strips.
+        val border = (WORK * 0.05f).toInt().coerceAtLeast(4)
         val inner = (WORK * 0.2f).toInt()
-        var innerSum = 0f
-        var innerCnt = 0
+        var innerSum = 0f; var innerCnt = 0
         for (y in inner until WORK - inner) for (x in inner until WORK - inner) {
             innerSum += luma(px[y * WORK + x]); innerCnt++
         }
-        val innerMean = innerSum / innerCnt
-
-        // Count high-contrast deviations in top vs bottom edge strips
+        val innerMean = if (innerCnt > 0) innerSum / innerCnt else 128f
         var topHits = 0; var bottomHits = 0
         val thresh = 35f
         for (x in 0 until WORK) for (y in 0 until border) {
             if (abs(luma(px[y * WORK + x]) - innerMean) > thresh) topHits++
             if (abs(luma(px[(WORK - 1 - y) * WORK + x]) - innerMean) > thresh) bottomHits++
         }
-
-        val total = topHits + bottomHits
-        if (total > (WORK * border * 0.03f).toInt()) {
+        val edgeTotal = topHits + bottomHits
+        if (edgeTotal > (WORK * border * 0.03f).toInt()) {
             val diff = bottomHits - topHits
-            val conf = (abs(diff).toFloat() / total * 0.6f + 0.25f).coerceIn(0f, 0.95f)
+            val conf = (abs(diff).toFloat() / edgeTotal * 0.5f + 0.2f).coerceIn(0f, 0.7f)
             return if (diff >= 0) Perspective.WHITE_BOTTOM to conf else Perspective.BLACK_BOTTOM to conf
         }
 
-        // Fallback: piece distribution – side with pawns near image bottom is likely bottom
-        var wBot = 0; var wTop = 0; var bBot = 0; var bTop = 0
-        for (r in 0..7) for (c in 0..7) when (rows[r][c]) {
-            'P' -> if (r >= 4) wBot++ else wTop++
-            'p' -> if (r >= 4) bBot++ else bTop++
-        }
-        val wpn = wBot + wTop; val bpn = bBot + bTop
-        if (wpn + bpn >= 4) {
-            val wR = if (wpn > 0) (wBot - wTop).toFloat() / wpn else 0f
-            val bR = if (bpn > 0) (bTop - bBot).toFloat() / bpn else 0f
-            val comb = wR + bR
-            if (abs(comb) > 0.3f) {
-                val conf = (abs(comb) * 0.4f + 0.3f).coerceIn(0f, 0.8f)
-                return if (comb > 0) Perspective.WHITE_BOTTOM to conf else Perspective.BLACK_BOTTOM to conf
-            }
-        }
         return Perspective.WHITE_BOTTOM to 0.3f
     }
 
-    /** Q2a: Mirror rows vertically and swap piece colors (black-bottom fix). */
+    /**
+     * Q2b: Rotate the board 180° (mirror BOTH rows and columns) for black-bottom screenshots.
+     * A 180° rotation leaves piece colors unchanged (a white king stays white); castling rights are
+     * re-derived from the home squares in buildFen().
+     */
     private fun flipRows(rows: Array<CharArray>) {
-        for (r in 0..3) { val t = rows[r]; rows[r] = rows[7 - r]; rows[7 - r] = t }
-        for (r in 0..7) for (c in 0..7) {
-            val ch = rows[r][c]
-            if (ch == ' ') continue
-            rows[r][c] = if (ch.isUpperCase()) ch.lowercaseChar() else ch.uppercaseChar()
-        }
+        val copy = Array(8) { r -> CharArray(8) { c -> rows[r][c] } }
+        for (r in 0..7) for (c in 0..7) rows[r][c] = copy[7 - r][7 - c]
     }
 
     /**
-     * Q2b: Public utility to flip a FEN string (rows mirrored, colors swapped, castling swapped).
-     * Used by MainActivity's manual flip toggle.
+     * Q2b: Public utility to rotate a FEN's piece placement 180° (reverse rank order AND reverse the
+     * files within each rank). Piece colors are left unchanged — a 180° rotation is a pure geometric
+     * turn. Used by MainActivity's manual flip toggle to correct a wrongly-oriented import.
      */
     fun flipFen(fen: String): String {
         val parts = fen.split(" ", limit = 6)
-        val placement = parts[0]
-        val flipped = placement.split("/").reversed().joinToString("/") { row ->
-            row.map { c -> if (c.isUpperCase()) c.lowercaseChar() else c.uppercaseChar() }.joinToString("")
+        // Expand each rank to 8 explicit cells (' ' = empty), rotate 180°, then re-compress.
+        fun expand(row: String): CharArray {
+            val out = CharArray(8) { ' ' }
+            var i = 0
+            for (ch in row) {
+                if (ch.isDigit()) i += ch - '0' else { if (i < 8) out[i] = ch; i++ }
+            }
+            return out
         }
-        val cr = parts.getOrElse(2) { "-" }.let {
-            if (it == "-") it else it.map { c -> if (c.isUpperCase()) c.lowercaseChar() else c.uppercaseChar() }.joinToString("")
+        val ranks = parts[0].split("/")
+        val grid = Array(8) { expand(ranks.getOrElse(it) { "8" }) }
+        val rotated = Array(8) { r -> CharArray(8) { c -> grid[7 - r][7 - c] } }
+        val placement = rotated.joinToString("/") { row ->
+            val sb = StringBuilder(); var empty = 0
+            for (ch in row) {
+                if (ch == ' ') empty++ else { if (empty > 0) { sb.append(empty); empty = 0 }; sb.append(ch) }
+            }
+            if (empty > 0) sb.append(empty)
+            sb.toString()
         }
-        return listOf(flipped, parts.getOrElse(1) { "w" }, cr,
+        return listOf(placement, parts.getOrElse(1) { "w" }, parts.getOrElse(2) { "-" },
             parts.getOrElse(3) { "-" }, parts.getOrElse(4) { "0" }, parts.getOrElse(5) { "1" }).joinToString(" ")
     }
 

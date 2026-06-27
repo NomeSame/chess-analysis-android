@@ -86,8 +86,18 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:layout_marginTop="16dp">
+
+            <TextView
+                android:id="@+id/tvPuzzleRating"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#FFDDDDDD"
+                android:visibility="gone" />
 
             <com.example.chessanalysis.ChessBoardView
                 android:id="@+id/chessBoard"
@@ -366,16 +376,35 @@
             android:layout_marginTop="6dp"
             android:gravity="center_vertical">
 
-            <TextView
-                android:id="@+id/tvGameHistoryHeader"
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/game_history"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="#FFFFFFFF"
-                android:visibility="gone" />
+                android:layout_marginEnd="4dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/tvGameHistoryHeader"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/game_history"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFFFF"
+                    android:visibility="gone" />
+
+                <ImageButton
+                    android:id="@+id/btnPuzzles"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/ic_puzzle"
+                    android:scaleType="fitCenter"
+                    android:padding="6dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/puzzles" />
+
+            </LinearLayout>
 
             <Button
                 android:id="@+id/btnLearnTheory"
@@ -663,6 +692,30 @@
 
             </LinearLayout>
             <!-- /llToggles -->
+
+            <!-- Sound theme (collapsible) -->
+            <TextView
+                android:id="@+id/tvSoundThemeHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:minHeight="40dp"
+                android:gravity="center_vertical"
+                android:text="@string/sound_theme"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="#757575"
+                android:textAllCaps="true"
+                android:letterSpacing="0.05"
+                android:background="?attr/selectableItemBackground" />
+
+            <RadioGroup
+                android:id="@+id/rgSoundTheme"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:orientation="vertical"
+                android:visibility="gone" />
 
             <View
                 android:layout_width="match_parent"

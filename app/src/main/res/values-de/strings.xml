@@ -62,11 +62,16 @@
     <string name="analysis_depth">Analysetiefe</string>
     <string name="show_analysis_arrows">Best-Move-Pfeile in Analyse anzeigen</string>
     <string name="piece_sounds">Figurengeräusche</string>
+    <string name="sound_theme">Sound-Thema</string>
+    <string name="sound_theme_classic">Klassisch (Beep)</string>
+    <string name="sound_theme_wood">Holz</string>
     <string name="game_history">Partieverlauf</string>
     <string name="game_saved">Partie im Verlauf gespeichert</string>
     <string name="export_history">Exportieren</string>
     <string name="import_history">Importieren</string>
     <string name="export_pgn">PGN exportieren</string>
+    <string name="export_templates">Gelernte Erkennungsdaten exportieren</string>
+    <string name="export_templates_empty">Noch nichts gelernt — korrigiere zuerst einen importierten Screenshot</string>
     <string name="import_done">Import abgeschlossen</string>
     <string name="import_how_title">Importieren — wie?</string>
     <string name="import_pgn_manual">PGN manuell eingeben</string>
@@ -89,6 +94,7 @@
     <!-- Piece styles -->
     <string name="piece_original">Original</string>
     <string name="piece_classic_outline">Klassische Kontur</string>
+    <string name="piece_classic">Klassisch</string>
     <string name="piece_svg">SVG-Figuren</string>
     <string name="piece_staunty">Staunty</string>
     <string name="piece_mpchess">MP Chess</string>
@@ -183,4 +189,48 @@
     <string name="tactic_win_minor">Gewinnt eine Leichtfigur</string>
     <string name="tactic_win_pawn">Gewinnt einen Bauern</string>
     <string name="tactic_missed_cp_fmt">+%1$s Bauern</string>
+
+    <!-- Puzzles -->
+    <string name="puzzles">Rätsel</string>
+    <string name="puzzle_setup_title">Rätsel-Einstellungen</string>
+    <string name="puzzle_elo_min">Min. Wertung</string>
+    <string name="puzzle_elo_max">Max. Wertung</string>
+    <string name="puzzle_themes">Themen</string>
+    <string name="puzzle_select_all">Alle wählen</string>
+    <string name="puzzle_deselect_all">Keine</string>
+    <string name="puzzle_start">Rätsel starten</string>
+    <string name="puzzle_loading">Lade Rätsel…</string>
+    <string name="puzzle_none_found">Keine Rätsel passen zu deinen Kriterien.</string>
+    <string name="puzzle_rating_fmt">Wertung: %1$d</string>
+    <string name="puzzle_solved">✓ Gelöst</string>
+    <string name="puzzle_wrong">Falsch!</string>
+    <string name="puzzle_correct_move">✓ Richtig!</string>
+    <string name="puzzle_retry">Wiederholen</string>
+    <string name="puzzle_give_up">Lösung zeigen</string>
+    <string name="puzzle_next">Nächstes Rätsel</string>
+    <string name="puzzle_your_move">Dein Zug:</string>
+    <string name="puzzle_correct_move_was">Richtiger Zug:</string>
+    <string name="puzzle_complete">Rätsel gelöst!</string>
+    <string name="puzzle_progress_fmt">Gelöst: %1$d/%2$d</string>
+    <string name="puzzle_load_more">Mehr Rätsel laden</string>
+    <string name="puzzle_download_title">Rätsel herunterladen</string>
+    <string name="puzzle_download_msg">Weitere Rätsel von Lichess herunterladen? Dabei können mobile Daten verwendet werden.</string>
+    <string name="puzzle_download_start">Herunterladen</string>
+    <string name="puzzle_downloading_fmt">Lade Rätsel… %1$d%%</string>
+    <string name="puzzle_download_done">%1$d Rätsel heruntergeladen.</string>
+    <string name="puzzle_back">← Zurück zu Rätseln</string>
+    <string name="puzzle_theme_mate_basic">Matts</string>
+    <string name="puzzle_theme_mate_in_n">Matt in N</string>
+    <string name="puzzle_theme_mate_patterns">Mattbilder</string>
+    <string name="puzzle_theme_forks_pins">Gabeln/Fesseln/Spieße</string>
+    <string name="puzzle_theme_discovered">Abzug/Doppelschach</string>
+    <string name="puzzle_theme_deflection">Ablenkung/Anziehung</string>
+    <string name="puzzle_theme_hanging">Hängend/Gefangen</string>
+    <string name="puzzle_theme_king_attack">Königsangriff</string>
+    <string name="puzzle_theme_sacrifice">Opfer</string>
+    <string name="puzzle_theme_quiet">Ruhig/Verteidigung</string>
+    <string name="puzzle_theme_pawns">Bauernspiel</string>
+    <string name="puzzle_theme_endgame">Endspiel</string>
+    <string name="puzzle_theme_phase">Phase</string>
+    <string name="puzzle_theme_length">Länge</string>
 </resources>

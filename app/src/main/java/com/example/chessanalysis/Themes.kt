@@ -46,10 +46,17 @@ enum class PieceStyle(
     val id: String,
     val nameRes: Int,
     val svgFolder: String? = null,
-    val svgPrefix: String = ""
+    val svgPrefix: String = "",
+    // true = asset files use upper-case color + lower-case piece ("Wk.svg", "Bb.svg") instead of
+    // the default lower-case color + upper-case piece ("wK.svg", "bB.svg").
+    val svgUpperColor: Boolean = false,
+    // true = each piece SVG is its own tight bounding-box canvas (no shared viewBox/margin); the
+    // renderer then scales the set against its largest piece with padding to restore relative sizing.
+    val svgTightCrop: Boolean = false
 ) {
     CHESS_COM("chesscom", R.string.piece_original),
     CLASSIC("classic", R.string.piece_classic_outline),
+    CLASSIC_SVG("classic_svg", R.string.piece_classic, svgFolder = "Classic", svgUpperColor = true, svgTightCrop = true),
     SVG("svg", R.string.piece_svg, svgFolder = "SVG Pieces"),
     STAUNTY("staunty", R.string.piece_staunty, svgFolder = "staunty", svgPrefix = "staunty_"),
     MPCHESS("mpchess", R.string.piece_mpchess, svgFolder = "mpchess");

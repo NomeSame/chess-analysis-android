@@ -73,22 +73,26 @@ enum class MoveClass(val symbol: String, val color: Int, val label: String) {
             val drop = (bestWin - playedWin).coerceAtLeast(0.0)
             val isBest = e.playedMoveUci != null && e.playedMoveUci == e.bestMoveUci
             val onlyMove = (bestWin - secondWin) >= 12.0
+            val nearBest = playedWin >= bestWin - 2.0
 
-            // Positive special cases — the move IS the engine's best; cp-loss must not downgrade it.
-            if (isBest && materialSacrificed && playedWin >= 50.0) return BRILLIANT
-            if (isBest && onlyMove) return GREAT
+            // H-fix2: Brilliant only for healthy sacrifices that CREATE an advantage, not when already winning.
+            if (isBest && materialSacrificed && playedWin >= 50.0 && nearBest && secondWin < 85.0) return BRILLIANT
+
+            // H-fix3: Great on unique move OR band-jump (lost→drawn or drawn→won), not strictly the top engine move.
+            fun band(w: Double) = if (w < 33.0) 0 else if (w <= 67.0) 1 else 2
+            val bandJump = band(bestWin) > band(secondWin)
+            if (nearBest && (onlyMove || bandJump)) return GREAT
+
             if (isBest) return BEST
 
-            // Error tiers from the win%-drop (Chess.com EPM-style: blunder only from win%-drop, not cpLoss).
-            // MISS thresholds lowered to account for rating-adjusted EPM (sub-1000 players: +2.00 can be "winning").
+            // H-fix1: BLUNDER threshold 25%→20% (chess.com Expected Points model).
             val winCls = when {
                 drop < 2.0 -> EXCELLENT
                 drop < 5.0 -> GOOD
                 drop < 10.0 -> INACCURACY
-                drop < 25.0 -> if (bestWin >= 65.0 && playedWin < 50.0) MISS else MISTAKE
+                drop < 20.0 -> if (bestWin >= 65.0 && playedWin < 50.0) MISS else MISTAKE
                 else -> if (bestWin >= 65.0 && playedWin < 50.0) MISS else BLUNDER
             }
-            // Combine conservatively with the cp-loss tier (catches "threw away a won game" where win% barely moves).
             return if (cpLoss != null) worseOf(winCls, cpLossClassify(cpLoss)) else winCls
         }
     }

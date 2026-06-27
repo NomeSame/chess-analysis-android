@@ -67,6 +67,8 @@ class ChessBoardView @JvmOverloads constructor(
     // SVG piece rendering (for the currently selected SVG style)
     private val svgPaths = mutableMapOf<Char, List<PathData>>()
     private val svgViewBox = mutableMapOf<Char, FloatArray>()   // [minX, minY, width, height]
+    private var svgRefMax = 0f   // largest piece dimension in a tight-cropped set (for shared scaling)
+    private val svgTightPad = 0.82f  // cell fraction the tallest tight-cropped piece occupies
 
     init {
         loadSvgPieces()
@@ -79,11 +81,16 @@ class ChessBoardView @JvmOverloads constructor(
 
     private fun loadSvgPieces() {
         svgPaths.clear(); svgViewBox.clear()
+        svgRefMax = 0f
         val folder = pieceStyle.svgFolder ?: return
         val prefix = pieceStyle.svgPrefix
         for ((pieceType, base) in pieceFileBases) {
             try {
-                val asset = "pieces/$folder/$prefix$base.svg"
+                // Default bases are "wK"/"bB" (lower color + upper piece); some sets (Classic) use the
+                // opposite case ("Wk"/"Bb").
+                val fileBase = if (pieceStyle.svgUpperColor)
+                    "${base[0].uppercaseChar()}${base[1].lowercaseChar()}" else base
+                val asset = "pieces/$folder/$prefix$fileBase.svg"
                 val content = context?.resources?.assets?.open(asset)?.bufferedReader()?.use { it.readText() } ?: continue
                 svgPaths[pieceType] = parseSvgPaths(content)
                 svgViewBox[pieceType] = parseViewBox(content)
@@ -91,6 +98,8 @@ class ChessBoardView @JvmOverloads constructor(
                 Log.e("ChessBoardView", "Failed to load SVG for $pieceType: ${e.message}")
             }
         }
+        // Reference size for tight-cropped sets = the set's largest piece dimension (preserves relative sizes).
+        if (pieceStyle.svgTightCrop) svgRefMax = svgViewBox.values.maxOfOrNull { maxOf(it[2], it[3]) } ?: 0f
     }
 
     /** Parse the SVG canvas size as [minX, minY, w, h] from viewBox, falling back to width/height, then 45. */
@@ -107,7 +116,13 @@ class ChessBoardView @JvmOverloads constructor(
     /** Uniform scale + translation mapping a piece's SVG (by its viewBox) into the cell centered at (cx, cy). */
     private fun svgTransform(pieceType: Char, cx: Float, cy: Float, sqSize: Float): Triple<Float, Float, Float> {
         val vb = svgViewBox[pieceType] ?: floatArrayOf(0f, 0f, 45f, 45f)
-        val s = sqSize / maxOf(vb[2], vb[3])
+        // Tight-cropped sets (each piece in its own bounding-box canvas, e.g. Classic): scale against the
+        // set's largest piece with padding → pieces keep relative sizes and don't touch the cell edges.
+        // Sets with a uniform per-piece viewBox keep the exact-fit behavior.
+        val s = if (pieceStyle.svgTightCrop && svgRefMax > 0f)
+            sqSize * svgTightPad / svgRefMax
+        else
+            sqSize / maxOf(vb[2], vb[3])
         return Triple(s, cx - (vb[0] + vb[2] / 2f) * s, cy - (vb[1] + vb[3] / 2f) * s)
     }
 
@@ -223,7 +238,12 @@ class ChessBoardView @JvmOverloads constructor(
                     val xform = Matrix()
                     for (g in groupStack) parseTransform(svgAttr(g, "transform"))?.let { xform.preConcat(it) }
                     parseTransform(svgAttr(tag, "transform"))?.let { xform.preConcat(it) }
-                    paths.add(PathData(d, fill, stroke, strokeWidth, evenOdd, if (xform.isIdentity) null else xform))
+                    val transform = if (xform.isIdentity) null else xform
+                    // Parse the path string into a Path ONCE; onDraw then only applies a canvas matrix.
+                    val base = parseSvgPath(d)?.apply {
+                        fillType = if (evenOdd) Path.FillType.EVEN_ODD else Path.FillType.WINDING
+                    }
+                    paths.add(PathData(fill, stroke, strokeWidth, transform, base))
                 }
             }
         }
@@ -309,12 +329,11 @@ class ChessBoardView @JvmOverloads constructor(
 
     // SVG path data structure
     private data class PathData(
-        val d: String,
         val fill: Int,
         val stroke: Int,
         val strokeWidth: Float,
-        val evenOdd: Boolean,
-        val transform: Matrix? = null   // local SVG transform (group + path), in viewBox units
+        val transform: Matrix? = null,  // local SVG transform (group + path), in viewBox units
+        val basePath: Path?             // path parsed ONCE (viewBox units, fillType applied) — drawn via canvas matrix
     )
 
     // Setup mode: tray piece types (each entry is one slot)
@@ -827,6 +846,20 @@ class ChessBoardView @JvmOverloads constructor(
             canvas.drawText(('a' + c).toString(), (i + 1) * sqSize - 4f, bOff + 8f * sqSize - 4f, textPaint)
         }
 
+        // Perspective labels (W/B at a1/h8 corners in setup mode)
+        textPaint.textSize = sqSize * 0.22f
+        textPaint.textAlign = Paint.Align.LEFT
+        textPaint.isFakeBoldText = true
+        val a1Col = if (flipBoard) 7 else 0
+        val a1Row = if (flipBoard) 0 else 7
+        val h8Col = if (flipBoard) 0 else 7
+        val h8Row = if (flipBoard) 7 else 0
+        textPaint.color = 0xCCFFFFFF.toInt()
+        canvas.drawText("W", a1Col * sqSize + 3f, bOff + a1Row * sqSize + textPaint.textSize + 2f, textPaint)
+        textPaint.color = 0xCC000000.toInt()
+        canvas.drawText("B", h8Col * sqSize + 3f, bOff + h8Row * sqSize + textPaint.textSize + 2f, textPaint)
+        textPaint.isFakeBoldText = false
+
         textPaint.textAlign = Paint.Align.CENTER
 
         // Drag ghost
@@ -897,7 +930,7 @@ class ChessBoardView @JvmOverloads constructor(
                     textPaint.style = Paint.Style.FILL
                 }
             }
-            PieceStyle.SVG, PieceStyle.STAUNTY, PieceStyle.MPCHESS -> {
+            PieceStyle.SVG, PieceStyle.STAUNTY, PieceStyle.MPCHESS, PieceStyle.CLASSIC_SVG -> {
                 // Draw SVG piece (scale derived from the viewBox).
                 val pieceType = if (piece.isWhite) piece.type else piece.type.lowercaseChar()
                 val paths = svgPaths[pieceType] ?: return
@@ -905,27 +938,30 @@ class ChessBoardView @JvmOverloads constructor(
                 val (scale, offsetX, offsetY) = svgTransform(pieceType, cx, cy, sqSize)
 
                 for (pathData in paths) {
-                    val path = parseSvgPath(pathData.d) ?: continue
-                    path.fillType = if (pathData.evenOdd) Path.FillType.EVEN_ODD else Path.FillType.WINDING
-                    // Apply the path's local SVG transform first, then scale/translate into the cell.
-                    val m = Matrix().apply { setScale(scale, scale); postTranslate(offsetX, offsetY) }
-                    pathData.transform?.let { m.preConcat(it) }
-                    path.transform(m)
+                    val base = pathData.basePath ?: continue
+                    // Draw the cached (un-mutated) path under a canvas matrix: scale/translate into the
+                    // cell, then the path's local SVG transform. No per-frame parsing or Path allocation.
+                    canvas.save()
+                    canvas.translate(offsetX, offsetY)
+                    canvas.scale(scale, scale)
+                    pathData.transform?.let { canvas.concat(it) }
 
                     if (pathData.fill != Color.TRANSPARENT) {
                         textPaint.style = Paint.Style.FILL
                         textPaint.color = pathData.fill
-                        canvas.drawPath(path, textPaint)
+                        canvas.drawPath(base, textPaint)
                     }
                     if (pathData.stroke != Color.TRANSPARENT) {
                         textPaint.style = Paint.Style.STROKE
-                        // stroke-width is in pre-transform units → scale by both the local transform and the cell.
-                        textPaint.strokeWidth = pathData.strokeWidth * scale * matrixScale(pathData.transform)
+                        // stroke-width is in pre-transform units; the canvas matrix scales it for us, so
+                        // only divide back the parts the canvas does NOT apply uniformly (none here).
+                        textPaint.strokeWidth = pathData.strokeWidth
                         textPaint.strokeCap = Paint.Cap.ROUND
                         textPaint.strokeJoin = Paint.Join.ROUND
                         textPaint.color = pathData.stroke
-                        canvas.drawPath(path, textPaint)
+                        canvas.drawPath(base, textPaint)
                     }
+                    canvas.restore()
                 }
                 textPaint.style = Paint.Style.FILL
             }
@@ -1162,7 +1198,7 @@ class ChessBoardView @JvmOverloads constructor(
                 // Check board first
                 val bCol = ((event.x) / sqSize).toInt().coerceIn(0, 7)
                 val bRawRow = ((event.y - bOff) / sqSize).toInt()
-                if (bRawRow in 0..7) {
+                if (event.y >= bOff && bRawRow in 0..7) {
                     val boardR = if (flipBoard) 7 - bRawRow else bRawRow
                     val boardC = if (flipBoard) 7 - bCol else bCol
                     val p = board[boardR][boardC]
@@ -1226,7 +1262,7 @@ class ChessBoardView @JvmOverloads constructor(
                 if (isDragging && dragPiece != null) {
                     val bCol = ((event.x) / sqSize).toInt()
                     val bRawRow = ((event.y - bOff) / sqSize).toInt()
-                    if (bRawRow in 0..7 && bCol in 0..7) {
+                    if (event.y >= bOff && bRawRow in 0..7 && bCol in 0..7) {
                         val boardR = if (flipBoard) 7 - bRawRow else bRawRow
                         val boardC = if (flipBoard) 7 - bCol else bCol
                         board[boardR][boardC] = dragPiece

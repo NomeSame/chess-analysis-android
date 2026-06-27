@@ -32,10 +32,12 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.slider.RangeSlider
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.jvm.Volatile
 import kotlin.math.abs
 
 class MainActivity : AppCompatActivity() {
@@ -135,11 +137,25 @@ class MainActivity : AppCompatActivity() {
     private var lastImportBoard: Bitmap? = null
     private var lastSetupBoard: Array<Array<ChessBoardView.Piece?>>? = null
     private var lastImportPerspective: ScreenshotImporter.Perspective? = null
+    // Q2b: true once the user has manually rotated the imported board 180° via the flip button.
+    // Tracks the data rotation independently of the display so correction crops map back correctly.
+    private var importManualFlip = false
+
+    private var puzzleManager: PuzzleManager? = null
+    private var puzzleMode = false
+    private var currentPuzzle: Puzzle? = null
+    private var puzzleMoveIndex = 0
+    private var puzzleCandidates: List<Puzzle> = emptyList()
+    private lateinit var tvPuzzleRating: TextView
+    private lateinit var btnPuzzles: android.widget.ImageButton
 
     private var soundPool: android.media.SoundPool? = null
     private var sndMove = 0; private var sndCapture = 0
-    private var sndCastle = 0; private var sndCheck = 0
+    private var sndCastle = 0; private var sndCheck = 0; private var sndCheckmate = 0
     private var pieceSoundsEnabled = true
+    private var soundTheme = SoundTheme.CLASSIC
+    @Volatile
+    private var soundPoolReady = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -151,10 +167,13 @@ class MainActivity : AppCompatActivity() {
                 .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
                 .build()
             soundPool = android.media.SoundPool.Builder().setMaxStreams(4).setAudioAttributes(attrs).build()
-            sndMove    = soundPool!!.load(this, R.raw.move,    1)
-            sndCapture = soundPool!!.load(this, R.raw.capture, 1)
-            sndCastle  = soundPool!!.load(this, R.raw.castle,  1)
-            sndCheck   = soundPool!!.load(this, R.raw.check,   1)
+            soundPoolReady = false
+            soundPool!!.setOnLoadCompleteListener { _, _, status ->
+                if (status == 0) soundPoolReady = true
+                else Log.e("Sound", "load failed status=$status")
+            }
+            soundTheme = SoundTheme.byId(prefs.getString(KEY_SOUND_THEME, null))
+            loadSoundTheme(soundTheme)
         } catch (e: Exception) { Log.e("Sound", "SoundPool init failed", e); soundPool = null }
 
         chessBoard = findViewById(R.id.chessBoard)
@@ -255,6 +274,8 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.btnExportHistory).setOnClickListener { exportGameHistory() }
         findViewById<Button>(R.id.btnImportHistory).setOnClickListener { showImportChooser() }
+        // Long-press the import button → export the learned screenshot-recognition data for re-bundling.
+        findViewById<Button>(R.id.btnImportHistory).setOnLongClickListener { exportLearnedTemplates(); true }
         btnExportPgnHistory = findViewById(R.id.btnExportPgnHistory)
         btnExportPgnHistory.setOnClickListener { exportCurrentPgn() }
         btnExportPgn = findViewById(R.id.btnExportPgn)
@@ -276,6 +297,10 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch { initEngine() }
         lichessExplorer = LichessExplorer()
         setupOpeningBook()
+        tvPuzzleRating = findViewById(R.id.tvPuzzleRating)
+        btnPuzzles = findViewById(R.id.btnPuzzles)
+        btnPuzzles.setOnClickListener { showPuzzleSetupDialog() }
+        puzzleManager = PuzzleManager(this)
     }
 
     /** Load the downloaded opening book, or prompt the user to download it once. */
@@ -473,6 +498,24 @@ class MainActivity : AppCompatActivity() {
             prefs.edit().putBoolean(KEY_PIECE_SOUNDS, checked).apply()
         }
 
+        // Sound theme selector (collapsible, persisted). Switching reloads the SoundPool samples.
+        val rgSound = findViewById<RadioGroup>(R.id.rgSoundTheme)
+        for (t in SoundTheme.entries) {
+            val rb = RadioButton(this).apply {
+                text = getString(t.labelRes)
+                textSize = 15f
+                id = View.generateViewId()
+                isChecked = t == soundTheme
+                setOnClickListener {
+                    soundTheme = t
+                    prefs.edit().putString(KEY_SOUND_THEME, t.id).apply()
+                    loadSoundTheme(t)
+                }
+            }
+            rgSound.addView(rb)
+        }
+        setupCollapsibleHeader(findViewById(R.id.tvSoundThemeHeader), rgSound, getString(R.string.sound_theme))
+
         setupAiCoachSection()
     }
 
@@ -667,9 +710,11 @@ class MainActivity : AppCompatActivity() {
 
     /** Compare initial vs final board after setup-mode corrections, report differences to the template matcher. */
     private fun reportSetupCorrections() {
-        val style = lastImportStyle ?: return
         val boardBmp = lastImportBoard ?: return
         val initial = lastSetupBoard ?: return
+        // Record under a stable style key even when style detection returned null (untrained synthetic
+        // set) — otherwise the learning loop could never start. Defaults to the single "default" style.
+        val style = lastImportStyle ?: PieceTemplateMatcher.DEFAULT_STYLE
         val finalBoard = chessBoard.board
         val perspective = lastImportPerspective
 
@@ -682,11 +727,14 @@ class MainActivity : AppCompatActivity() {
                     val correctPiece = finalPiece ?: continue
                     // Map board coordinates to bitmap coordinates
                     var bitmapRow = r
-                    // If the board display was UI-flipped, invert the row
-                    if (chessBoard.flipBoard) bitmapRow = 7 - bitmapRow
-                    // If the original screenshot had black at bottom, invert again
-                    if (perspective == ScreenshotImporter.Perspective.BLACK_BOTTOM) bitmapRow = 7 - bitmapRow
-                    val crop = ScreenshotImporter.extractCellCrop(boardBmp, bitmapRow, c)
+                    var bitmapCol = c
+                    // Q8: each 180° rotation of the board relative to the source image inverts BOTH
+                    // axes (row and column), not just the row. Two rotations compose back to identity.
+                    // User manually flipped the imported board:
+                    if (importManualFlip) { bitmapRow = 7 - bitmapRow; bitmapCol = 7 - bitmapCol }
+                    // Original screenshot had black at bottom (board was rotated 180° on import):
+                    if (perspective == ScreenshotImporter.Perspective.BLACK_BOTTOM) { bitmapRow = 7 - bitmapRow; bitmapCol = 7 - bitmapCol }
+                    val crop = ScreenshotImporter.extractCellCrop(boardBmp, bitmapRow, bitmapCol)
                     if (crop != null) {
                         val pieceChar = if (correctPiece.isWhite) correctPiece.type else correctPiece.type.lowercaseChar()
                         ScreenshotImporter.getTemplateMatcher()?.reportCorrection(style, crop, pieceChar)
@@ -735,14 +783,63 @@ class MainActivity : AppCompatActivity() {
         updateGameStatus()
     }
 
-    private fun playMoveSound(isCapture: Boolean, isCastle: Boolean, isCheck: Boolean) {
+    /** (Re)load the 4 samples for [theme] into the SoundPool; a missing file falls back to the
+     *  theme's move sound. Unloads the previous samples first so switching themes doesn't leak. */
+    /** Where optional, not-bundled sound files can be downloaded to (picked up automatically by name). */
+    private val soundsDir get() = java.io.File(filesDir, "sounds")
+
+    /**
+     * Resolve & load ONE sample for [theme], crash-safe. For each candidate [names] it tries, in order:
+     * a downloaded file `filesDir/sounds/<prefix><name>.ogg`, then a bundled `res/raw/<prefix><name>`.
+     * If the theme has none of them (e.g. WOOD not pushed and not yet downloaded), it falls back to the
+     * always-bundled CLASSIC (un-prefixed) sound, and finally to R.raw.move. Never passes resId 0 to
+     * SoundPool.load(), so switching to a missing theme can't throw.
+     */
+    private fun loadSample(theme: SoundTheme, vararg names: String): Int {
+        val sp = soundPool ?: return 0
+        // 1) theme-specific: downloaded file or prefixed bundled resource
+        for (n in names) {
+            val f = java.io.File(soundsDir, theme.prefix + n + ".ogg")
+            if (f.exists()) runCatching { return sp.load(f.absolutePath, 1) }
+            val res = resources.getIdentifier(theme.prefix + n, "raw", packageName)
+            if (res != 0) return sp.load(this, res, 1)
+        }
+        // 2) guaranteed fallback: an always-bundled CLASSIC (un-prefixed) sound
+        for (n in names) {
+            val res = resources.getIdentifier(n, "raw", packageName)
+            if (res != 0) return sp.load(this, res, 1)
+        }
+        return sp.load(this, R.raw.move, 1)
+    }
+
+    private fun loadSoundTheme(theme: SoundTheme) {
+        val sp = soundPool ?: return
+        intArrayOf(sndMove, sndCapture, sndCastle, sndCheck, sndCheckmate).forEach { if (it != 0) sp.unload(it) }
+        soundPoolReady = false
+        sndMove      = loadSample(theme, "move")
+        sndCapture   = loadSample(theme, "capture")
+        sndCastle    = loadSample(theme, "castle")
+        sndCheck     = loadSample(theme, "check")
+        sndCheckmate = loadSample(theme, "checkmate", "check")
+    }
+
+    private fun playMoveSound(isCapture: Boolean, isCastle: Boolean, isCheck: Boolean, isCheckmate: Boolean) {
         if (!pieceSoundsEnabled) return
         val sp = soundPool ?: return
+        if (!soundPoolReady) { Log.w("Sound", "pool not ready yet"); return }
         val am = getSystemService(AUDIO_SERVICE) as android.media.AudioManager
-        if (am.ringerMode == android.media.AudioManager.RINGER_MODE_SILENT) return
+        // Only the media volume matters — ringer/silent mode is intentionally ignored.
+        if (am.getStreamVolume(android.media.AudioManager.STREAM_MUSIC) == 0) { Log.d("Sound", "media volume 0"); return }
         try {
-            val snd = when { isCastle -> sndCastle; isCapture -> sndCapture; isCheck -> sndCheck; else -> sndMove }
-            sp.play(snd, 1f, 1f, 0, 0, 1f)
+            val snd = when {
+                isCheckmate -> sndCheckmate
+                isCastle -> sndCastle
+                isCheck -> sndCheck       // check beats capture: a capture that gives check plays the check sound
+                isCapture -> sndCapture
+                else -> sndMove
+            }
+            val sid = sp.play(snd, 1f, 1f, 0, 0, 1f)
+            if (sid == 0) Log.w("Sound", "play returned 0")
         } catch (e: Exception) { Log.e("Sound", "play failed", e) }
     }
 
@@ -771,7 +868,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
         val isCheckNow = chessBoard.isInCheck(chessBoard.sideToMove == 'w')
-        playMoveSound(isCaptureDone, isCastleDone, isCheckNow)
+        val isMateNow = isCheckNow && chessBoard.isCheckmate()
+        playMoveSound(isCaptureDone, isCastleDone, isCheckNow, isMateNow)
         requestAnalysis()
         if (liveEvalEnabled && positionHistory.size >= 2) {
             // shift current badge to badge2 before clearing for the new move
@@ -1405,6 +1503,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         chessBoard.makeMove(fromRow, fromCol, toRow, toCol)
+        if (puzzleMode) { handlePuzzleMove(fromRow, fromCol, toRow, toCol); return }
         if (reviewMode) { exploreMove(Pair(fromRow, fromCol)); return }
         commitMove(Pair(fromRow, fromCol))
         updateGameStatus()
@@ -1454,7 +1553,9 @@ class MainActivity : AppCompatActivity() {
     private fun initPromotionCallback() {
         chessBoard.onPromotionSelected = { fromRow, fromCol, toRow, toCol, pieceType ->
             chessBoard.makeMove(fromRow, fromCol, toRow, toCol, pieceType)
-            if (reviewMode) {
+            if (puzzleMode) {
+                handlePuzzleMove(fromRow, fromCol, toRow, toCol, pieceType)
+            } else if (reviewMode) {
                 exploreMove(Pair(fromRow, fromCol))
             } else {
                 commitMove(Pair(fromRow, fromCol))
@@ -1564,6 +1665,26 @@ class MainActivity : AppCompatActivity() {
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
         startActivity(Intent.createChooser(intent, getString(R.string.export_history)))
+    }
+
+    /**
+     * Export the learned screenshot-recognition corrections (seed ∪ device) as JSON so it can be
+     * re-bundled into `assets/piece_templates/corrections_seed.json` → bakes learning into the build,
+     * permanent across re-flashes and new devices.
+     */
+    private fun exportLearnedTemplates() {
+        val file = ScreenshotImporter.getTemplateMatcher()?.exportCorrections()
+        if (file == null) {
+            Snackbar.make(chessBoard, R.string.export_templates_empty, Snackbar.LENGTH_LONG).show()
+            return
+        }
+        val uri = androidx.core.content.FileProvider.getUriForFile(this, "${packageName}.fileprovider", file)
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "application/json"
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        startActivity(Intent.createChooser(intent, getString(R.string.export_templates)))
     }
 
     /** Build a PgnImporter.Game from the current game (imported PGN or reconstructed from positionHistory). */
@@ -1697,6 +1818,7 @@ class MainActivity : AppCompatActivity() {
                     lastImportBoard = board
                     lastImportPerspective = result.perspective
                     chessBoard.flipBoard = false
+                    importManualFlip = false
                     enterSetupWithFen(result.fen)
                     showFlipButton()
                     if (result.uncertain) {
@@ -1763,11 +1885,15 @@ class MainActivity : AppCompatActivity() {
         btnFlipBoard?.visibility = View.GONE
     }
 
-    /** Flip the board: toggle [flipBoard], re-apply FEN with mirrored rows and swapped colors. */
+    /**
+     * Flip the board 180°: rotate the actual position data (so it persists into play) and record the
+     * manual flip for crop mapping. We do NOT toggle [chessBoard.flipBoard] — a display flip would
+     * cancel the data rotation and make the button a visual no-op.
+     */
     private fun toggleBoardFlip() {
         val fen = chessBoard.getFen()
         val flipped = ScreenshotImporter.flipFen(fen)
-        chessBoard.flipBoard = !chessBoard.flipBoard
+        importManualFlip = !importManualFlip
         enterSetupWithFen(flipped)
         chessBoard.requestLayout()
         chessBoard.invalidate()
@@ -2501,7 +2627,233 @@ class MainActivity : AppCompatActivity() {
     }
 
     @Deprecated("Deprecated in Java")
+    // ── Puzzle Mode ────────────────────────────────────────────────────
+
+    private fun showPuzzleSetupDialog() {
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(24, 16, 24, 16)
+        }
+
+        container.addView(TextView(this).apply {
+            text = getString(R.string.puzzle_elo_min) + " — " + getString(R.string.puzzle_elo_max)
+            setTextColor(0xFFCCCCCC.toInt())
+            textSize = 15f
+        })
+
+        val eloSlider = RangeSlider(this).apply {
+            setValueFrom(600f)
+            setValueTo(3600f)
+            setValues(600f, 3600f)
+            setStepSize(100f)
+        }
+        container.addView(eloSlider)
+
+        val tvElo = TextView(this).apply {
+            text = "600 — 3600"
+            setTextColor(0xFF888888.toInt())
+            textSize = 13f
+        }
+        container.addView(tvElo)
+        eloSlider.addOnChangeListener { _, _, _ ->
+            tvElo.text = "${eloSlider.values[0].toInt()} — ${eloSlider.values[1].toInt()}"
+        }
+
+        container.addView(TextView(this).apply {
+            text = getString(R.string.puzzle_themes)
+            setTextColor(0xFFCCCCCC.toInt())
+            textSize = 15f
+            setPadding(0, 16, 0, 4)
+        })
+
+        val themeCbs = mutableMapOf<PuzzleThemeGroup, android.widget.CheckBox>()
+        LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            addView(Button(this@MainActivity).apply {
+                text = getString(R.string.puzzle_select_all)
+                setOnClickListener { themeCbs.values.forEach { it.isChecked = true } }
+            })
+            addView(Button(this@MainActivity).apply {
+                    text = getString(R.string.puzzle_deselect_all)
+                setOnClickListener { themeCbs.values.forEach { it.isChecked = false } }
+            })
+        }.also { container.addView(it) }
+
+        for (group in PuzzleThemeGroup.entries) {
+            val cb = android.widget.CheckBox(this).apply {
+                text = getString(group.displayNameRes)
+                isChecked = true
+                setTextColor(0xFFDDDDDD.toInt())
+            }
+            themeCbs[group] = cb
+            container.addView(cb)
+        }
+
+        val scroll = android.widget.ScrollView(this).apply { addView(container) }
+
+        AlertDialog.Builder(this)
+            .setTitle(R.string.puzzle_setup_title)
+            .setView(scroll)
+            .setPositiveButton(R.string.puzzle_start) { _, _ ->
+                val vals = eloSlider.values
+                val groups = themeCbs.filter { it.value.isChecked }.keys
+                startPuzzle(vals[0].toInt(), vals[1].toInt(), groups)
+            }
+            .setNeutralButton(R.string.puzzle_load_more) { _, _ -> downloadMorePuzzles() }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun startPuzzle(eloMin: Int, eloMax: Int, enabledGroups: Set<PuzzleThemeGroup>) {
+        val pm = puzzleManager ?: return
+        val allPuzzles = pm.allAvailablePuzzles()
+        puzzleCandidates = pm.filterPuzzles(allPuzzles, eloMin, eloMax, enabledGroups)
+        if (puzzleCandidates.isEmpty()) {
+            Snackbar.make(findViewById(R.id.drawerLayout), R.string.puzzle_none_found, Snackbar.LENGTH_LONG).show()
+            return
+        }
+        val puzzle = pm.pickRandomPuzzle(puzzleCandidates) ?: return
+        enterPuzzleMode(puzzle)
+    }
+
+    private fun enterPuzzleMode(puzzle: Puzzle) {
+        if (chessBoard.setupMode) {
+            chessBoard.setupMode = false
+            btnSetup.text = getString(R.string.setup_board)
+        }
+        exitReviewMode()
+        vsEngine = false
+        puzzleMode = true
+        currentPuzzle = puzzle
+        puzzleMoveIndex = 0
+        puzzleManager?.applyPuzzleMoves(chessBoard, puzzle, 1)
+        puzzleMoveIndex = 1
+        tvPuzzleRating.text = getString(R.string.puzzle_rating_fmt, puzzle.rating)
+        tvPuzzleRating.visibility = View.VISIBLE
+        chessBoard.interactionEnabled = true
+        tvStatus.text = getString(R.string.puzzles)
+    }
+
+    private fun exitPuzzleMode() {
+        puzzleMode = false
+        currentPuzzle = null
+        puzzleMoveIndex = 0
+        tvPuzzleRating.visibility = View.GONE
+        newGame()
+    }
+
+    private fun handlePuzzleMove(fromRow: Int, fromCol: Int, toRow: Int, toCol: Int, promotion: Char? = null) {
+        val puzzle = currentPuzzle ?: return
+        val pm = puzzleManager ?: return
+        val expected = pm.nextUserMove(puzzle, puzzleMoveIndex) ?: return
+        val uci = "${('a' + fromCol)}${(8 - fromRow)}${('a' + toCol)}${(8 - toRow)}${promotion?.lowercase() ?: ""}"
+
+        if (uci != expected) {
+            pm.recordAttempt(puzzle.id)
+            pm.applyPuzzleMoves(chessBoard, puzzle, puzzleMoveIndex)
+            showPuzzleWrongPopup(uci, expected)
+            return
+        }
+
+        pm.recordAttempt(puzzle.id)
+        puzzleMoveIndex++
+
+        val oppUci = puzzle.solutionUci.getOrNull(puzzleMoveIndex)
+        if (oppUci != null) {
+            val oc = oppUci[0] - 'a'; val or = 8 - (oppUci[1] - '0')
+            val tc = oppUci[2] - 'a'; val tr = 8 - (oppUci[3] - '0')
+            val op = if (oppUci.length > 4) oppUci[4].uppercaseChar() else null
+            chessBoard.makeMove(or, oc, tr, tc, op)
+            puzzleMoveIndex++
+        }
+
+        if (pm.nextUserMove(puzzle, puzzleMoveIndex) == null) {
+            pm.recordSolve(puzzle.id)
+            showPuzzleCompletePopup()
+        } else {
+            showPuzzleCorrectFeedback()
+        }
+    }
+
+    private fun showPuzzleCorrectFeedback() {
+        Snackbar.make(findViewById(R.id.drawerLayout), R.string.puzzle_correct_move, Snackbar.LENGTH_SHORT).show()
+    }
+
+    private fun showPuzzleWrongPopup(played: String, expected: String) {
+        val fPlayed = chessBoard.formatUciMove(played)
+        val fExpected = chessBoard.formatUciMove(expected)
+        AlertDialog.Builder(this)
+            .setTitle(R.string.puzzle_wrong)
+            .setMessage("${getString(R.string.puzzle_your_move)} $fPlayed\n${getString(R.string.puzzle_correct_move_was)} $fExpected")
+            .setPositiveButton(R.string.puzzle_retry) { _, _ ->
+                val puzzle = currentPuzzle ?: return@setPositiveButton
+                puzzleManager?.applyPuzzleMoves(chessBoard, puzzle, puzzleMoveIndex)
+            }
+            .setNeutralButton(R.string.puzzle_give_up) { _, _ -> showPuzzleGiveUp() }
+            .setNegativeButton(R.string.puzzle_back) { _, _ -> exitPuzzleMode() }
+            .show()
+    }
+
+    private fun showPuzzleCompletePopup() {
+        val total = (puzzleCandidates.size + (puzzleManager?.loadProgress()?.solved?.size ?: 0))
+        val solved = currentPuzzle?.let { puzzleManager?.isSolved(it.id) } == true
+        AlertDialog.Builder(this)
+            .setTitle(R.string.puzzle_complete)
+            .setMessage(getString(R.string.puzzle_progress_fmt, if (solved) 1 else 0, total))
+            .setPositiveButton(R.string.puzzle_next) { _, _ ->
+                val puzzle = puzzleManager?.pickRandomPuzzle(puzzleCandidates) ?: return@setPositiveButton
+                enterPuzzleMode(puzzle)
+            }
+            .setNegativeButton(R.string.puzzle_back) { _, _ -> exitPuzzleMode() }
+            .show()
+    }
+
+    private fun showPuzzleGiveUp() {
+        val puzzle = currentPuzzle ?: return
+        val sb = StringBuilder()
+        for (i in 1 until puzzle.solutionUci.size) {
+            val uci = puzzle.solutionUci[i]
+            val formatted = chessBoard.formatUciMove(uci)
+            sb.append(formatted).append(if (i % 2 == 1) " " else "  ")
+        }
+        AlertDialog.Builder(this)
+            .setTitle(R.string.puzzle_give_up)
+            .setMessage(sb.toString())
+            .setPositiveButton(R.string.puzzle_retry) { _, _ ->
+                puzzleManager?.applyPuzzleMoves(chessBoard, puzzle, 1)
+                puzzleMoveIndex = 1
+            }
+            .setNegativeButton(R.string.puzzle_back) { _, _ -> exitPuzzleMode() }
+            .show()
+    }
+
+    private fun downloadMorePuzzles() {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.puzzle_download_title)
+            .setMessage(R.string.puzzle_download_msg)
+            .setPositiveButton(R.string.puzzle_download_start) { _, _ ->
+                val snack = Snackbar.make(findViewById(R.id.drawerLayout), R.string.puzzle_loading, Snackbar.LENGTH_INDEFINITE)
+                snack.show()
+                lifecycleScope.launch(Dispatchers.IO) {
+                    puzzleManager?.downloadPuzzles(onProgress = { pct ->
+                        runOnUiThread { snack.setText(getString(R.string.puzzle_downloading_fmt, pct)) }
+                    })
+                    runOnUiThread {
+                        snack.dismiss()
+                        val count = puzzleManager?.loadDownloadedPuzzles()?.size ?: 0
+                        Snackbar.make(findViewById(R.id.drawerLayout),
+                            getString(R.string.puzzle_download_done, count), Snackbar.LENGTH_LONG).show()
+                    }
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    // ── end Puzzle Mode ────────────────────────────────────────────────
+
     override fun onBackPressed() {
+        if (puzzleMode) { exitPuzzleMode(); return }
         if (drawerLayout.isDrawerOpen(settingsDrawer)) {
             drawerLayout.closeDrawer(settingsDrawer)
         } else {
@@ -2547,6 +2899,7 @@ class MainActivity : AppCompatActivity() {
         private const val KEY_ANALYSIS_ARROWS = "show_analysis_arrows"
         private const val KEY_AI_COACH_MODE = "ai_coach_mode"
         private const val KEY_PIECE_SOUNDS = "piece_sounds"
+        private const val KEY_SOUND_THEME = "sound_theme"
         private const val REQ_IMPORT_DATA = 1001
     }
 }
