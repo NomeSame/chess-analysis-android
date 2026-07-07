@@ -1,4 +1,4 @@
-package com.example.chessanalysis
+package com.example.chessanalysis.ml
 
 import android.content.Context
 import android.util.Log

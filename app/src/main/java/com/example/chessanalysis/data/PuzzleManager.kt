@@ -1,7 +1,9 @@
-package com.example.chessanalysis
+package com.example.chessanalysis.data
 
 import android.content.Context
 import android.util.Log
+import com.example.chessanalysis.R
+import com.example.chessanalysis.ui.ChessBoardView
 import com.github.luben.zstd.ZstdInputStream
 import org.json.JSONArray
 import org.json.JSONObject

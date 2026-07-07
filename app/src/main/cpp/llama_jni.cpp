@@ -29,7 +29,7 @@ bool g_backend_ready = false;
 }
 
 extern "C" JNIEXPORT jlong JNICALL
-Java_com_example_chessanalysis_LlamaRunner_nativeLoad(
+Java_com_example_chessanalysis_engine_LlamaRunner_nativeLoad(
         JNIEnv* env, jobject, jstring jpath, jint nCtx, jint nThreads) {
     if (!g_backend_ready) { llama_backend_init(); g_backend_ready = true; }
 
@@ -53,7 +53,7 @@ Java_com_example_chessanalysis_LlamaRunner_nativeLoad(
 }
 
 extern "C" JNIEXPORT jstring JNICALL
-Java_com_example_chessanalysis_LlamaRunner_nativeGenerate(
+Java_com_example_chessanalysis_engine_LlamaRunner_nativeGenerate(
         JNIEnv* env, jobject, jlong handle, jstring jprompt, jint maxTokens) {
     auto* h = reinterpret_cast<LlamaCtx*>(handle);
     if (!h) return env->NewStringUTF("");
@@ -112,7 +112,7 @@ Java_com_example_chessanalysis_LlamaRunner_nativeGenerate(
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_example_chessanalysis_LlamaRunner_nativeFree(JNIEnv*, jobject, jlong handle) {
+Java_com_example_chessanalysis_engine_LlamaRunner_nativeFree(JNIEnv*, jobject, jlong handle) {
     auto* h = reinterpret_cast<LlamaCtx*>(handle);
     if (!h) return;
     if (h->ctx)   llama_free(h->ctx);

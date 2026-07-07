@@ -75,7 +75,7 @@
         </LinearLayout>
 
         <!-- Eval curve (analysis view only) — sits above the board, Chess.com style. -->
-        <com.example.chessanalysis.EvalChartView
+        <com.example.chessanalysis.ui.EvalChartView
             android:id="@+id/evalChart"
             android:layout_width="match_parent"
             android:layout_height="90dp"
@@ -99,7 +99,7 @@
                 android:textColor="#FFDDDDDD"
                 android:visibility="gone" />
 
-            <com.example.chessanalysis.ChessBoardView
+            <com.example.chessanalysis.ui.ChessBoardView
                 android:id="@+id/chessBoard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
@@ -239,19 +239,19 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <com.example.chessanalysis.MoveEvalBar
+            <com.example.chessanalysis.ui.MoveEvalBar
                 android:id="@+id/mb1"
                 android:layout_width="match_parent"
                 android:layout_height="34dp"
                 android:layout_marginTop="8dp" />
 
-            <com.example.chessanalysis.MoveEvalBar
+            <com.example.chessanalysis.ui.MoveEvalBar
                 android:id="@+id/mb2"
                 android:layout_width="match_parent"
                 android:layout_height="34dp"
                 android:layout_marginTop="4dp" />
 
-            <com.example.chessanalysis.MoveEvalBar
+            <com.example.chessanalysis.ui.MoveEvalBar
                 android:id="@+id/mb3"
                 android:layout_width="match_parent"
                 android:layout_height="34dp"

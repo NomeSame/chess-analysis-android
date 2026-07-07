@@ -1,4 +1,7 @@
-package com.example.chessanalysis
+package com.example.chessanalysis.ai
+
+import com.example.chessanalysis.data.TheoryRepository
+import com.example.chessanalysis.model.MoveClass
 
 /**
  * Builds the AI-coach prompt + a deterministic fallback comment for one viewed move.

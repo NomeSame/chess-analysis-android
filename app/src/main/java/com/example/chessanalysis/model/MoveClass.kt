@@ -1,6 +1,7 @@
-package com.example.chessanalysis
+package com.example.chessanalysis.model
 
 import android.graphics.Color
+import com.example.chessanalysis.data.OpeningStats
 
 /** Engine evaluation around one played ply. All cp/mate are from the perspective of the side TO MOVE in fenBefore.
  *  cp = centipawns (null if it's a mate line); mate = moves-to-mate (signed; null if not mate).

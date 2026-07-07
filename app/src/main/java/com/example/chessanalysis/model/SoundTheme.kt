@@ -1,4 +1,6 @@
-package com.example.chessanalysis
+package com.example.chessanalysis.model
+
+import com.example.chessanalysis.R
 
 /**
  * Selectable piece-sound sets. Resource names in res/raw = [prefix] + {move,capture,castle,check}.

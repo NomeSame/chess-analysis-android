@@ -100,7 +100,7 @@ static void uciThread() {
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_example_chessanalysis_StockfishEngine_nativeInit(JNIEnv*, jobject) {
+Java_com_example_chessanalysis_engine_StockfishEngine_nativeInit(JNIEnv*, jobject) {
     if (g_running) return;
     g_running = true;
     g_origCin  = std::cin.rdbuf();
@@ -109,7 +109,7 @@ Java_com_example_chessanalysis_StockfishEngine_nativeInit(JNIEnv*, jobject) {
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_example_chessanalysis_StockfishEngine_nativeSendCommand(JNIEnv* env, jobject, jstring command) {
+Java_com_example_chessanalysis_engine_StockfishEngine_nativeSendCommand(JNIEnv* env, jobject, jstring command) {
     const char* cmdStr = env->GetStringUTFChars(command, nullptr);
     {
         std::lock_guard lock(g_mtx);
@@ -120,7 +120,7 @@ Java_com_example_chessanalysis_StockfishEngine_nativeSendCommand(JNIEnv* env, jo
 }
 
 extern "C" JNIEXPORT jstring JNICALL
-Java_com_example_chessanalysis_StockfishEngine_nativeGetResponse(JNIEnv* env, jobject) {
+Java_com_example_chessanalysis_engine_StockfishEngine_nativeGetResponse(JNIEnv* env, jobject) {
     std::lock_guard lock(g_mtx);
     if (g_respQueue.empty()) return env->NewStringUTF("");
     std::string resp = std::move(g_respQueue.front());
@@ -129,7 +129,7 @@ Java_com_example_chessanalysis_StockfishEngine_nativeGetResponse(JNIEnv* env, jo
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_example_chessanalysis_StockfishEngine_nativeShutdown(JNIEnv*, jobject) {
+Java_com_example_chessanalysis_engine_StockfishEngine_nativeShutdown(JNIEnv*, jobject) {
     {
         std::lock_guard lock(g_mtx);
         g_cmdQueue.push("quit");
@@ -142,6 +142,6 @@ Java_com_example_chessanalysis_StockfishEngine_nativeShutdown(JNIEnv*, jobject) 
 }
 
 extern "C" JNIEXPORT jint JNICALL
-Java_com_example_chessanalysis_StockfishEngine_nativeGetScore(JNIEnv*, jobject) {
+Java_com_example_chessanalysis_engine_StockfishEngine_nativeGetScore(JNIEnv*, jobject) {
     return static_cast<jint>(g_lastScore.load());
 }

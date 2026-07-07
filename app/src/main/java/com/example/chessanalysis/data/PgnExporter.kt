@@ -1,4 +1,4 @@
-package com.example.chessanalysis
+package com.example.chessanalysis.data
 
 object PgnExporter {
     fun export(game: PgnImporter.Game): String {

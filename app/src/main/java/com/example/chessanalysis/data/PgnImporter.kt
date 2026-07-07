@@ -1,4 +1,4 @@
-package com.example.chessanalysis
+package com.example.chessanalysis.data
 
 /**
  * Parses a PGN string into a start position + a flat SAN move list.

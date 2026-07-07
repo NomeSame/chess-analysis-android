@@ -1,7 +1,8 @@
-package com.example.chessanalysis
+package com.example.chessanalysis.data
 
 import android.content.Context
 import android.util.Log
+import com.example.chessanalysis.model.OpeningBook
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL

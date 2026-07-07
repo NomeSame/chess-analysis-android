@@ -1,6 +1,7 @@
-package com.example.chessanalysis
+package com.example.chessanalysis.engine
 
 import android.util.Log
+import com.example.chessanalysis.BuildConfig
 
 /**
  * On-device GGUF inference via the bundled llama.cpp native runner.

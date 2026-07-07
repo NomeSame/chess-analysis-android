@@ -1,4 +1,4 @@
-package com.example.chessanalysis
+package com.example.chessanalysis.model
 
 /** What the missed best move achieves (language-neutral; localized for display by the UI). */
 enum class TacticKind { MATE, WIN_QUEEN, WIN_ROOK, WIN_MINOR, WIN_PAWN, MISSED_CP }

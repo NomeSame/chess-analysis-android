@@ -1,4 +1,4 @@
-package com.example.chessanalysis
+package com.example.chessanalysis.data
 
 import android.util.LruCache
 import java.net.HttpURLConnection

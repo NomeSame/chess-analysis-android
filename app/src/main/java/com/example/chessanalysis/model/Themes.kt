@@ -1,6 +1,7 @@
-package com.example.chessanalysis
+package com.example.chessanalysis.model
 
 import android.graphics.Color
+import com.example.chessanalysis.R
 
 /** A board color scheme (square colors). [nameRes] = localized display name. */
 data class BoardTheme(

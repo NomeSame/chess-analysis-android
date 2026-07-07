@@ -1,4 +1,6 @@
-package com.example.chessanalysis
+package com.example.chessanalysis.model
+
+import com.example.chessanalysis.R
 
 /**
  * Reason a game ended. Only [CHECKMATE] is wired up currently;

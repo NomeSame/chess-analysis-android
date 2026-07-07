@@ -1,4 +1,4 @@
-package com.example.chessanalysis
+package com.example.chessanalysis.ui
 
 import android.content.Context
 import android.graphics.*
@@ -6,6 +6,10 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import com.example.chessanalysis.model.BoardTheme
+import com.example.chessanalysis.model.BoardThemes
+import com.example.chessanalysis.model.MoveClass
+import com.example.chessanalysis.model.PieceStyle
 
 class ChessBoardView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0

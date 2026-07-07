@@ -1,5 +1,11 @@
-package com.example.chessanalysis
+package com.example.chessanalysis.engine
 
+import com.example.chessanalysis.data.LichessExplorer
+import com.example.chessanalysis.model.EvalInfo
+import com.example.chessanalysis.model.MoveClass
+import com.example.chessanalysis.model.OpeningBook
+import com.example.chessanalysis.model.TacticKind
+import com.example.chessanalysis.model.TacticalChance
 import kotlin.math.abs
 
 /**

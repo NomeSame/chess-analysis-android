@@ -1,4 +1,4 @@
-package com.example.chessanalysis
+package com.example.chessanalysis.ui
 
 import android.content.Context
 import android.graphics.Canvas

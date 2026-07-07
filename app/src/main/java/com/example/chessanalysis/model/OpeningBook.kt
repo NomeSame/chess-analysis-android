@@ -1,4 +1,4 @@
-package com.example.chessanalysis
+package com.example.chessanalysis.model
 
 /**
  * Tiny bundled opening book (offline fallback for [GameReviewer] BOOK detection).

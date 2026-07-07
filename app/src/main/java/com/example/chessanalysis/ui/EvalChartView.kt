@@ -1,4 +1,4 @@
-package com.example.chessanalysis
+package com.example.chessanalysis.ui
 
 import android.content.Context
 import android.graphics.Canvas
@@ -8,6 +8,7 @@ import android.graphics.Path
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import com.example.chessanalysis.model.MoveClass
 import kotlin.math.abs
 
 /**

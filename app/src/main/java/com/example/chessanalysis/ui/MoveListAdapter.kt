@@ -1,4 +1,4 @@
-package com.example.chessanalysis
+package com.example.chessanalysis.ui
 
 import android.graphics.Typeface
 import android.view.Gravity

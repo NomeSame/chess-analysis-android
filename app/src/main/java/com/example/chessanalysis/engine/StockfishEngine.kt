@@ -1,7 +1,8 @@
-package com.example.chessanalysis
+package com.example.chessanalysis.engine
 
 import android.content.Context
 import android.util.Log
+import com.example.chessanalysis.R
 import java.io.File
 
 class StockfishEngine {
