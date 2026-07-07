@@ -6,6 +6,7 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import com.example.chessanalysis.R
 import com.example.chessanalysis.model.BoardTheme
 import com.example.chessanalysis.model.BoardThemes
 import com.example.chessanalysis.model.MoveClass
@@ -30,6 +31,7 @@ class ChessBoardView @JvmOverloads constructor(
     var legalMoves: Set<Pair<Int, Int>> = emptySet()
     var onSquareTap: ((Int, Int) -> Unit)? = null
     var flipBoard = false
+    var whiteOnTop = true
     var showLegalMoves = true
     var setupMode = false
     var onBoardChanged: ((Array<Array<Piece?>>) -> Unit)? = null
@@ -811,6 +813,46 @@ class ChessBoardView @JvmOverloads constructor(
         textPaint.textAlign = Paint.Align.CENTER
     }
 
+    private fun drawSideLabel(canvas: Canvas, edgeX: Float, y: Float, boardW: Float, h: Float, isWhite: Boolean, alignRight: Boolean) {
+        val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+        val text = if (isWhite) context.getString(R.string.color_white) else context.getString(R.string.color_black)
+        val bgColor = if (isWhite) Color.rgb(240, 240, 240) else Color.rgb(50, 50, 50)
+        val textColor = if (isWhite) Color.BLACK else Color.WHITE
+        val w = minOf(boardW, h * 3.2f)
+        val margin = minOf(4f, h * 0.15f)
+        val r = h * 0.25f
+
+        val left: Float
+        val right: Float
+        if (alignRight) {
+            right = edgeX - margin
+            left = right - w
+        } else {
+            left = edgeX + margin
+            right = left + w
+        }
+        val top = y + 2f
+        val bot = y + h - 2f
+
+        labelPaint.color = bgColor
+        labelPaint.style = Paint.Style.FILL
+        canvas.drawRoundRect(left, top, right, bot, r, r, labelPaint)
+
+        labelPaint.style = Paint.Style.STROKE
+        labelPaint.strokeWidth = 1f
+        labelPaint.color = if (isWhite) Color.argb(60, 0, 0, 0) else Color.argb(60, 255, 255, 255)
+        canvas.drawRoundRect(left, top, right, bot, r, r, labelPaint)
+
+        val tp = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = textColor
+            textSize = h * 0.45f
+            textAlign = Paint.Align.CENTER
+            isFakeBoldText = true
+        }
+        val fm = tp.fontMetrics
+        canvas.drawText(text, (left + right) / 2f, y + h / 2f - (fm.ascent + fm.descent) / 2f, tp)
+    }
+
     private fun drawSetupMode(canvas: Canvas) {
         val sqSize = boardSqSize()
         val bOff = boardOffsetY()
@@ -822,6 +864,11 @@ class ChessBoardView @JvmOverloads constructor(
 
         // Board
         drawBoard(canvas, 0f, bOff, sqSize)
+
+        // Side labels just outside board corners
+        val badgeH = sqSize * 0.4f
+        drawSideLabel(canvas, 8f * sqSize, bOff - badgeH, 8f * sqSize, badgeH, whiteOnTop, alignRight = true)
+        drawSideLabel(canvas, 0f, bOff + 8f * sqSize, 8f * sqSize, badgeH, !whiteOnTop, alignRight = false)
 
         // Bottom tray (white pieces) — below the board, after a gap
         drawTray(canvas, bottomTrayY(), sqSize, isWhite = true)

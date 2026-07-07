@@ -1825,6 +1825,7 @@ class MainActivity : AppCompatActivity() {
                     lastImportPerspective = result.perspective
                     chessBoard.flipBoard = false
                     importManualFlip = false
+                    chessBoard.whiteOnTop = false
                     enterSetupWithFen(result.fen)
                     showFlipButton()
                     if (result.uncertain) {
@@ -1900,6 +1901,7 @@ class MainActivity : AppCompatActivity() {
         val fen = chessBoard.getFen()
         val flipped = ScreenshotImporter.flipFen(fen)
         importManualFlip = !importManualFlip
+        chessBoard.whiteOnTop = !chessBoard.whiteOnTop
         enterSetupWithFen(flipped)
         chessBoard.requestLayout()
         chessBoard.invalidate()
