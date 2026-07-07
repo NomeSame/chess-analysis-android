@@ -1329,7 +1329,7 @@ class MainActivity : AppCompatActivity() {
 
     /** Trigger live analysis of the current position (no-op during board setup). */
     private fun requestAnalysis() {
-        if (!engineReady || chessBoard.setupMode) return
+        if (!engineReady || chessBoard.setupMode || puzzleMode) return
         if (!StockfishEngine.isValidFenPlacement(currentFen)) {
             Log.w("Analysis", "Invalid FEN (king count), not sending to engine: $currentFen")
             Snackbar.make(chessBoard, R.string.invalid_position_for_engine, Snackbar.LENGTH_LONG).show()
@@ -2726,6 +2726,7 @@ class MainActivity : AppCompatActivity() {
         puzzleMode = true
         currentPuzzle = puzzle
         puzzleMoveIndex = 0
+        setPuzzleChrome(true)
         puzzleManager?.applyPuzzleMoves(chessBoard, puzzle, 1)
         puzzleMoveIndex = 1
         tvPuzzleRating.text = getString(R.string.puzzle_rating_fmt, puzzle.rating)
@@ -2739,7 +2740,43 @@ class MainActivity : AppCompatActivity() {
         currentPuzzle = null
         puzzleMoveIndex = 0
         tvPuzzleRating.visibility = View.GONE
+        setPuzzleChrome(false)
         newGame()
+    }
+
+    /**
+     * Dedicated puzzle view: when active, hide every home/analysis chrome element so only the board
+     * (with the inherited theme/piece settings) and the rating label remain. On exit, restore the
+     * home layout — move bars / eval bar follow their saved display settings, the history list its
+     * own logic. The settings sidebar and top status bar stay reachable throughout.
+     */
+    private fun setPuzzleChrome(puzzle: Boolean) {
+        val homeRows = listOf(
+            R.id.navButtonsRow, R.id.homeActionsRow, R.id.historyHeaderRow,
+            R.id.historyImportRow, R.id.btnExportPgnHistory
+        )
+        if (puzzle) {
+            for (id in homeRows) findViewById<View>(id).visibility = View.GONE
+            findViewById<View>(R.id.moveBarsContainer).visibility = View.GONE
+            lvGameHistory.visibility = View.GONE
+            coachPanel.visibility = View.GONE
+            evalChart.visibility = View.GONE
+            countsPanel.visibility = View.GONE
+            llAnalysisProgress.visibility = View.GONE
+            moveListRecycler.visibility = View.GONE
+            btnExportPgn.visibility = View.GONE
+            chessBoard.showEvalBar = false
+            chessBoard.bestMoveArrow = null
+            chessBoard.hintSquare = null
+            analyzer.idle()
+        } else {
+            for (id in homeRows) findViewById<View>(id).visibility = View.VISIBLE
+            val showMoveBars = prefs.getBoolean(KEY_MOVE_BARS, true)
+            findViewById<View>(R.id.moveBarsContainer).visibility =
+                if (showMoveBars) View.VISIBLE else View.GONE
+            chessBoard.showEvalBar = prefs.getBoolean(KEY_EVAL_BAR, true)
+            refreshGameHistoryList()
+        }
     }
 
     private fun handlePuzzleMove(fromRow: Int, fromCol: Int, toRow: Int, toCol: Int, promotion: Char? = null) {
@@ -2835,14 +2872,17 @@ class MainActivity : AppCompatActivity() {
                 val snack = Snackbar.make(findViewById(R.id.drawerLayout), R.string.puzzle_loading, Snackbar.LENGTH_INDEFINITE)
                 snack.show()
                 lifecycleScope.launch(Dispatchers.IO) {
-                    puzzleManager?.downloadPuzzles(onProgress = { pct ->
+                    val ok = puzzleManager?.downloadPuzzles(onProgress = { pct ->
                         runOnUiThread { snack.setText(getString(R.string.puzzle_downloading_fmt, pct)) }
-                    })
+                    }) ?: false
+                    val count = if (ok) puzzleManager?.loadDownloadedPuzzles()?.size ?: 0 else 0
                     runOnUiThread {
                         snack.dismiss()
-                        val count = puzzleManager?.loadDownloadedPuzzles()?.size ?: 0
-                        Snackbar.make(findViewById(R.id.drawerLayout),
-                            getString(R.string.puzzle_download_done, count), Snackbar.LENGTH_LONG).show()
+                        val msg = if (ok && count > 0)
+                            getString(R.string.puzzle_download_done, count)
+                        else
+                            getString(R.string.puzzle_download_failed)
+                        Snackbar.make(findViewById(R.id.drawerLayout), msg, Snackbar.LENGTH_LONG).show()
                     }
                 }
             }

@@ -91,6 +91,9 @@ dependencies {
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
 
+    // zstd-jni — decompress the Zstandard-compressed Lichess puzzle DB (.csv.zst) on download (PZ-bug1).
+    implementation("com.github.luben:zstd-jni:1.5.6-9@aar")
+
     // TFLite — optional model-based piece classifier (Q6). Falls back to heuristics if model absent.
     implementation("org.tensorflow:tensorflow-lite:2.14.0")
 

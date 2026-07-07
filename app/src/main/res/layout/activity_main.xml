@@ -150,6 +150,7 @@
 
         <!-- Position navigation: prev / next / reset-to-live / undo / hint — flush under the board -->
         <LinearLayout
+            android:id="@+id/navButtonsRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
@@ -338,6 +339,7 @@
             android:visibility="gone" />
 
         <LinearLayout
+            android:id="@+id/homeActionsRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -370,6 +372,7 @@
 
         <!-- Game History header + Learn Theory button (same line) -->
         <LinearLayout
+            android:id="@+id/historyHeaderRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -419,6 +422,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/historyImportRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"

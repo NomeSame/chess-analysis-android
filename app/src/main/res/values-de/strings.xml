@@ -65,6 +65,8 @@
     <string name="sound_theme">Sound-Thema</string>
     <string name="sound_theme_classic">Klassisch (Beep)</string>
     <string name="sound_theme_wood">Holz</string>
+    <string name="sound_theme_test">Test</string>
+    <string name="sound_theme_test_synth">Test-Synth</string>
     <string name="game_history">Partieverlauf</string>
     <string name="game_saved">Partie im Verlauf gespeichert</string>
     <string name="export_history">Exportieren</string>
@@ -218,6 +220,7 @@
     <string name="puzzle_download_start">Herunterladen</string>
     <string name="puzzle_downloading_fmt">Lade Rätsel… %1$d%%</string>
     <string name="puzzle_download_done">%1$d Rätsel heruntergeladen.</string>
+    <string name="puzzle_download_failed">Rätsel-Download fehlgeschlagen. Verbindung prüfen und erneut versuchen.</string>
     <string name="puzzle_back">← Zurück zu Rätseln</string>
     <string name="puzzle_theme_mate_basic">Matts</string>
     <string name="puzzle_theme_mate_in_n">Matt in N</string>

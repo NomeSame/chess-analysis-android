@@ -65,6 +65,8 @@
     <string name="sound_theme">Sound Theme</string>
     <string name="sound_theme_classic">Classic (beep)</string>
     <string name="sound_theme_wood">Wood</string>
+    <string name="sound_theme_test">Test</string>
+    <string name="sound_theme_test_synth">Test-Synth</string>
     <string name="game_history">Game History</string>
     <string name="game_saved">Game saved to history</string>
     <string name="analysis_updated">Analysis updated</string>
@@ -220,6 +222,7 @@
     <string name="puzzle_download_start">Download</string>
     <string name="puzzle_downloading_fmt">Downloading puzzles… %1$d%%</string>
     <string name="puzzle_download_done">%1$d puzzles downloaded.</string>
+    <string name="puzzle_download_failed">Puzzle download failed. Check your connection and try again.</string>
     <string name="puzzle_back">← Back to puzzles</string>
     <string name="puzzle_theme_mate_basic">Mates</string>
     <string name="puzzle_theme_mate_in_n">Mate in N</string>

@@ -11,7 +11,9 @@ package com.example.chessanalysis
  */
 enum class SoundTheme(val id: String, val labelRes: Int, val prefix: String) {
     CLASSIC("classic", R.string.sound_theme_classic, ""),       // move/capture/castle/check (synth beeps, own)
-    WOOD("wood", R.string.sound_theme_wood, "wood_");           // synthesized wooden knocks (own)
+    WOOD("wood", R.string.sound_theme_wood, "wood_"),           // light derivation of the reference set
+    TEST("test", R.string.sound_theme_test, "test_"),           // heavy variant (pitch-shift + synth blend + sat)
+    TEST_SYNTH("testsynth", R.string.sound_theme_test_synth, "testsynth_"); // 70% own synth + 30% pitched original
 
     companion object {
         fun byId(id: String?): SoundTheme = entries.firstOrNull { it.id == id } ?: CLASSIC

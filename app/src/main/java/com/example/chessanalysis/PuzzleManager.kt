@@ -2,10 +2,12 @@ package com.example.chessanalysis
 
 import android.content.Context
 import android.util.Log
+import com.github.luben.zstd.ZstdInputStream
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.File
+import java.io.FilterInputStream
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
@@ -147,36 +149,66 @@ class PuzzleManager(private val context: Context) {
         )
     }
 
+    /**
+     * Counts bytes pulled from the wrapped stream so download progress can be reported against
+     * the (compressed) Content-Length while we read the *decompressed* bytes off the zstd stream.
+     */
+    private class CountingInputStream(stream: InputStream) : FilterInputStream(stream) {
+        @Volatile var bytesRead = 0L
+            private set
+        override fun read(): Int = super.read().also { if (it != -1) bytesRead++ }
+        override fun read(b: ByteArray, off: Int, len: Int): Int =
+            super.read(b, off, len).also { if (it != -1) bytesRead += it }
+    }
+
+    /**
+     * Downloads the Lichess puzzle DB. The source is Zstandard-compressed (`.csv.zst`); we
+     * decompress on the fly so [targetFile] holds plain CSV that [parseCsv] can read (PZ-bug1).
+     * Returns true only when a non-empty CSV was written; on any failure the partial file is
+     * removed so [loadDownloadedPuzzles] reports a clean 0 instead of binary garbage.
+     */
     fun downloadPuzzles(
         url: String = DOWNLOAD_URL,
         targetFile: File = File(context.filesDir, "puzzles/downloaded.csv"),
         onProgress: (percent: Int) -> Unit = {}
-    ) {
+    ): Boolean {
+        var connection: HttpURLConnection? = null
         try {
             targetFile.parentFile?.mkdirs()
-            val connection = URL(url).openConnection() as HttpURLConnection
+            connection = URL(url).openConnection() as HttpURLConnection
             connection.connectTimeout = 15000
             connection.readTimeout = 30000
             connection.connect()
             val total = connection.contentLengthLong
-            val inputStream = connection.inputStream
+            val counting = CountingInputStream(connection.inputStream)
+            val zstd = if (url.endsWith(".zst")) ZstdInputStream(counting) else counting
             val outputStream = targetFile.outputStream()
             val buffer = ByteArray(8192)
             var bytesRead: Int
-            var totalRead = 0L
-            while (inputStream.read(buffer).also { bytesRead = it } != -1) {
-                outputStream.write(buffer, 0, bytesRead)
-                totalRead += bytesRead
-                if (total > 0) {
-                    onProgress(((totalRead * 100) / total).toInt().coerceIn(0, 100))
+            var wrote = 0L
+            zstd.use { input ->
+                outputStream.use { output ->
+                    while (input.read(buffer).also { bytesRead = it } != -1) {
+                        output.write(buffer, 0, bytesRead)
+                        wrote += bytesRead
+                        if (total > 0) {
+                            onProgress(((counting.bytesRead * 100) / total).toInt().coerceIn(0, 100))
+                        }
+                    }
                 }
             }
-            inputStream.close()
-            outputStream.close()
             connection.disconnect()
             onProgress(100)
+            if (wrote == 0L) {
+                targetFile.delete()
+                return false
+            }
+            return true
         } catch (e: Exception) {
             Log.e(TAG, "Download failed", e)
+            targetFile.delete()
+            connection?.disconnect()
+            return false
         }
     }
 
