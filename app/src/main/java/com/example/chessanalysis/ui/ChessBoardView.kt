@@ -897,20 +897,6 @@ class ChessBoardView @JvmOverloads constructor(
             canvas.drawText(('a' + c).toString(), (i + 1) * sqSize - 4f, bOff + 8f * sqSize - 4f, textPaint)
         }
 
-        // Perspective labels (W/B at a1/h8 corners in setup mode)
-        textPaint.textSize = sqSize * 0.22f
-        textPaint.textAlign = Paint.Align.LEFT
-        textPaint.isFakeBoldText = true
-        val a1Col = if (flipBoard) 7 else 0
-        val a1Row = if (flipBoard) 0 else 7
-        val h8Col = if (flipBoard) 0 else 7
-        val h8Row = if (flipBoard) 7 else 0
-        textPaint.color = 0xCCFFFFFF.toInt()
-        canvas.drawText("W", a1Col * sqSize + 3f, bOff + a1Row * sqSize + textPaint.textSize + 2f, textPaint)
-        textPaint.color = 0xCC000000.toInt()
-        canvas.drawText("B", h8Col * sqSize + 3f, bOff + h8Row * sqSize + textPaint.textSize + 2f, textPaint)
-        textPaint.isFakeBoldText = false
-
         textPaint.textAlign = Paint.Align.CENTER
 
         // Drag ghost
