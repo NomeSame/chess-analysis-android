@@ -261,6 +261,7 @@ class GamePlayController(
             chessBoard.interactionEnabled = true
             activity.analysisController.requestAnalysis()
             updateGameStatus()
+            playUndoSound()
             return
         }
         // Review/analysis mode without exploring: undo would corrupt game history → no-op
@@ -278,6 +279,17 @@ class GamePlayController(
         chessBoard.interactionEnabled = !chessBoard.setupMode
         activity.analysisController.requestAnalysis()
         updateGameStatus()
+        playUndoSound()
+    }
+
+    private fun playUndoSound() {
+        val isMate = chessBoard.isCheckmate()
+        val isCheck = chessBoard.isInCheck(chessBoard.sideToMove == 'w')
+        when {
+            isMate -> soundManager.playMoveSound(false, false, true, true)
+            isCheck -> soundManager.playMoveSound(false, false, true, false)
+            else -> soundManager.playMoveSound(false, false, false, false)
+        }
     }
 
     fun toggleHint() {
