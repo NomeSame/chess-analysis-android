@@ -44,7 +44,7 @@ enum class MoveClass(val symbol: String, val color: Int, val label: String) {
 
         /** Convert an eval (cp or mate) to win% from the mover's POV. */
         fun evalToWinPct(cp: Int?, mate: Int?): Double {
-            if (mate != null) return if (mate > 0) 100.0 else 0.0
+            if (mate != null) return if (mate >= 0) 100.0 else 0.0
             return cpToWinPct(cp ?: 0)
         }
 

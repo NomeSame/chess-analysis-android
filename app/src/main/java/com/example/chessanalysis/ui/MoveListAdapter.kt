@@ -6,11 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-data class MoveItem(
-    val position: Int,
-    val displayText: String,
-    val isLast: Boolean
-)
+import com.example.chessanalysis.state.MoveItem
 
 class MoveListAdapter(
     private val items: List<MoveItem>,

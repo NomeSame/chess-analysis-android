@@ -31,7 +31,7 @@ class ChessBoardView @JvmOverloads constructor(
     var legalMoves: Set<Pair<Int, Int>> = emptySet()
     var onSquareTap: ((Int, Int) -> Unit)? = null
     var flipBoard = false
-    var whiteOnTop = true
+    val whiteOnTop get() = flipBoard
     var showLegalMoves = true
     var setupMode = false
     var onBoardChanged: ((Array<Array<Piece?>>) -> Unit)? = null
@@ -43,6 +43,8 @@ class ChessBoardView @JvmOverloads constructor(
     var hintSquare: Pair<Int, Int>? = null // glow the source square of the engine's best move
         set(value) { field = value; invalidate() }
     var lastMoveFrom: Pair<Int, Int>? = null // origin square of the most recent move (yellow tint)
+        set(value) { field = value; invalidate() }
+    var lastMoveTo: Pair<Int, Int>? = null // destination square of the most recent move (same yellow tint)
         set(value) { field = value; invalidate() }
     // Analysis move-quality badge: a colored circle with the class symbol on the move's destination square.
     var moveBadge: MoveClass? = null
@@ -595,14 +597,6 @@ class ChessBoardView @JvmOverloads constructor(
 
         drawBoard(canvas, boardStartX, 0f, sqSize)
 
-        // Last-move origin — light yellow tint on the square the moved piece came from
-        lastMoveFrom?.let { (r, c) ->
-            val dr = if (flipBoard) 7 - r else r
-            val dc = if (flipBoard) 7 - c else c
-            paint.color = lastMoveColor
-            canvas.drawRect(boardStartX + dc * sqSize, dr * sqSize, boardStartX + (dc + 1) * sqSize, (dr + 1) * sqSize, paint)
-        }
-
         // Check highlight — red overlay on the king in check
         if (isInCheck(sideToMove == 'w')) {
             for (r in 0..7) for (c in 0..7) {
@@ -907,20 +901,37 @@ class ChessBoardView @JvmOverloads constructor(
 
     private fun drawBoard(canvas: Canvas, ox: Float, oy: Float, sqSize: Float) {
         textPaint.textSize = sqSize * 0.95f
-        for (row in 0..7) {
-            for (col in 0..7) {
-                val displayRow = if (flipBoard) 7 - row else row
-                val displayCol = if (flipBoard) 7 - col else col
-                val isLight = (row + col) % 2 == 0
-                paint.color = if (isLight) boardTheme.light else boardTheme.dark
-                canvas.drawRect(
-                    ox + displayCol * sqSize, oy + displayRow * sqSize,
-                    ox + (displayCol + 1) * sqSize, oy + (displayRow + 1) * sqSize,
-                    paint
-                )
-                val piece = board[row][col] ?: continue
-                drawPieceSymbol(canvas, piece, ox + displayCol * sqSize + sqSize / 2f, oy + displayRow * sqSize + sqSize / 2f, sqSize)
-            }
+        // Squares first (background layer)
+        for (row in 0..7) for (col in 0..7) {
+            val displayRow = if (flipBoard) 7 - row else row
+            val displayCol = if (flipBoard) 7 - col else col
+            val isLight = (row + col) % 2 == 0
+            paint.color = if (isLight) boardTheme.light else boardTheme.dark
+            canvas.drawRect(
+                ox + displayCol * sqSize, oy + displayRow * sqSize,
+                ox + (displayCol + 1) * sqSize, oy + (displayRow + 1) * sqSize,
+                paint
+            )
+        }
+        // Last-move highlights (between squares and pieces → background-only tint)
+        fun drawYellowSq(r: Int, c: Int) {
+            val dr = if (flipBoard) 7 - r else r
+            val dc = if (flipBoard) 7 - c else c
+            paint.color = lastMoveColor
+            canvas.drawRect(
+                ox + dc * sqSize, oy + dr * sqSize,
+                ox + (dc + 1) * sqSize, oy + (dr + 1) * sqSize,
+                paint
+            )
+        }
+        lastMoveFrom?.let { (r, c) -> drawYellowSq(r, c) }
+        lastMoveTo?.let { (r, c) -> drawYellowSq(r, c) }
+        // Pieces on top
+        for (row in 0..7) for (col in 0..7) {
+            val displayRow = if (flipBoard) 7 - row else row
+            val displayCol = if (flipBoard) 7 - col else col
+            val piece = board[row][col] ?: continue
+            drawPieceSymbol(canvas, piece, ox + displayCol * sqSize + sqSize / 2f, oy + displayRow * sqSize + sqSize / 2f, sqSize)
         }
     }
 

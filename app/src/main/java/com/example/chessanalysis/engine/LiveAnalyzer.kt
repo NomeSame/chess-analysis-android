@@ -22,6 +22,7 @@ class LiveAnalyzer(
         const val EVAL_MOVETIME_MS = 500L
         /** Time the engine spends picking an opponent move (was 1000ms; +30% per request). */
         const val MOVE_MOVETIME_MS = 1300L
+        const val LIVE_EVAL_DEPTH = 14
     }
 
     @Volatile private var targetFen: String? = null
