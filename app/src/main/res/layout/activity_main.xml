@@ -90,6 +90,14 @@
             android:layout_marginTop="16dp">
 
             <TextView
+                android:id="@+id/tvPuzzleSide"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="12sp"
+                android:textColor="#FFAAAAAA"
+                android:visibility="gone" />
+            <TextView
                 android:id="@+id/tvPuzzleRating"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

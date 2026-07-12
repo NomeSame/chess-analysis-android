@@ -337,8 +337,7 @@ class PuzzleManager(private val context: Context) {
     }
 
     fun nextUserMove(puzzle: Puzzle, moveIndex: Int): String? {
-        val idx = moveIndex + 1
-        return if (idx < puzzle.solutionUci.size) puzzle.solutionUci[idx] else null
+        return if (moveIndex < puzzle.solutionUci.size) puzzle.solutionUci[moveIndex] else null
     }
 
     fun nextOpponentMove(puzzle: Puzzle, moveIndex: Int): String? {

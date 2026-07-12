@@ -33,12 +33,14 @@ class PuzzleController(
     private var puzzleMoveIndex = 0
     private var puzzleCandidates: List<Puzzle> = emptyList()
     private lateinit var tvPuzzleRating: TextView
+    private lateinit var tvPuzzleSide: TextView
 
     val isActive: Boolean get() = puzzleMode
 
     fun init() {
         puzzleManager = PuzzleManager(activity)
         tvPuzzleRating = activity.findViewById(R.id.tvPuzzleRating)
+        tvPuzzleSide = activity.findViewById(R.id.tvPuzzleSide)
         activity.findViewById<android.widget.ImageButton>(R.id.btnPuzzles).setOnClickListener { showPuzzleSetupDialog() }
     }
 
@@ -140,8 +142,12 @@ class PuzzleController(
         currentPuzzle = puzzle
         puzzleMoveIndex = 0
         setPuzzleChrome(true)
-        puzzleManager?.applyPuzzleMoves(chessBoard, puzzle, 1)
-        puzzleMoveIndex = 1
+        puzzleManager?.applyPuzzleMoves(chessBoard, puzzle, 0)
+        puzzleMoveIndex = 0
+        val sideToMove = puzzle.fen.split(" ").getOrNull(1)?.firstOrNull()
+        val sideRes = if (sideToMove == 'w') R.string.color_white else R.string.color_black
+        tvPuzzleSide.text = activity.getString(sideRes)
+        tvPuzzleSide.visibility = View.VISIBLE
         tvPuzzleRating.text = activity.getString(R.string.puzzle_rating_fmt, puzzle.rating)
         tvPuzzleRating.visibility = View.VISIBLE
         chessBoard.interactionEnabled = true
@@ -152,6 +158,7 @@ class PuzzleController(
         puzzleMode = false
         currentPuzzle = null
         puzzleMoveIndex = 0
+        tvPuzzleSide.visibility = View.GONE
         tvPuzzleRating.visibility = View.GONE
         setPuzzleChrome(false)
         activity.gamePlayController.newGame()
@@ -264,8 +271,8 @@ class PuzzleController(
             .setTitle(R.string.puzzle_give_up)
             .setMessage(sb.toString())
             .setPositiveButton(R.string.puzzle_retry) { _, _ ->
-                puzzleManager?.applyPuzzleMoves(chessBoard, puzzle, 1)
-                puzzleMoveIndex = 1
+                puzzleManager?.applyPuzzleMoves(chessBoard, puzzle, 0)
+                puzzleMoveIndex = 0
             }
             .setNegativeButton(R.string.puzzle_back) { _, _ -> exitPuzzleMode() }
             .show()
