@@ -236,4 +236,10 @@
     <string name="puzzle_theme_endgame">Endspiel</string>
     <string name="puzzle_theme_phase">Phase</string>
     <string name="puzzle_theme_length">Länge</string>
+    <string name="puzzle_count">Rätsel-Anzahl</string>
+    <string name="puzzle_count_infinite">Unbegrenzt</string>
+    <string name="puzzle_review">Überprüfen</string>
+    <string name="puzzle_finish">Beenden</string>
+    <string name="puzzle_review_title">Rätsel überprüfen</string>
+    <string name="puzzle_remaining_fmt">Verbleibend: %1$d</string>
 </resources>

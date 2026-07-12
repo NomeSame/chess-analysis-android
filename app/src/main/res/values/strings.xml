@@ -238,4 +238,10 @@
     <string name="puzzle_theme_endgame">Endgame</string>
     <string name="puzzle_theme_phase">Phase</string>
     <string name="puzzle_theme_length">Length</string>
+    <string name="puzzle_count">Puzzle Count</string>
+    <string name="puzzle_count_infinite">Unlimited</string>
+    <string name="puzzle_review">Review</string>
+    <string name="puzzle_finish">Finish</string>
+    <string name="puzzle_review_title">Review Puzzle</string>
+    <string name="puzzle_remaining_fmt">Remaining: %1$d</string>
 </resources>

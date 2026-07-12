@@ -87,7 +87,7 @@ class MainActivity : AppCompatActivity() {
         importController = ImportExportController(this, gameModel, chessBoard, settingsRepo, analyzer)
         setupModeController = SetupModeController(this, gameModel, chessBoard, analyzer, settingsRepo)
         settingsController = SettingsDrawerController(this, gameModel, chessBoard, soundManager, settingsRepo)
-        puzzleController = PuzzleController(this, gameModel, chessBoard, settingsRepo, analyzer).also { it.init() }
+        puzzleController = PuzzleController(this, gameModel, chessBoard, settingsRepo, soundManager, analyzer).also { it.init() }
         aiCoachController = AiCoachController(this, gameModel, settingsRepo)
         coachController = CoachCommentController(this, gameModel, chessBoard, analyzer)
         historyController = GameHistoryController(this, gameModel, chessBoard, settingsRepo)

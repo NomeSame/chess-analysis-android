@@ -89,23 +89,53 @@
             android:orientation="vertical"
             android:layout_marginTop="16dp">
 
-            <TextView
-                android:id="@+id/tvPuzzleSide"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:textSize="12sp"
-                android:textColor="#FFAAAAAA"
-                android:visibility="gone" />
-            <TextView
-                android:id="@+id/tvPuzzleRating"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:textColor="#FFDDDDDD"
-                android:visibility="gone" />
+                android:orientation="horizontal">
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        android:id="@+id/tvPuzzleSide"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:textSize="12sp"
+                        android:textColor="#FFAAAAAA"
+                        android:visibility="gone" />
+                    <TextView
+                        android:id="@+id/tvPuzzleTheme"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:textSize="12sp"
+                        android:textColor="#FF888888"
+                        android:visibility="gone" />
+                    <TextView
+                        android:id="@+id/tvPuzzleRating"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="#FFDDDDDD"
+                        android:visibility="gone" />
+                </LinearLayout>
+                <Button
+                    android:id="@+id/btnPuzzleSkip"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="→"
+                    android:textSize="20sp"
+                    android:textColor="#FFAAAAAA"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:visibility="gone" />
+            </LinearLayout>
 
             <com.example.chessanalysis.ui.ChessBoardView
                 android:id="@+id/chessBoard"
