@@ -141,6 +141,16 @@
                 android:id="@+id/chessBoard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
+
+            <Button
+                android:id="@+id/btnPuzzleHint"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="💡"
+                android:textSize="22sp"
+                android:visibility="gone" />
         </LinearLayout>
 
         <!-- AI Coach auto-comment panel (analysis view only) — between board and controls -->

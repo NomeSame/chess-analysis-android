@@ -43,6 +43,7 @@ class PuzzleController(
     private lateinit var tvPuzzleSide: TextView
     private lateinit var tvPuzzleTheme: TextView
     private lateinit var btnPuzzleSkip: Button
+    private lateinit var btnPuzzleHint: Button
 
     val isActive: Boolean get() = puzzleMode
 
@@ -53,6 +54,8 @@ class PuzzleController(
         tvPuzzleTheme = activity.findViewById(R.id.tvPuzzleTheme)
         btnPuzzleSkip = activity.findViewById(R.id.btnPuzzleSkip)
         btnPuzzleSkip.setOnClickListener { skipPuzzle() }
+        btnPuzzleHint = activity.findViewById(R.id.btnPuzzleHint)
+        btnPuzzleHint.setOnClickListener { showHint() }
         activity.findViewById<android.widget.ImageButton>(R.id.btnPuzzles).setOnClickListener { showPuzzleSetupDialog() }
     }
 
@@ -209,8 +212,10 @@ class PuzzleController(
         tvPuzzleRating.text = activity.getString(R.string.puzzle_rating_fmt, puzzle.rating)
         tvPuzzleRating.visibility = View.VISIBLE
         btnPuzzleSkip.visibility = View.VISIBLE
+        btnPuzzleHint.visibility = View.VISIBLE
         chessBoard.lastMoveFrom = null
         chessBoard.lastMoveTo = null
+        chessBoard.hintSquare = null
         chessBoard.interactionEnabled = true
         activity.findViewById<TextView>(R.id.tvStatus).text = activity.getString(R.string.puzzles)
     }
@@ -223,8 +228,10 @@ class PuzzleController(
         tvPuzzleTheme.visibility = View.GONE
         tvPuzzleRating.visibility = View.GONE
         btnPuzzleSkip.visibility = View.GONE
+        btnPuzzleHint.visibility = View.GONE
         setPuzzleChrome(false)
         activity.gamePlayController.newGame()
+
     }
 
     private fun setPuzzleChrome(puzzle: Boolean) {
@@ -305,11 +312,13 @@ class PuzzleController(
         AlertDialog.Builder(activity)
             .setTitle(R.string.puzzle_wrong)
             .setMessage("${activity.getString(R.string.puzzle_your_move)} $fPlayed\n${activity.getString(R.string.puzzle_correct_move_was)} $fExpected")
-            .setPositiveButton(R.string.puzzle_retry) { _, _ ->
+            .setPositiveButton(R.string.puzzle_try_again) { _, _ ->
                 val puzzle = currentPuzzle ?: return@setPositiveButton
-                puzzleManager?.applyPuzzleMoves(chessBoard, puzzle, puzzleMoveIndex)
+                puzzleManager?.applyPuzzleMoves(chessBoard, puzzle, 0)
+                puzzleMoveIndex = 0
                 chessBoard.lastMoveFrom = null
                 chessBoard.lastMoveTo = null
+                chessBoard.hintSquare = null
             }
             .setNeutralButton(R.string.puzzle_give_up) { _, _ -> showPuzzleGiveUp() }
             .setNegativeButton(R.string.puzzle_back) { _, _ -> exitPuzzleMode() }
@@ -356,6 +365,7 @@ class PuzzleController(
                 puzzleMoveIndex = 0
                 chessBoard.lastMoveFrom = null
                 chessBoard.lastMoveTo = null
+                chessBoard.hintSquare = null
             }
             .setNegativeButton(R.string.puzzle_back) { _, _ -> exitPuzzleMode() }
             .show()
@@ -370,6 +380,7 @@ class PuzzleController(
         tvPuzzleTheme.visibility = View.GONE
         tvPuzzleRating.visibility = View.GONE
         btnPuzzleSkip.visibility = View.GONE
+        btnPuzzleHint.visibility = View.GONE
         setPuzzleChrome(false)
         gameModel.resetHistory(puzzle.fen)
         chessBoard.setFen(puzzle.fen)
@@ -384,6 +395,15 @@ class PuzzleController(
         }
         gameModel.viewIndex = gameModel.positionHistory.lastIndex
         activity.analysisController.enterReviewMode()
+    }
+
+    private fun showHint() {
+        val pm = puzzleManager ?: return
+        val puzzle = currentPuzzle ?: return
+        val expected = pm.nextUserMove(puzzle, puzzleMoveIndex) ?: return
+        val fromCol = expected[0] - 'a'; val fromRow = 8 - (expected[1] - '0')
+        chessBoard.hintSquare = Pair(fromRow, fromCol)
+        chessBoard.invalidate()
     }
 
     private fun playPuzzleSound() {
