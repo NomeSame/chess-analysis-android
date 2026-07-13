@@ -205,7 +205,7 @@ class PuzzleController(
         val themeNames = puzzle.themes.mapNotNull { PuzzleThemeGroup.fromTheme(it)?.displayNameRes }
             .distinct().map { activity.getString(it) }
         tvPuzzleTheme.text = themeNames.joinToString(", ")
-        tvPuzzleTheme.visibility = if (themeNames.isEmpty()) View.GONE else View.VISIBLE
+        tvPuzzleTheme.visibility = if (themeNames.isEmpty() || !settingsRepo.puzzleShowTheme) View.GONE else View.VISIBLE
         tvPuzzleRating.text = activity.getString(R.string.puzzle_rating_fmt, puzzle.rating)
         tvPuzzleRating.visibility = View.VISIBLE
         btnPuzzleSkip.visibility = View.VISIBLE

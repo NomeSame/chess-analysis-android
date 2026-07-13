@@ -225,6 +225,18 @@ class SettingsDrawerController(
             activity.getString(R.string.sound_theme)
         )
 
+        val llPuzzles = activity.findViewById<LinearLayout>(R.id.llPuzzles)
+        val swPuzzleShowTheme = activity.findViewById<SwitchCompat>(R.id.swPuzzleShowTheme)
+        swPuzzleShowTheme.isChecked = settingsRepo.puzzleShowTheme
+        swPuzzleShowTheme.setOnCheckedChangeListener { _, checked ->
+            settingsRepo.puzzleShowTheme = checked
+        }
+        setupCollapsibleHeader(
+            activity.findViewById(R.id.tvPuzzlesHeader),
+            llPuzzles,
+            activity.getString(R.string.puzzles)
+        )
+
         activity.aiCoachController.setupAiCoachSection()
     }
 

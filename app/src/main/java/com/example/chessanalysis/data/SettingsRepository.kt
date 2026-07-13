@@ -54,6 +54,10 @@ class SettingsRepository(context: Context) {
         get() = prefs.getBoolean(KEY_BOOK_PROMPTED, false)
         set(v) = prefs.edit().putBoolean(KEY_BOOK_PROMPTED, v).apply()
 
+    var puzzleShowTheme: Boolean
+        get() = prefs.getBoolean(KEY_PUZZLE_SHOW_THEME, true)
+        set(v) = prefs.edit().putBoolean(KEY_PUZZLE_SHOW_THEME, v).apply()
+
     companion object {
         fun displayElo(engineElo: Int): Int {
             val capped = engineElo.coerceAtMost(StockfishEngine.MAX_ELO)
@@ -73,6 +77,7 @@ class SettingsRepository(context: Context) {
         const val KEY_PIECE_SOUNDS = "piece_sounds"
         const val KEY_SOUND_THEME = "sound_theme"
         const val KEY_BOOK_PROMPTED = "book_prompted"
+        const val KEY_PUZZLE_SHOW_THEME = "puzzle_show_theme"
         const val REAL_ELO_AT_MAX = 3600
     }
 }

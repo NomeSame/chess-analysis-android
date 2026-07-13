@@ -242,4 +242,5 @@
     <string name="puzzle_finish">Beenden</string>
     <string name="puzzle_review_title">Rätsel überprüfen</string>
     <string name="puzzle_remaining_fmt">Verbleibend: %1$d</string>
+    <string name="puzzle_show_theme">Themenkategorie anzeigen</string>
 </resources>

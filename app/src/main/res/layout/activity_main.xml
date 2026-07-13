@@ -759,6 +759,40 @@
                 android:orientation="vertical"
                 android:visibility="gone" />
 
+            <!-- Puzzles (collapsible) -->
+            <TextView
+                android:id="@+id/tvPuzzlesHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:minHeight="40dp"
+                android:gravity="center_vertical"
+                android:text="@string/puzzles"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="#757575"
+                android:textAllCaps="true"
+                android:letterSpacing="0.05"
+                android:background="?attr/selectableItemBackground" />
+
+            <LinearLayout
+                android:id="@+id/llPuzzles"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="4dp"
+                android:visibility="gone">
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/swPuzzleShowTheme"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/puzzle_show_theme"
+                    android:textSize="15sp"
+                    android:padding="8dp" />
+
+            </LinearLayout>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
