@@ -201,6 +201,8 @@ class PuzzleController(
         setPuzzleChrome(true)
         puzzleManager?.applyPuzzleMoves(chessBoard, puzzle, 0)
         puzzleMoveIndex = 0
+        // force correct side-to-move from puzzle FEN
+        chessBoard.sideToMove = puzzle.fen.split(" ").getOrElse(1) { "w" }.firstOrNull() ?: 'w'
         val sideToMove = puzzle.fen.split(" ").getOrNull(1)?.firstOrNull()
         val sideRes = if (sideToMove == 'w') R.string.color_white else R.string.color_black
         tvPuzzleSide.text = activity.getString(sideRes)
@@ -266,6 +268,8 @@ class PuzzleController(
     fun handlePuzzleMove(fromRow: Int, fromCol: Int, toRow: Int, toCol: Int, promotion: Char? = null) {
         val puzzle = currentPuzzle ?: return
         val pm = puzzleManager ?: return
+        val piece = chessBoard.board[fromRow][fromCol] ?: return
+        if (piece.isWhite != (chessBoard.sideToMove == 'w')) { chessBoard.clearSelection(); return }
         val expected = pm.nextUserMove(puzzle, puzzleMoveIndex) ?: return
         val uci = "${('a' + fromCol)}${(8 - fromRow)}${('a' + toCol)}${(8 - toRow)}${promotion?.lowercase() ?: ""}"
 
@@ -307,11 +311,9 @@ class PuzzleController(
     }
 
     private fun showPuzzleWrongPopup(played: String, expected: String) {
-        val fPlayed = chessBoard.formatUciMove(played)
-        val fExpected = chessBoard.formatUciMove(expected)
         AlertDialog.Builder(activity)
             .setTitle(R.string.puzzle_wrong)
-            .setMessage("${activity.getString(R.string.puzzle_your_move)} $fPlayed\n${activity.getString(R.string.puzzle_correct_move_was)} $fExpected")
+            .setMessage(R.string.puzzle_wrong_msg)
             .setPositiveButton(R.string.puzzle_try_again) { _, _ ->
                 val puzzle = currentPuzzle ?: return@setPositiveButton
                 puzzleManager?.applyPuzzleMoves(chessBoard, puzzle, 0)

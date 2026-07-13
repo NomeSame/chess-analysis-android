@@ -246,4 +246,5 @@
     <string name="puzzle_remaining_fmt">Remaining: %1$d</string>
     <string name="puzzle_show_theme">Show Theme Category</string>
     <string name="puzzle_try_again">Try Again</string>
+    <string name="puzzle_wrong_msg">That\'s not correct. Try again or view the solution.</string>
 </resources>
