@@ -456,6 +456,7 @@ class AnalysisReviewController(
         val fen = line[gameModel.viewIndex]
         chessBoard.hintSquare = null
         chessBoard.setFen(fen)
+        activity.gamePlayController.playPositionSound()
         val liveReal = !gameModel.exploring && gameModel.viewIndex == gameModel.positionHistory.lastIndex
         chessBoard.interactionEnabled = !chessBoard.setupMode && (gameModel.reviewMode || liveReal)
         chessBoard.lastMoveFrom = gameModel.effectiveFrom().getOrNull(gameModel.viewIndex)

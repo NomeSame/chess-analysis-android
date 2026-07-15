@@ -120,6 +120,8 @@ class GamePlayController(
             activity.getString(R.string.variation_fmt, gameModel.viewIndex - gameModel.branchIndex)
         if (gameModel.analysisMode || gameModel.liveEvalEnabled)
             activity.analysisController.classifyMoveAsync(fenBefore, gameModel.currentFen, gameModel.explorationLine.lastIndex)
+        playPositionSound()
+        if (!gameModel.theoryMode) activity.coachController.requestCoachComment()
     }
 
     fun commitMove(from: Pair<Int, Int>?) {
@@ -159,6 +161,7 @@ class GamePlayController(
             )
         }
         maybeShowGameOver()
+        if (!gameModel.theoryMode) activity.coachController.requestCoachComment()
     }
 
     fun maybeEngineMove() {
@@ -261,7 +264,8 @@ class GamePlayController(
             chessBoard.interactionEnabled = true
             activity.analysisController.requestAnalysis()
             updateGameStatus()
-            playUndoSound()
+            playPositionSound()
+            if (!gameModel.theoryMode) activity.coachController.requestCoachComment()
             return
         }
         // Review/analysis mode without exploring: undo would corrupt game history → no-op
@@ -279,10 +283,11 @@ class GamePlayController(
         chessBoard.interactionEnabled = !chessBoard.setupMode
         activity.analysisController.requestAnalysis()
         updateGameStatus()
-        playUndoSound()
+        playPositionSound()
+        if (!gameModel.theoryMode) activity.coachController.requestCoachComment()
     }
 
-    private fun playUndoSound() {
+    fun playPositionSound() {
         val isMate = chessBoard.isCheckmate()
         val isCheck = chessBoard.isInCheck(chessBoard.sideToMove == 'w')
         when {
