@@ -21,7 +21,10 @@ object CoachManager {
         val playedEval: String?,
         val openingText: String?,
         val cpLoss: Int = 0,
-        val tacticDesc: String? = null
+        val tacticDesc: String? = null,
+        val bestPv: List<String> = emptyList(),
+        val theoryName: String? = null,
+        val theoryIdea: String? = null
     )
 
     /**
@@ -36,12 +39,12 @@ object CoachManager {
     fun systemPrompt(german: Boolean): String {
         val sb = StringBuilder()
         sb.append("You are a chess coach for a club player. ")
-        sb.append("CRITICAL: only state facts that appear in the 'VERIFIED FACTS' block below. ")
+        sb.append("CRITICAL role: Translate ONLY the listed facts below into a fluent 1-2 sentence comment. ")
+        sb.append("Do NOT add any own rating, do NOT fabricate motifs, do NOT invent pieces or squares. ")
+        sb.append("If no concrete tactic/motif is listed, just restate the verdict using the data given. ")
         sb.append("Never invent pieces, never change a piece's type or square, never claim a capture, ")
         sb.append("threat, check or motif that is not explicitly listed. ")
         sb.append("Every piece you name must match the type given in the facts for that square. ")
-        sb.append("If no concrete tactic/motif is listed, do NOT make one up — just say in one short sentence ")
-        sb.append("why the move is rated the way it is (e.g. the better move was X), using only the listed data. ")
         sb.append("Ignore trivial threats nobody would play (e.g. a queen 'attacking' a defended pawn). ")
         sb.append("NEVER mention engine units like \"centipawns\", \"cp\" or raw numbers like \"167\"; ")
         sb.append("always express an advantage as pawns (e.g. \"about 1.7 pawns\") or as material ")
@@ -57,12 +60,58 @@ object CoachManager {
         val side = if (c.moverWhite) "White" else "Black"
         val board = parseBoard(c.fenBefore)
         val sb = StringBuilder()
-        sb.append("Move ${c.fullmove}: $side played ${describeMove(board, c.playedUci)} — rated \"${c.cls.name}\".\n")
-        if (c.bestUci != null) sb.append("Engine's best move here: ${describeMove(board, c.bestUci)} (eval ${c.bestEval ?: "?"}).\n")
-        if (c.playedEval != null) sb.append("Eval after the played move: ${c.playedEval}.\n")
-        if (c.cpLoss >= 50) sb.append("Advantage given up vs the best move: ${materialPhrase(c.cpLoss)}.\n")
-        if (c.tacticDesc != null) sb.append("Engine-detected motif: ${c.tacticDesc}.\n")
-        if (c.openingText != null) sb.append("Opening book: ${c.openingText}.\n")
+
+        val moveClassLabel = c.cls.label
+        sb.append("Move ${c.fullmove}: $side played ${describeMove(board, c.playedUci)}\n")
+        sb.append("Classification: $moveClassLabel\n")
+
+        if (c.bestUci != null) {
+            sb.append("Engine's best move: ${describeMove(board, c.bestUci)} (eval ${c.bestEval ?: "?"})\n")
+        }
+        if (c.playedEval != null) {
+            sb.append("Eval after played move: ${c.playedEval}\n")
+        }
+
+        // Eval trend as natural phrase (COACH-EVAL-1)
+        evalTrendPhrase(c)?.let { sb.append("Eval trend: $it\n") }
+
+        // Cp-loss phrase (COACH-EVAL-1)
+        if (c.cpLoss >= 50) {
+            sb.append("Advantage given up vs the best move: ${materialPhrase(c.cpLoss)}\n")
+        }
+
+        // Refutation when not the best move (COACH-EVAL-3) — name the reply on the position AFTER the best move.
+        if (c.playedUci != null && c.bestUci != null && c.playedUci != c.bestUci && c.bestPv.size >= 2) {
+            val afterBest = board.copyOf()
+            applyUci(afterBest, c.bestPv[0])
+            val refutation = describeMove(afterBest, c.bestPv[1])
+            sb.append("Refutation: After the best move ${describeMove(board, c.bestUci)}, opponent's expected reply is $refutation\n")
+        }
+
+        // PV in natural language (COACH-EVAL-2) — replay the board so each move is named on its own position.
+        if (c.bestPv.size >= 2) {
+            val pvBoard = board.copyOf()
+            val pvWords = c.bestPv.take(3).mapIndexed { idx, uci ->
+                val label = if (idx == 0) "best ${describeMove(pvBoard, uci)}" else describeMove(pvBoard, uci)
+                applyUci(pvBoard, uci)
+                label
+            }.joinToString(" → ")
+            sb.append("Best continuation: $pvWords\n")
+        }
+
+        if (c.tacticDesc != null) {
+            sb.append("Engine-detected motif: ${c.tacticDesc}\n")
+        }
+
+        // Theory merge (COACH-EVAL-4)
+        if (c.theoryName != null) {
+            sb.append("Opening theory: ${c.theoryName}")
+            if (c.theoryIdea != null) sb.append(" — ${c.theoryIdea}")
+            sb.append("\n")
+        } else if (c.openingText != null) {
+            sb.append("Opening book: ${c.openingText}\n")
+        }
+
         sb.append("\n=== VERIFIED FACTS (use ONLY these; invent nothing) ===\n")
         sb.append(boardFacts(board, c.moverWhite))
         return sb.toString()
@@ -82,6 +131,20 @@ object CoachManager {
             else -> "about a pawn"
         }
         return "%.1f pawns (≈ %s)".format(cp / 100.0, unit)
+    }
+
+    /** Eval difference as a trend phrase — no raw cp numbers, just direction. */
+    private fun evalTrendPhrase(c: Ctx): String? {
+        if (c.cpLoss < 30) return null
+        val best = c.bestEval?.toDoubleOrNull() ?: return null
+        val played = c.playedEval?.toDoubleOrNull() ?: return null
+        val diff = best - played
+        return when {
+            diff >= 3.0 -> "position significantly worsened for the moving side"
+            diff >= 1.5 -> "position worsened for the moving side"
+            diff >= 0.5 -> "moving side's advantage decreased"
+            else -> null
+        }
     }
 
     private fun pieceName(t: Char): String = when (t.uppercaseChar()) {
@@ -108,6 +171,25 @@ object CoachManager {
         val from = (8 - (uci[1] - '0')) * 8 + (uci[0] - 'a')
         val name = board.getOrNull(from)?.let { pieceName(it) } ?: "piece"
         return "$name ${uci.substring(0, 2)}→${uci.substring(2)}"
+    }
+
+    /**
+     * Apply a UCI move to a [board] copy so later PV moves are named on the position they are actually
+     * played in (COACH-EVAL-2 fix). Only the moving piece is relocated — enough for correct naming; the
+     * side effects of castling/en-passant on OTHER squares are irrelevant to a from-square lookup.
+     */
+    private fun applyUci(board: Array<Char?>, uci: String?) {
+        if (uci == null || uci.length < 4) return
+        val from = (8 - (uci[1] - '0')) * 8 + (uci[0] - 'a')
+        val to = (8 - (uci[3] - '0')) * 8 + (uci[2] - 'a')
+        if (from !in 0..63 || to !in 0..63) return
+        var piece = board[from] ?: return
+        if (uci.length >= 5) {
+            val promo = uci[4]
+            piece = if (piece.isUpperCase()) promo.uppercaseChar() else promo.lowercaseChar()
+        }
+        board[to] = piece
+        board[from] = null
     }
 
     /** Values of every [byWhite] piece that attacks [sqIdx] (used for hanging/exchange logic). */
@@ -200,9 +282,20 @@ object CoachManager {
 
         val board = parseBoard(ctx.fenBefore)
         val position = StringBuilder()
+        position.append("Classification: ${ctx.cls.label}\n")
         position.append(boardFacts(board, ctx.moverWhite))
         if (ctx.bestUci != null)   position.append("Engine best: ${describeMove(board, ctx.bestUci)} (${ctx.bestEval ?: "?"})\n")
         if (ctx.playedUci != null) position.append("Move played: ${describeMove(board, ctx.playedUci)}\n")
+        if (ctx.cpLoss >= 50)      position.append("Advantage given up: ${materialPhrase(ctx.cpLoss)}\n")
+        if (ctx.bestPv.size >= 2) {
+            val pvBoard = board.copyOf()
+            val pvWords = ctx.bestPv.take(3).mapIndexed { idx, uci ->
+                val label = if (idx == 0) "best ${describeMove(pvBoard, uci)}" else describeMove(pvBoard, uci)
+                applyUci(pvBoard, uci)
+                label
+            }.joinToString(" → ")
+            position.append("Best continuation: $pvWords\n")
+        }
 
         val systemBlock = if (german)
             "Du bist ein Schachtrainer. KRITISCH: Nutze NUR die unten angegebenen Fakten. Erfinde keine Figuren, Felder oder Motive. Antworte auf Deutsch."
@@ -214,7 +307,16 @@ object CoachManager {
         else
             "Was this move part of the theory? What is the theory's plan from here? Any trap to watch for? Answer in 1-2 sentences using only the provided facts."
 
-        val content = "$systemBlock\n\nTHEORY FACTS:\n${theory.toString().trim()}\n\nPOSITION FACTS:\n${position.toString().trim()}\n\nQuestion: $question"
+        val mergedTheory = StringBuilder()
+        mergedTheory.append("In this book position \"${entry.name}\"")
+        if (entry.getIdea(locale).isNotEmpty()) mergedTheory.append(": ${entry.getIdea(locale)}")
+        if (ctx.bestUci != null) {
+            mergedTheory.append(". The best engine move is ${describeMove(board, ctx.bestUci)}")
+            if (ctx.bestEval != null) mergedTheory.append(" (${ctx.bestEval})")
+        }
+        mergedTheory.append(".\n")
+
+        val content = "$systemBlock\n\nTHEORY FACTS:\n${theory.toString().trim()}\n\nPOSITION FACTS:\n${position.toString().trim()}\n\nMERGED NOTE:\n$mergedTheory\n\nQuestion: $question"
         return "<start_of_turn>user\n$content<end_of_turn>\n<start_of_turn>model\n"
     }
 

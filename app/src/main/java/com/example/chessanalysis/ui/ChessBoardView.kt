@@ -791,6 +791,24 @@ class ChessBoardView @JvmOverloads constructor(
             textPaint.textSize = sqSize * 0.95f
         }
 
+        // Direction indicators — colored triangles at the right edge
+        val indSize = sqSize * 0.2f
+        val indRightX = boardStartX + 8f * sqSize - 2f
+        val topSideColor = if (whiteOnTop) Color.rgb(240, 240, 240) else Color.rgb(50, 50, 50)
+        val bottomSideColor = if (whiteOnTop) Color.rgb(50, 50, 50) else Color.rgb(240, 240, 240)
+        paint.style = Paint.Style.FILL
+        paint.color = topSideColor
+        val topPath = Path().apply {
+            moveTo(indRightX, 2f); lineTo(indRightX - indSize, 2f + indSize); lineTo(indRightX + indSize, 2f + indSize); close()
+        }
+        canvas.drawPath(topPath, paint)
+        paint.color = bottomSideColor
+        val bottomPath = Path().apply {
+            moveTo(indRightX, boardW - 2f); lineTo(indRightX - indSize, boardW - 2f - indSize); lineTo(indRightX + indSize, boardW - 2f - indSize); close()
+        }
+        canvas.drawPath(bottomPath, paint)
+        paint.style = Paint.Style.FILL
+
         // coordinates
         textPaint.textSize = sqSize * 0.2f
         textPaint.color = coordColor

@@ -41,7 +41,7 @@ class CoachCommentController(
         val mode = AiCoachManager.getActiveMode(activity)
         if (mode == AiCoachMode.NONE) { coachPanel.visibility = View.GONE; return }
 
-        val ctx = CoachManager.Ctx(
+        var ctx = CoachManager.Ctx(
             fenBefore = gameModel.positionHistory[ply],
             fullmove = ply / 2 + 1,
             moverWhite = gameModel.positionHistory[ply].split(" ").getOrNull(1) != "b",
@@ -52,13 +52,22 @@ class CoachCommentController(
             playedEval = review.playedEvalPerPos.getOrNull(ply),
             openingText = review.openingTexts[ply],
             cpLoss = review.cpLosses.getOrNull(ply) ?: 0,
-            tacticDesc = review.tactics.firstOrNull { it.ply == ply }?.let { tacticDescLocalized(it) }
+            tacticDesc = review.tactics.firstOrNull { it.ply == ply }?.let { tacticDescLocalized(it) },
+            bestPv = review.bestPvPerPos.getOrNull(ply) ?: emptyList()
         )
         coachPanel.visibility = View.VISIBLE
         val token = ++coachToken
 
         val theoryEntry = if (gameModel.theoryMode) activity.theoryController.currentTheory else null
         val locale = activity.resources.configuration.locales.get(0)
+
+        if (theoryEntry != null) {
+            // COACH-EVAL-4: merge theory + eval in the Ctx so buildUser() can use them
+            ctx = ctx.copy(
+                theoryName = theoryEntry.name,
+                theoryIdea = theoryEntry.getIdea(locale).ifEmpty { null }
+            )
+        }
 
         tvCoachBody.text = if (theoryEntry != null)
             CoachManager.buildTheoryFallback(theoryEntry, locale)

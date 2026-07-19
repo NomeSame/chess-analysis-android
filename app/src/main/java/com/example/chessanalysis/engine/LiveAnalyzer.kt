@@ -13,7 +13,8 @@ class LiveAnalyzer(
     private val multiPv: Int = 3,
     private val depth: Int = 22
 ) {
-    data class PvLine(val rank: Int, val cp: Int?, val mate: Int?, val firstMove: String?)
+    data class PvLine(val rank: Int, val cp: Int?, val mate: Int?, val firstMove: String?, val pv: List<String> = emptyList(), val reachedDepth: Int = 22)
+    data class PosTiming(val plyIndex: Int, val requestedDepth: Int, val reachedDepth: Int, val elapsedMs: Long, val nodes: Long, val nps: Long)
 
     companion object {
         /** At/above this target ELO we use Stockfish's own strength limit; below it, custom weakening. */
@@ -30,6 +31,7 @@ class LiveAnalyzer(
     @Volatile private var forceRestart = false
     @Volatile private var moveReq: MoveReq? = null
     @Volatile private var reviewReq: ReviewReq? = null
+    @Volatile var lastPosTimings: List<PosTiming>? = null
     private var worker: Thread? = null
 
     private class MoveReq(
@@ -37,8 +39,8 @@ class LiveAnalyzer(
     )
 
     private class ReviewReq(
-        val fens: List<String>, val depth: Int, val multiPv: Int, val movetimeMs: Long,
-        val onProgress: (Int, Int) -> Unit, val onDone: (List<List<PvLine>>) -> Unit
+        val fens: List<String>, val depth: Int, val multiPv: Int,
+        val onProgress: (Int, Int) -> Unit, val onDone: (List<List<PvLine>>, List<PosTiming>) -> Unit
     )
 
     /**
@@ -48,10 +50,10 @@ class LiveAnalyzer(
      * Callbacks fire on the worker thread; marshal to UI yourself.
      */
     fun evaluatePositions(
-        fens: List<String>, depth: Int = 16, multiPv: Int = 2, movetimeMs: Long = EVAL_MOVETIME_MS,
-        onProgress: (Int, Int) -> Unit = { _, _ -> }, onDone: (List<List<PvLine>>) -> Unit
+        fens: List<String>, depth: Int = 16, multiPv: Int = 2,
+        onProgress: (Int, Int) -> Unit = { _, _ -> }, onDone: (List<List<PvLine>>, List<PosTiming>) -> Unit
     ) {
-        reviewReq = ReviewReq(fens, depth, multiPv, movetimeMs, onProgress, onDone)
+        reviewReq = ReviewReq(fens, depth, multiPv, onProgress, onDone)
     }
 
     /**
@@ -109,26 +111,47 @@ class LiveAnalyzer(
                 engine.setElo(StockfishEngine.MAX_ELO)
                 engine.setMultiPv(rv.multiPv)
                 val out = ArrayList<List<PvLine>>(rv.fens.size)
+                val timings = ArrayList<PosTiming>(rv.fens.size)
                 for ((idx, fen) in rv.fens.withIndex()) {
                     if (!running) break
+                    val startTime = System.nanoTime()
+                    var reachedDepth = 0
+                    var nodes = 0L
+                    var nps = 0L
                     engine.setPosition(fen)
-                    engine.startSearch(rv.depth, rv.movetimeMs)
+                    engine.startSearch(rv.depth)
                     val bl = TreeMap<Int, PvLine>()
                     while (running) {
                         val resp = engine.getResponse()
                         if (resp.isBlank()) { try { Thread.sleep(2) } catch (_: InterruptedException) {}; continue }
                         when {
-                            resp.startsWith("info") && resp.contains(" multipv ") -> parseInfo(resp)?.let { bl[it.rank] = it }
+                            resp.startsWith("info") && resp.contains(" multipv ") -> {
+                                val pl = parseInfo(resp)
+                                if (pl != null) {
+                                    bl[pl.rank] = pl
+                                    if (pl.reachedDepth > reachedDepth) reachedDepth = pl.reachedDepth
+                                }
+                            }
                             resp.startsWith("bestmove") -> break
                         }
+                        val t = resp.split(" ")
+                        for (j in t.indices) {
+                            when (t[j]) {
+                                "nodes" -> nodes = t.getOrNull(j + 1)?.toLongOrNull() ?: nodes
+                                "nps" -> nps = t.getOrNull(j + 1)?.toLongOrNull() ?: nps
+                            }
+                        }
                     }
+                    val elapsedMs = (System.nanoTime() - startTime) / 1_000_000
+                    timings.add(PosTiming(idx, rv.depth, reachedDepth, elapsedMs, nodes, nps))
                     out.add(bl.values.toList())
                     rv.onProgress(idx + 1, rv.fens.size)
                 }
+                lastPosTimings = timings
                 engine.setMultiPv(multiPv)
                 analyzing = null
                 lines.clear()
-                rv.onDone(out)
+                rv.onDone(out, timings)
                 continue
             }
             val mv = moveReq
@@ -232,18 +255,29 @@ class LiveAnalyzer(
         var rank = -1
         var cp: Int? = null
         var mate: Int? = null
+        var depth = 22
         var i = 0
         while (i < t.size) {
             when (t[i]) {
+                "depth" -> depth = t.getOrNull(i + 1)?.toIntOrNull() ?: depth
                 "multipv" -> rank = t.getOrNull(i + 1)?.toIntOrNull() ?: -1
                 "score" -> when (t.getOrNull(i + 1)) {
                     "cp" -> cp = t.getOrNull(i + 2)?.toIntOrNull()
                     "mate" -> mate = t.getOrNull(i + 2)?.toIntOrNull()
                 }
-                "pv" -> return if (rank >= 1) PvLine(rank, cp, mate, t.getOrNull(i + 1)) else null
+                "pv" -> {
+                    if (rank < 1) return null
+                    val moves = mutableListOf<String>()
+                    var j = i + 1
+                    while (j < t.size && t[j].length in 4..5 && t[j].all { it.isLetterOrDigit() }) {
+                        moves.add(t[j])
+                        j++
+                    }
+                    return PvLine(rank, cp, mate, moves.firstOrNull(), moves, depth)
+                }
             }
             i++
         }
-        return if (rank >= 1) PvLine(rank, cp, mate, null) else null
+        return if (rank >= 1) PvLine(rank, cp, mate, null, emptyList(), depth) else null
     }
 }

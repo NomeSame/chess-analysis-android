@@ -167,6 +167,15 @@
     <string name="coach_thinking">Coach is thinking…</string>
     <string name="coach_timeout_snackbar">AI response timed out — showing factual summary instead.</string>
     <string name="coach_disabled">AI Coach is off — enable it in Settings.</string>
+    <!-- AICOACH-2 toggle -->
+    <string name="ai_coach_toggle">On-device AI coach</string>
+    <string name="ai_coach_build_disabled">Not available (build without native runner)</string>
+    <string name="ai_coach_on">On</string>
+    <string name="ai_coach_off">Off</string>
+    <!-- AICOACH-3 loading status -->
+    <string name="coach_loading">Loading AI model…</string>
+    <string name="coach_active">AI coach active</string>
+    <string name="coach_failed">Failed to load AI model</string>
     <string name="coach_copied">Coach text copied</string>
     <string name="display_options">Display options</string>
     <!-- Coach factual comment (localized) -->

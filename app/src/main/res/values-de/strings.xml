@@ -165,6 +165,15 @@
     <string name="coach_thinking">Coach denkt nach…</string>
     <string name="coach_timeout_snackbar">KI-Antwort unvollständig, Fallback verwendet.</string>
     <string name="coach_disabled">KI-Coach ist aus — in den Einstellungen aktivieren.</string>
+    <!-- AICOACH-2 toggle -->
+    <string name="ai_coach_toggle">KI-Coach auf dem Gerät</string>
+    <string name="ai_coach_build_disabled">Nicht verfügbar (Build ohne native Runner)</string>
+    <string name="ai_coach_on">An</string>
+    <string name="ai_coach_off">Aus</string>
+    <!-- AICOACH-3 loading status -->
+    <string name="coach_loading">KI-Modell wird geladen…</string>
+    <string name="coach_active">KI-Coach aktiv</string>
+    <string name="coach_failed">KI-Modell konnte nicht geladen werden</string>
     <string name="coach_copied">Coach-Text kopiert</string>
     <string name="display_options">Anzeige-Optionen</string>
     <!-- Coach factual comment (localized) -->

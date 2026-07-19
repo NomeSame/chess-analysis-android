@@ -26,7 +26,8 @@ class GameReviewer(private val explorer: LichessExplorer? = null) {
         val cpLosses: List<Int> = emptyList(),             // centipawn loss per ply (parallel to perPly)
         val tactics: List<TacticalChance> = emptyList(),
         val bestEvalPerPos: List<String?> = emptyList(),   // formatted eval of best move per ply
-        val playedEvalPerPos: List<String?> = emptyList()  // formatted eval of played move per ply
+        val playedEvalPerPos: List<String?> = emptyList(),  // formatted eval of played move per ply
+        val bestPvPerPos: List<List<String>> = emptyList() // full PV (UCI) of best line per position
     )
 
     private val MATE_CP = 2000  // chart magnitude for a mate score
@@ -46,12 +47,14 @@ class GameReviewer(private val explorer: LichessExplorer? = null) {
 
         // White-POV eval curve (carry the last known value across terminal/empty positions).
         val bestMovePerPos = ArrayList<String?>(n)
+        val bestPvPerPos = ArrayList<List<String>>(n)
         var lastWhite = 0
         for (i in 0 until n) {
             val top = lines[i].firstOrNull { it.rank == 1 }
             lastWhite = top?.let { whitePov(fens[i], it.cp, it.mate) } ?: lastWhite
             evalWhitePov.add(lastWhite)
             bestMovePerPos.add(top?.firstMove)
+            bestPvPerPos.add(top?.pv ?: emptyList())
         }
 
         val openingTexts = mutableMapOf<Int, String>()
@@ -140,7 +143,7 @@ class GameReviewer(private val explorer: LichessExplorer? = null) {
             true to (accSum[true]!! / accCnt[true]!!.coerceAtLeast(1)),
             false to (accSum[false]!! / accCnt[false]!!.coerceAtLeast(1))
         )
-        val review = GameReview(perPly, evalWhitePov, counts.mapValues { it.value.toMap() }, accuracy, bestMovePerPos, openingTexts, cpLosses, bestEvalPerPos = bestEvalPerPly, playedEvalPerPos = playedEvalPerPly)
+        val review = GameReview(perPly, evalWhitePov, counts.mapValues { it.value.toMap() }, accuracy, bestMovePerPos, openingTexts, cpLosses, bestEvalPerPos = bestEvalPerPly, playedEvalPerPos = playedEvalPerPly, bestPvPerPos = bestPvPerPos)
         val tactics = detectTactics(review, fens, lines)
         return review.copy(tactics = tactics)
     }

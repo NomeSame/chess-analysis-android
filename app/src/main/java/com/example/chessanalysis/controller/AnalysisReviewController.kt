@@ -34,6 +34,8 @@ class AnalysisReviewController(
     private val lichessExplorer: LichessExplorer?
 ) {
     var lastReview: GameReviewer.GameReview? = null
+    var lastPosTimings: List<LiveAnalyzer.PosTiming>? = null
+    var onReviewCompleted: ((GameReviewer.GameReview) -> Unit)? = null
     var theoryController: TheoryController? = null
 
     companion object {
@@ -71,7 +73,8 @@ class AnalysisReviewController(
                 activity.findViewById<android.widget.ProgressBar>(R.id.pbAnalysis).progress = pct
                 activity.findViewById<TextView>(R.id.tvAnalysisProgress).text = activity.getString(R.string.analyzing_fmt, done, total)
             } },
-            onDone = { lines ->
+            onDone = { lines, timings ->
+                lastPosTimings = timings
                 val review = try {
                     GameReviewer(lichessExplorer).review(fens, lines)
                 } catch (e: Exception) {
@@ -147,6 +150,7 @@ class AnalysisReviewController(
             lastReview = review
             enterAnalysisView()
             activity.historyController.autoSaveGame()
+            onReviewCompleted?.invoke(review)
         }
     }
 
@@ -304,7 +308,7 @@ class AnalysisReviewController(
 
     fun classifyMoveAsync(fenBefore: String, fenAfter: String, exploreIdx: Int = -1) {
         if (!EngineHolder.ready) return
-        analyzer.evaluatePositions(listOf(fenBefore, fenAfter), depth = LiveAnalyzer.LIVE_EVAL_DEPTH, multiPv = 2) { lines ->
+        analyzer.evaluatePositions(listOf(fenBefore, fenAfter), depth = LiveAnalyzer.LIVE_EVAL_DEPTH, multiPv = 2) { lines, _ ->
             val before = lines.getOrNull(0).orEmpty()
             val best = before.firstOrNull { it.rank == 1 }
             val second = before.firstOrNull { it.rank == 2 }

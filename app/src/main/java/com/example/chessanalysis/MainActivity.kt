@@ -83,6 +83,7 @@ class MainActivity : AppCompatActivity() {
         analysisController = AnalysisReviewController(this, gameModel, chessBoard, settingsRepo, analyzer, lichessExplorer)
         theoryController = TheoryController(this, gameModel, chessBoard, analyzer, lichessExplorer, analysisController)
         analysisController.theoryController = theoryController
+        analysisController.onReviewCompleted = { if (BuildConfig.DEBUG) writeAnalysisLog() }
 
         importController = ImportExportController(this, gameModel, chessBoard, settingsRepo, analyzer)
         setupModeController = SetupModeController(this, gameModel, chessBoard, analyzer, settingsRepo)
@@ -155,7 +156,18 @@ class MainActivity : AppCompatActivity() {
         if (AiCoachManager.isFallbackActive(this)) {
             Snackbar.make(findViewById(R.id.drawerLayout), R.string.ai_coach_fallback_snackbar, Snackbar.LENGTH_LONG).setDuration(5000).show()
         }
-        lifecycleScope.launch(Dispatchers.IO) { AiCoachManager.ensureModelLoaded(this@MainActivity) }
+        // AICOACH-3: load the on-device model in the background. Do NOT touch tvStatus — that label is the
+        // engine's (initializing/ready) and both run async (race). Only surface a real load FAILURE, and only
+        // when an on-device model was actually attempted (ensureModelLoaded also returns false for off/API/Lichess).
+        lifecycleScope.launch(Dispatchers.IO) {
+            val mode = AiCoachManager.getActiveModeRaw(this@MainActivity)
+            val attemptedLoad = (mode == AiCoachMode.GEMMA_1B || mode == AiCoachMode.GEMMA_3B) &&
+                LlamaRunner.isAvailable && AiCoachManager.isModelDownloaded(this@MainActivity, mode)
+            val loaded = AiCoachManager.ensureModelLoaded(this@MainActivity)
+            if (attemptedLoad && !loaded) withContext(Dispatchers.Main) {
+                Snackbar.make(findViewById(R.id.drawerLayout), R.string.coach_failed, Snackbar.LENGTH_LONG).show()
+            }
+        }
 
         settingsController.setupOpeningBook()
         lifecycleScope.launch { initEngine() }
@@ -200,12 +212,39 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @Suppress("DEPRECATION")
+    private fun writeAnalysisLog() {
+        val timings = analysisController.lastPosTimings ?: return
+        if (timings.isEmpty()) return   // guard: minOf/maxOf below throw on an empty list
+        val df = java.text.SimpleDateFormat("yyyyMMdd_HHmmss", java.util.Locale.US)
+        val filename = "CHESS_${df.format(java.util.Date())}.txt"
+        val totalMs = timings.sumOf { it.elapsedMs }
+        val minMs = timings.minOf { it.elapsedMs }
+        val maxMs = timings.maxOf { it.elapsedMs }
+        val avgMs = if (timings.isNotEmpty()) totalMs / timings.size else 0L
+        val header = "${Build.MODEL}, ${android.os.Build.VERSION.RELEASE}, ${timings.size}, ${totalMs}ms, ${minMs}/${maxMs}/${avgMs}ms"
+        val sb = StringBuilder().appendLine(header).appendLine("Ply,RequestedDepth,ReachedDepth,ElapsedMs,Nodes,Nps")
+        timings.forEach { sb.appendLine("${it.plyIndex},${it.requestedDepth},${it.reachedDepth},${it.elapsedMs},${it.nodes},${it.nps}") }
+        val content = sb.toString()
+        if (android.os.Build.VERSION.SDK_INT >= 29) {
+            val values = android.content.ContentValues().apply {
+                put(android.provider.MediaStore.Downloads.DISPLAY_NAME, filename)
+                put(android.provider.MediaStore.Downloads.MIME_TYPE, "text/plain")
+                put(android.provider.MediaStore.Downloads.RELATIVE_PATH, android.os.Environment.DIRECTORY_DOWNLOADS)
+            }
+            val uri = contentResolver.insert(android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
+            uri?.let { contentResolver.openOutputStream(it)?.use { os -> os.write(content.toByteArray()) } }
+        } else {
+            val dir = android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS)
+            dir.mkdirs()
+            java.io.File(dir, filename).writeText(content)
+        }
+    }
+
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == ImportExportController.REQ_IMPORT_DATA && resultCode == RESULT_OK)
             data?.data?.let { uri -> importController.handleImportUri(uri) }
     }
-
-
 }

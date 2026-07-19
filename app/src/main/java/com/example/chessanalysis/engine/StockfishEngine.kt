@@ -44,6 +44,7 @@ class StockfishEngine {
         waitFor("uciok")
         sendCommand("setoption name EvalFile value $bigPath")
         sendCommand("setoption name EvalFileSmall value $smallPath")
+        sendCommand("setoption name Threads value 1")   // DO NOT INCREASE - breaks Game-Review idempotency
         applyElo(pendingElo)
         sendCommand("isready")
         waitFor("readyok")

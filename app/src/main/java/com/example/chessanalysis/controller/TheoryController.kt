@@ -135,7 +135,7 @@ class TheoryController(
         val fenBefore = line.getOrNull(gameModel.viewIndex - 1) ?: return
         val fenAfter = line.getOrNull(gameModel.viewIndex) ?: return
         val token = ++theoryToken
-        analyzer.evaluatePositions(listOf(fenBefore, fenAfter), depth = LiveAnalyzer.LIVE_EVAL_DEPTH, multiPv = 2) { lines ->
+        analyzer.evaluatePositions(listOf(fenBefore, fenAfter), depth = LiveAnalyzer.LIVE_EVAL_DEPTH, multiPv = 2) { lines, _ ->
             val best = lines.getOrNull(0).orEmpty().firstOrNull { it.rank == 1 }
             val second = lines.getOrNull(0).orEmpty().firstOrNull { it.rank == 2 }
             val a1 = lines.getOrNull(1).orEmpty().firstOrNull { it.rank == 1 }
