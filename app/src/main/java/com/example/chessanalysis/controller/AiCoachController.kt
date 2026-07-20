@@ -11,6 +11,7 @@ import com.example.chessanalysis.R
 import com.example.chessanalysis.state.GameViewModel
 import com.example.chessanalysis.data.SettingsRepository
 import com.example.chessanalysis.ai.*
+import com.example.chessanalysis.engine.LlamaRunner
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -39,60 +40,60 @@ class AiCoachController(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
             )
         }
-        toggleRow.addView(TextView(activity).apply {
+        val toggleLabel = TextView(activity).apply {
             text = activity.getString(R.string.ai_coach_toggle)
             textSize = 15f
             setTextColor(0xFF212121.toInt())
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-        })
-        val toggle = android.widget.Switch(activity).apply {
-            isChecked = active != AiCoachMode.NONE
-            isEnabled = LlamaRunner.isAvailable || active != AiCoachMode.NONE
-            setOnCheckedChangeListener { _, isOn ->
-                if (isOn) {
-                    AiCoachManager.setActiveMode(activity, AiCoachMode.GEMMA_1B)
-                    if (LlamaRunner.isAvailable && !AiCoachManager.isModelDownloaded(activity, AiCoachMode.GEMMA_1B)) {
-                        val info = AiCoachManager.getModelInfo(AiCoachMode.GEMMA_1B) ?: return@setOnCheckedChangeListener
-                        val title = activity.getString(R.string.ai_coach_gemma_1b_title)
-                        androidx.appcompat.app.AlertDialog.Builder(activity)
-                            .setTitle(activity.getString(R.string.ai_coach_download_dialog_title, title))
-                            .setMessage(activity.getString(R.string.ai_coach_download_dialog_msg, title, info.expectedSizeMb.toString()))
-                            .setPositiveButton(R.string.ai_coach_download_dialog_download) { dlg, _ ->
-                                dlg.dismiss()
-                                gemmaDownloading = true
-                                activity.lifecycleScope.launch {
-                                    try {
-                                        AiCoachManager.downloadModel(activity, AiCoachMode.GEMMA_1B) { pct ->
-                                            activity.runOnUiThread { toggle.text = "$pct%" }
-                                        }
-                                        activity.runOnUiThread {
-                                            gemmaDownloading = false
-                                            AiCoachManager.setActiveMode(activity, AiCoachMode.GEMMA_1B)
-                                            activity.lifecycleScope.launch(Dispatchers.IO) { AiCoachManager.ensureModelLoaded(activity) }
-                                        }
-                                    } catch (e: Exception) {
-                                        activity.runOnUiThread {
-                                            gemmaDownloading = false
-                                            toggle.isChecked = false
-                                            AiCoachManager.setActiveMode(activity, AiCoachMode.NONE)
-                                            Snackbar.make(container, "Download failed: ${e.message}", Snackbar.LENGTH_LONG).show()
-                                        }
+        }
+        toggleRow.addView(toggleLabel)
+        val coachSwitch = android.widget.Switch(activity)
+        coachSwitch.isChecked = active != AiCoachMode.NONE
+        coachSwitch.isEnabled = LlamaRunner.isAvailable || active != AiCoachMode.NONE
+        coachSwitch.setOnCheckedChangeListener { _, isOn ->
+            if (isOn) {
+                AiCoachManager.setActiveMode(activity, AiCoachMode.GEMMA_1B)
+                if (LlamaRunner.isAvailable && !AiCoachManager.isModelDownloaded(activity, AiCoachMode.GEMMA_1B)) {
+                    val info = AiCoachManager.getModelInfo(AiCoachMode.GEMMA_1B) ?: return@setOnCheckedChangeListener
+                    val title = activity.getString(R.string.ai_coach_gemma_1b_title)
+                    androidx.appcompat.app.AlertDialog.Builder(activity)
+                        .setTitle(activity.getString(R.string.ai_coach_download_dialog_title, title))
+                        .setMessage(activity.getString(R.string.ai_coach_download_dialog_msg, title, info.expectedSizeMb.toString()))
+                        .setPositiveButton(R.string.ai_coach_download_dialog_download) { dlg, _ ->
+                            dlg.dismiss()
+                            gemmaDownloading = true
+                            activity.lifecycleScope.launch {
+                                try {
+                                    AiCoachManager.downloadModel(activity, AiCoachMode.GEMMA_1B) { pct ->
+                                        activity.runOnUiThread { toggleLabel.text = "$pct%" }
+                                    }
+                                    activity.runOnUiThread {
+                                        gemmaDownloading = false
+                                        AiCoachManager.setActiveMode(activity, AiCoachMode.GEMMA_1B)
+                                        activity.lifecycleScope.launch(Dispatchers.IO) { AiCoachManager.ensureModelLoaded(activity) }
+                                    }
+                                } catch (e: Exception) {
+                                    activity.runOnUiThread {
+                                        gemmaDownloading = false
+                                        coachSwitch.isChecked = false
+                                        AiCoachManager.setActiveMode(activity, AiCoachMode.NONE)
+                                        Snackbar.make(container, "Download failed: ${e.message}", Snackbar.LENGTH_LONG).show()
                                     }
                                 }
                             }
-                            .setNegativeButton(R.string.ai_coach_download_dialog_cancel) { _, _ ->
-                                toggle.isChecked = false
-                                AiCoachManager.setActiveMode(activity, AiCoachMode.NONE)
-                            }
-                            .show()
-                    } else if (LlamaRunner.isAvailable) {
-                        activity.lifecycleScope.launch(Dispatchers.IO) { AiCoachManager.ensureModelLoaded(activity) }
-                    }
-                } else {
-                    AiCoachManager.setActiveMode(activity, AiCoachMode.NONE)
+                        }
+                        .setNegativeButton(R.string.ai_coach_download_dialog_cancel) { _, _ ->
+                            coachSwitch.isChecked = false
+                            AiCoachManager.setActiveMode(activity, AiCoachMode.NONE)
+                        }
+                        .show()
+                } else if (LlamaRunner.isAvailable) {
+                    activity.lifecycleScope.launch(Dispatchers.IO) { AiCoachManager.ensureModelLoaded(activity) }
                 }
-                setupAiCoachSection()
+            } else {
+                AiCoachManager.setActiveMode(activity, AiCoachMode.NONE)
             }
+            setupAiCoachSection()
         }
         if (!LlamaRunner.isAvailable) {
             toggleRow.alpha = 0.4f
@@ -105,7 +106,7 @@ class AiCoachController(
                 ).apply { marginEnd = (8 * d).toInt() }
             })
         }
-        toggleRow.addView(toggle)
+        toggleRow.addView(coachSwitch)
         container.addView(toggleRow)
 
         // Separator

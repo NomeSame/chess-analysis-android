@@ -222,7 +222,7 @@ class MainActivity : AppCompatActivity() {
         val minMs = timings.minOf { it.elapsedMs }
         val maxMs = timings.maxOf { it.elapsedMs }
         val avgMs = if (timings.isNotEmpty()) totalMs / timings.size else 0L
-        val header = "${Build.MODEL}, ${android.os.Build.VERSION.RELEASE}, ${timings.size}, ${totalMs}ms, ${minMs}/${maxMs}/${avgMs}ms"
+        val header = "${android.os.Build.MODEL}, ${android.os.Build.VERSION.RELEASE}, ${timings.size}, ${totalMs}ms, ${minMs}/${maxMs}/${avgMs}ms"
         val sb = StringBuilder().appendLine(header).appendLine("Ply,RequestedDepth,ReachedDepth,ElapsedMs,Nodes,Nps")
         timings.forEach { sb.appendLine("${it.plyIndex},${it.requestedDepth},${it.reachedDepth},${it.elapsedMs},${it.nodes},${it.nps}") }
         val content = sb.toString()
