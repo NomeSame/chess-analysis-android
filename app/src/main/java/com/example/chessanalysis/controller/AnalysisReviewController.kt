@@ -210,7 +210,6 @@ class AnalysisReviewController(
         gameModel.explorationLine.clear(); gameModel.explorationFrom.clear()
         gameModel.explorationClass.clear(); gameModel.explorationBest.clear()
         activity.findViewById<View>(R.id.btnReviewAnalyze).visibility = View.GONE
-        activity.findViewById<View>(R.id.btnFlipBoard).visibility = View.VISIBLE
         activity.findViewById<EvalChartView>(R.id.evalChart).apply {
             visibility = View.VISIBLE
             setData(review.evalWhitePov)
@@ -248,7 +247,6 @@ class AnalysisReviewController(
         chessBoard.bestMoveArrow = null
         chessBoard.openingText = null
         chessBoard.badgeTooltipText = null
-        activity.findViewById<View>(R.id.btnFlipBoard).visibility = View.GONE
     }
 
     fun enterReviewMode() {
@@ -257,7 +255,6 @@ class AnalysisReviewController(
         gameModel.explorationLine.clear(); gameModel.explorationFrom.clear()
         gameModel.explorationClass.clear(); gameModel.explorationBest.clear()
         activity.findViewById<View>(R.id.btnReviewAnalyze).visibility = View.VISIBLE
-        activity.findViewById<View>(R.id.btnFlipBoard).visibility = View.GONE
         showPosition(0)
     }
 
@@ -271,7 +268,6 @@ class AnalysisReviewController(
         gameModel.explorationClass.clear(); gameModel.explorationBest.clear()
         if (gameModel.analysisMode) exitAnalysisView()
         activity.findViewById<View>(R.id.btnReviewAnalyze).visibility = View.GONE
-        activity.findViewById<View>(R.id.btnFlipBoard).visibility = View.GONE
         gameModel.currentFen = gameModel.positionHistory.last()
         showPosition(gameModel.positionHistory.lastIndex)
     }
