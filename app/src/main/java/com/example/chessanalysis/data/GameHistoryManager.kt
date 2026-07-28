@@ -14,7 +14,9 @@ data class GameRecord(
     val moveFrom: List<Pair<Int, Int>?>,
     val depth: Int,
     val accuracy: Map<String, Double>?,
-    val counts: Map<String, Map<String, Int>>?
+    val counts: Map<String, Map<String, Int>>?,
+    val whiteName: String? = null,
+    val blackName: String? = null
 )
 
 object GameHistoryManager {
@@ -30,7 +32,9 @@ object GameHistoryManager {
         depth: Int,
         result: String? = null,
         accuracy: Map<String, Double>? = null,
-        counts: Map<String, Map<String, Int>>? = null
+        counts: Map<String, Map<String, Int>>? = null,
+        whiteName: String? = null,
+        blackName: String? = null
     ) {
         val arr = loadJson(context)
         val entry = JSONObject().apply {
@@ -48,6 +52,8 @@ object GameHistoryManager {
                 for ((side, map) in it) jo.put(side, JSONObject(map))
                 put("counts", jo)
             }
+            whiteName?.let { put("whiteName", it) }
+            blackName?.let { put("blackName", it) }
         }
         arr.put(entry)
         while (arr.length() > MAX_ENTRIES) arr.remove(0)
@@ -82,7 +88,9 @@ object GameHistoryManager {
                 moveFrom = moveFrom,
                 depth = obj.getInt("depth"),
                 accuracy = accuracy,
-                counts = counts
+                counts = counts,
+                whiteName = obj.optString("whiteName", null),
+                blackName = obj.optString("blackName", null)
             ))
         }
         return result
@@ -108,7 +116,9 @@ object GameHistoryManager {
         depth: Int,
         result: String? = null,
         accuracy: Map<String, Double>? = null,
-        counts: Map<String, Map<String, Int>>? = null
+        counts: Map<String, Map<String, Int>>? = null,
+        whiteName: String? = null,
+        blackName: String? = null
     ): Boolean {
         val arr = loadJson(context)
         val targetHash = fens.joinToString(",").hashCode()
@@ -127,6 +137,8 @@ object GameHistoryManager {
                     for ((side, map) in it) jo.put(side, JSONObject(map))
                     obj.put("counts", jo)
                 }
+                whiteName?.let { obj.put("whiteName", it) }
+                blackName?.let { obj.put("blackName", it) }
                 arr.put(i, obj)
                 file(context).writeText(arr.toString(2))
                 return true

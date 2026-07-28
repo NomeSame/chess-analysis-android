@@ -411,12 +411,19 @@ class GamePlayController(
             val piecesBefore = fenBefore.substringBefore(' ').count { it.isLetter() }
             val piecesAfter = currentFen.substringBefore(' ').count { it.isLetter() }
             isCapture = piecesAfter < piecesBefore
-            val from = chessBoard.lastMoveFrom
-            val to = chessBoard.lastMoveTo
-            if (from != null && to != null) {
+            isCastle = run {
                 val boardBefore = gameModel.fenBoard(fenBefore)
-                val movedPiece = boardBefore.getOrNull(from.first * 8 + from.second)
-                isCastle = movedPiece?.uppercaseChar() == 'K' && abs(to.second - from.second) >= 2
+                val boardAfter = gameModel.fenBoard(currentFen)
+                var kingFrom: Int? = null
+                var kingTo: Int? = null
+                for (s in 0 until 64) {
+                    if (boardBefore[s] == boardAfter[s]) continue
+                    val afterPiece = boardAfter[s] ?: continue
+                    val beforePiece = boardBefore[s]
+                    if (afterPiece.uppercaseChar() == 'K') kingTo = s
+                    if (beforePiece != null && beforePiece.uppercaseChar() == 'K') kingFrom = s
+                }
+                kingFrom != null && kingTo != null && abs(kingTo % 8 - kingFrom % 8) >= 2
             }
         }
         soundManager.playMoveSound(isCapture, isCastle, isCheck, isMate)

@@ -35,8 +35,10 @@ class GameHistoryController(
             val date = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.getDefault())
                 .format(java.util.Date(rec.timestamp))
             val result = rec.result ?: "\u2014"
+            val names = if (rec.blackName != null && rec.whiteName != null)
+                "| ${rec.blackName} vs ${rec.whiteName} |" else "|-|"
             val tv = TextView(activity).apply {
-                text = "${date}  |  ${result}  |  ${rec.fens.size - 1} moves"
+                text = "${date}  ${names}  ${result}  ${rec.fens.size - 1} moves"
                 setTextColor(Color.WHITE)
                 textSize = 14f
                 setPadding(16, 12, 16, 12)
@@ -44,7 +46,7 @@ class GameHistoryController(
                 setOnLongClickListener {
                     AlertDialog.Builder(activity)
                         .setTitle("Delete game?")
-                        .setMessage("${date} — ${result}")
+                        .setMessage("${date} - ${result}")
                         .setPositiveButton("Delete") { _, _ -> GameHistoryManager.deleteGame(activity, rec.id); refreshGameHistoryList() }
                         .setNegativeButton("Cancel", null)
                         .show()
@@ -72,6 +74,7 @@ class GameHistoryController(
         gameModel.positionHistory.addAll(rec.fens)
         gameModel.moveFromHistory.addAll(rec.moveFrom)
         gameModel.gameOverShown = false
+        gameModel.currentPgnGame = null
         activity.analysisController.enterReviewMode()
         activity.tvStatus.text = "Loaded game from ${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.getDefault()).format(java.util.Date(rec.timestamp))}"
     }
@@ -86,6 +89,9 @@ class GameHistoryController(
             chessBoard.isStalemate() -> "\u00BD-\u00BD"
             else -> null
         }
+        val pgnTags = activity.gameModel.currentPgnGame?.tags
+        val whiteName = pgnTags?.get("White")
+        val blackName = pgnTags?.get("Black")
         val review = activity.analysisController.lastReview
         val accuracy = review?.let {
             mapOf("white" to (it.accuracy[true] ?: 0.0), "black" to (it.accuracy[false] ?: 0.0))
@@ -107,7 +113,9 @@ class GameHistoryController(
             depth = depth,
             result = result,
             accuracy = accuracy,
-            counts = counts
+            counts = counts,
+            whiteName = whiteName,
+            blackName = blackName
         )
         if (updated) {
             Snackbar.make(chessBoard, R.string.analysis_updated, Snackbar.LENGTH_SHORT).show()
@@ -119,7 +127,9 @@ class GameHistoryController(
                 depth = depth,
                 result = result,
                 accuracy = accuracy,
-                counts = counts
+                counts = counts,
+                whiteName = whiteName,
+                blackName = blackName
             )
             android.widget.Toast.makeText(activity, R.string.game_saved, android.widget.Toast.LENGTH_SHORT).show()
         }
