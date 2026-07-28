@@ -86,6 +86,9 @@ enum class MoveClass(val symbol: String, val color: Int, val label: String) {
 
             if (isBest) return BEST
 
+            // Delivering checkmate is always at least GREAT (never Excellent or below).
+            if (e.playedMate != null && e.playedMate == 0) return if (isBest) BEST else GREAT
+
             // H-fix1: BLUNDER threshold 25%→20% (chess.com Expected Points model).
             val winCls = when {
                 drop < 2.0 -> EXCELLENT
