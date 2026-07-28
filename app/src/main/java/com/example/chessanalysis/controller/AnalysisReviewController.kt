@@ -40,6 +40,54 @@ class AnalysisReviewController(
 
     companion object {
         const val AUTO_PLAY_MS = 900L
+
+        fun isCheckmateFen(fen: String): Boolean {
+            val rows = fen.substringBefore(' ').split("/")
+            val board = arrayOfNulls<Char>(64)
+            for (r in 0 until 8) {
+                var c = 0
+                for (ch in rows.getOrElse(r) { "" }) {
+                    if (ch.isDigit()) c += ch - '0' else { if (c < 8) board[r * 8 + c] = ch; c++ }
+                }
+            }
+            val moverWhite = fen.split(" ").getOrNull(1) != "b"
+            val king = if (moverWhite) 'K' else 'k'
+            var kingSq = -1
+            for (s in 0 until 64) { if (board[s] == king) { kingSq = s; break } }
+            if (kingSq < 0) return false
+            val byEnemy = !moverWhite
+            fun p(r: Int, c: Int, t: Char, w: Boolean): Boolean {
+                if (r !in 0..7 || c !in 0..7) return false
+                val piece = board[r * 8 + c] ?: return false
+                return piece.uppercaseChar() == t && piece.isUpperCase() == w
+            }
+            val dir = if (moverWhite) -1 else 1
+            val kr = kingSq / 8; val kc = kingSq % 8
+            if (p(kr + dir, kc - 1, 'P', byEnemy) || p(kr + dir, kc + 1, 'P', byEnemy)) return true
+            for (dr in listOf(-2, -1, 1, 2)) for (dc in listOf(-2, -1, 1, 2)) {
+                if (abs(dr) == abs(dc)) continue
+                if (p(kr + dr, kc + dc, 'N', byEnemy)) return true
+            }
+            for ((dr, dc) in listOf(-1 to 0, 1 to 0, 0 to -1, 0 to 1)) {
+                for (s in 1..7) { val r = kr + dr * s; val c = kc + dc * s
+                    if (r !in 0..7 || c !in 0..7) break
+                    val piece = board[r * 8 + c] ?: continue
+                    if ((piece.uppercaseChar() == 'R' || piece.uppercaseChar() == 'Q') && piece.isUpperCase() == byEnemy) return true
+                    break }
+            }
+            for ((dr, dc) in listOf(-1 to -1, -1 to 1, 1 to -1, 1 to 1)) {
+                for (s in 1..7) { val r = kr + dr * s; val c = kc + dc * s
+                    if (r !in 0..7 || c !in 0..7) break
+                    val piece = board[r * 8 + c] ?: continue
+                    if ((piece.uppercaseChar() == 'B' || piece.uppercaseChar() == 'Q') && piece.isUpperCase() == byEnemy) return true
+                    break }
+            }
+            for (dr in -1..1) for (dc in -1..1) {
+                if (dr == 0 && dc == 0) continue
+                if (p(kr + dr, kc + dc, 'K', byEnemy)) return true
+            }
+            return false
+        }
     }
 
     private val autoPlayHandler = android.os.Handler(android.os.Looper.getMainLooper())
@@ -162,6 +210,7 @@ class AnalysisReviewController(
         gameModel.explorationLine.clear(); gameModel.explorationFrom.clear()
         gameModel.explorationClass.clear(); gameModel.explorationBest.clear()
         activity.findViewById<View>(R.id.btnReviewAnalyze).visibility = View.GONE
+        activity.findViewById<View>(R.id.btnFlipBoard).visibility = View.VISIBLE
         activity.findViewById<EvalChartView>(R.id.evalChart).apply {
             visibility = View.VISIBLE
             setData(review.evalWhitePov)
@@ -199,6 +248,7 @@ class AnalysisReviewController(
         chessBoard.bestMoveArrow = null
         chessBoard.openingText = null
         chessBoard.badgeTooltipText = null
+        activity.findViewById<View>(R.id.btnFlipBoard).visibility = View.GONE
     }
 
     fun enterReviewMode() {
@@ -207,6 +257,7 @@ class AnalysisReviewController(
         gameModel.explorationLine.clear(); gameModel.explorationFrom.clear()
         gameModel.explorationClass.clear(); gameModel.explorationBest.clear()
         activity.findViewById<View>(R.id.btnReviewAnalyze).visibility = View.VISIBLE
+        activity.findViewById<View>(R.id.btnFlipBoard).visibility = View.GONE
         showPosition(0)
     }
 
@@ -220,6 +271,7 @@ class AnalysisReviewController(
         gameModel.explorationClass.clear(); gameModel.explorationBest.clear()
         if (gameModel.analysisMode) exitAnalysisView()
         activity.findViewById<View>(R.id.btnReviewAnalyze).visibility = View.GONE
+        activity.findViewById<View>(R.id.btnFlipBoard).visibility = View.GONE
         gameModel.currentFen = gameModel.positionHistory.last()
         showPosition(gameModel.positionHistory.lastIndex)
     }
@@ -313,13 +365,19 @@ class AnalysisReviewController(
             val best = before.firstOrNull { it.rank == 1 }
             val second = before.firstOrNull { it.rank == 2 }
             val a1 = lines.getOrNull(1).orEmpty().firstOrNull { it.rank == 1 }
+            var playedCp = a1?.cp?.let { -it }
+            var playedMate = a1?.mate?.let { -it }
+            if (a1 == null) {
+                val check = isCheckmateFen(fenAfter)
+                if (check == true) { playedCp = null; playedMate = 0 }
+            }
             val info = EvalInfo(
                 ply = 0, fenBefore = fenBefore,
                 bestMoveUci = best?.firstMove, bestCp = best?.cp, bestMate = best?.mate,
                 bestAlternative = best?.firstMove, bestAlternativeCp = best?.cp,
                 secondCp = second?.cp, secondMate = second?.mate,
                 playedMoveUci = GameReviewer.playedUci(fenBefore, fenAfter),
-                playedCp = a1?.cp?.let { -it }, playedMate = a1?.mate?.let { -it }
+                playedCp = playedCp, playedMate = playedMate
             )
             val cpLossForClass = if (info.bestMate == null && info.playedMate == null &&
                 info.bestCp != null && info.playedCp != null)

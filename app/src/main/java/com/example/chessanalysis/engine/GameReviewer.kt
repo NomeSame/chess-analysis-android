@@ -76,8 +76,15 @@ class GameReviewer(private val explorer: LichessExplorer? = null) {
             val after = lines[i + 1].firstOrNull { it.rank == 1 }
             val playedCp: Int?
             val playedMate: Int?
-            if (after == null) {                       // terminal (mate/stalemate) → assume the played line held
-                playedCp = best?.cp; playedMate = best?.mate
+            if (after == null) {                       // terminal (mate/stalemate) → detect which
+                val mateCheck = isCheckmateFen(fens[i + 1])
+                if (mateCheck == true) {               // checkmate delivered
+                    playedCp = null; playedMate = 0
+                } else if (mateCheck == false) {       // stalemate
+                    playedCp = 0; playedMate = null
+                } else {                               // assume the played line held
+                    playedCp = best?.cp; playedMate = best?.mate
+                }
             } else {
                 playedCp = after.cp?.let { -it }
                 playedMate = after.mate?.let { -it }
@@ -301,8 +308,20 @@ class GameReviewer(private val explorer: LichessExplorer? = null) {
         else -> null
     }
 
+    /** Check if a FEN represents checkmate (king in check, no legal moves from Stockfish).
+     *  @return true = checkmate, false = stalemate, null = cannot determine */
+    private fun isCheckmateFen(fen: String): Boolean? {
+        val board = parseBoard(fen)
+        val moverWhite = whiteToMove(fen)
+        val king = if (moverWhite) 'K' else 'k'
+        var kingSq = -1
+        for (s in 0 until 64) { if (board[s] == king) { kingSq = s; break } }
+        if (kingSq < 0) return null
+        if (!isAttacked(board, kingSq, !moverWhite)) return false
+        return true
+    }
+
     companion object {
-        /** Public: the UCI move that turns [fenBefore] into [fenAfter] (for live single-move classification). */
         fun playedUci(fenBefore: String, fenAfter: String): String? =
             playedMoveUci(fenBefore, fenAfter, whiteToMove(fenBefore))
 

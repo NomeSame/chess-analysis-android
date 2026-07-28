@@ -145,6 +145,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<TextView>(R.id.btnReviewAnalyze).setOnClickListener { analysisController.startAnalysis() }
+        findViewById<View>(R.id.btnFlipBoard).setOnClickListener { chessBoard.flipBoard = !chessBoard.flipBoard; chessBoard.invalidate() }
 
         historyController.refreshGameHistoryList()
 
