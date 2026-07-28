@@ -254,4 +254,19 @@
     <string name="puzzle_show_theme">Themenkategorie anzeigen</string>
     <string name="puzzle_try_again">Erneut versuchen</string>
     <string name="puzzle_wrong_msg">Das war nicht korrekt. Versuche es erneut oder sieh dir die Lösung an.</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_title">Statistiken</string>
+    <string name="dashboard_games">Partien</string>
+    <string name="dashboard_avg_accuracy">Ø Genauigkeit</string>
+    <string name="dashboard_blunder_per_game">Patzer/Partie</string>
+    <string name="dashboard_puzzles_solved">Gelöst</string>
+    <string name="dashboard_solve_rate">Lösungsquote</string>
+
+    <!-- Resign / Clock -->
+    <string name="btn_resign">Aufgeben</string>
+    <string name="clock_title">Uhr</string>
+    <string name="clock_minutes">Minuten</string>
+    <string name="clock_increment">Inkrement (s)</string>
+    <string name="clock_time_fmt">%1$d:%2$02d</string>
 </resources>

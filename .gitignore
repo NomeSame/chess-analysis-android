@@ -64,3 +64,4 @@ chess2.jpg
 # Placeholder model dir (no trained chess_cnn.tflite shipped yet);
 # remove this rule when a real model is added so it gets committed
 app/src/main/assets/models/
+graphify-out/

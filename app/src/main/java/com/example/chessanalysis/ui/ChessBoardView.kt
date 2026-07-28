@@ -317,6 +317,8 @@ class ChessBoardView @JvmOverloads constructor(
     private val hintColor = Color.argb(150, 80, 200, 255)
     private val coordColor = Color.rgb(80, 80, 80)
     var sideToMove = 'w'
+    var halfMoveClock = 0
+    var fullMoveNumber = 1
     var enPassantSquare: Pair<Int, Int>? = null
     var castlingRights: String = "KQkq"
     var onPromotionSelected: ((Int, Int, Int, Int, Char) -> Unit)? = null
@@ -423,6 +425,8 @@ class ChessBoardView @JvmOverloads constructor(
 
         val ep = parts.getOrElse(3) { "-" }
         enPassantSquare = if (ep == "-") null else parseSquare(ep)
+        halfMoveClock = parts.getOrElse(4) { "0" }.toIntOrNull() ?: 0
+        fullMoveNumber = parts.getOrElse(5) { "1" }.toIntOrNull() ?: 1
     }
 
     fun getFen(): String {
@@ -449,7 +453,7 @@ class ChessBoardView @JvmOverloads constructor(
         }
         val cr = if (castlingRights.isEmpty()) "-" else castlingRights
         val ep = enPassantSquare?.let { formatSquare(it.first, it.second) } ?: "-"
-        sb.append(" $sideToMove $cr $ep 0 1")
+        sb.append(" $sideToMove $cr $ep $halfMoveClock $fullMoveNumber")
         return sb.toString()
     }
 
@@ -525,6 +529,10 @@ class ChessBoardView @JvmOverloads constructor(
                 castlingRights = castlingRights.replace(" ", "")
             }
         }
+
+        if (type == 'P' || capturedPiece != null) halfMoveClock = 0
+        else halfMoveClock++
+        if (!isWhite) fullMoveNumber++
 
         selectedSq = null
         legalMoves = emptySet()

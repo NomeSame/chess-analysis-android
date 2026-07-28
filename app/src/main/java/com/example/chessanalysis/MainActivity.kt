@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
@@ -56,6 +58,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var soundManager: SoundManager
     private var lichessExplorer: LichessExplorer? = null
     internal lateinit var theoryController: TheoryController
+    private lateinit var dashboardController: DashboardController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -92,6 +95,8 @@ class MainActivity : AppCompatActivity() {
         aiCoachController = AiCoachController(this, gameModel, settingsRepo)
         coachController = CoachCommentController(this, gameModel, chessBoard, analyzer)
         historyController = GameHistoryController(this, gameModel, chessBoard, settingsRepo)
+        dashboardController = DashboardController(this)
+        findViewById<LinearLayout>(R.id.llDashboard).let { dashboardController.attach(it) }
         gamePlayController = GamePlayController(this, gameModel, chessBoard, soundManager, settingsRepo, analyzer, engine)
         settingsController.setupSettingsDrawer()
         chessBoard.setFen(gameModel.currentFen)
@@ -150,6 +155,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnExportPgn).setOnClickListener { importController.exportCurrentPgn() }
         findViewById<Button>(R.id.btnLearnTheory).setOnClickListener { theoryController.showTheoryPicker() }
         findViewById<ImageButton>(R.id.btnSettings).setOnClickListener { drawerLayout.openDrawer(settingsDrawer) }
+        findViewById<TextView>(R.id.btnResign).setOnClickListener { gamePlayController.resign() }
 
         AiCoachManager.init(this)
         ScreenshotImporter.init(this)

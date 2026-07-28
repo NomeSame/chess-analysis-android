@@ -256,4 +256,19 @@
     <string name="puzzle_show_theme">Show Theme Category</string>
     <string name="puzzle_try_again">Try Again</string>
     <string name="puzzle_wrong_msg">That\'s not correct. Try again or view the solution.</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_title">Statistics</string>
+    <string name="dashboard_games">Games</string>
+    <string name="dashboard_avg_accuracy">Avg Accuracy</string>
+    <string name="dashboard_blunder_per_game">Blunders/Game</string>
+    <string name="dashboard_puzzles_solved">Solved</string>
+    <string name="dashboard_solve_rate">Solve Rate</string>
+
+    <!-- Resign / Clock -->
+    <string name="btn_resign">Resign</string>
+    <string name="clock_title">Clock</string>
+    <string name="clock_minutes">Minutes</string>
+    <string name="clock_increment">Increment (s)</string>
+    <string name="clock_time_fmt">%1$d:%2$02d</string>
 </resources>

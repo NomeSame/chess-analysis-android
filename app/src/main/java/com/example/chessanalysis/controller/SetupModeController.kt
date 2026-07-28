@@ -54,6 +54,35 @@ class SetupModeController(
         container.addView(label)
         container.addView(seek)
 
+        container.addView(ViewFactory.sectionLabel(activity.getString(R.string.clock_title), pad, activity))
+        val minLabel = TextView(activity).apply { textSize = 14f; setTextColor(0xFF212121.toInt()) }
+        val minSeek = SeekBar(activity).apply {
+            max = 59; progress = settingsRepo.clockMinutes - 1
+        }
+        fun renderMin() { minLabel.text = activity.getString(R.string.clock_minutes) + ": ${minSeek.progress + 1}" }
+        renderMin()
+        minSeek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(sb: SeekBar?, p: Int, fromUser: Boolean) = renderMin()
+            override fun onStartTrackingTouch(sb: SeekBar?) {}
+            override fun onStopTrackingTouch(sb: SeekBar?) {}
+        })
+        container.addView(minLabel)
+        container.addView(minSeek)
+
+        val incLabel = TextView(activity).apply { textSize = 14f; setTextColor(0xFF212121.toInt()) }
+        val incSeek = SeekBar(activity).apply {
+            max = 30; progress = settingsRepo.clockIncrement
+        }
+        fun renderInc() { incLabel.text = activity.getString(R.string.clock_increment) + ": ${incSeek.progress}" }
+        renderInc()
+        incSeek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(sb: SeekBar?, p: Int, fromUser: Boolean) = renderInc()
+            override fun onStartTrackingTouch(sb: SeekBar?) {}
+            override fun onStopTrackingTouch(sb: SeekBar?) {}
+        })
+        container.addView(incLabel)
+        container.addView(incSeek)
+
         val engineWhite = booleanArrayOf(gameModel.engineIsWhite)
         val moverWhite = booleanArrayOf(chessBoard.sideToMove == 'w')
         container.addView(ViewFactory.sectionLabel(activity.getString(R.string.engine_plays), pad, activity))
@@ -71,6 +100,8 @@ class SetupModeController(
         btnVs.setOnClickListener {
             gameModel.gameElo = StockfishEngine.MIN_ELO + seek.progress * 50
             settingsRepo.gameElo = gameModel.gameElo
+            settingsRepo.clockMinutes = minSeek.progress + 1
+            settingsRepo.clockIncrement = incSeek.progress
             activity.findViewById<SeekBar>(R.id.sbElo).progress = (gameModel.gameElo - StockfishEngine.MIN_ELO) / 50
             activity.findViewById<TextView>(R.id.tvEloValue).text = SettingsRepository.eloLabel(gameModel.gameElo)
             gameModel.engineIsWhite = engineWhite[0]
@@ -79,6 +110,8 @@ class SetupModeController(
             dialog.dismiss()
         }
         btnAnalyze.setOnClickListener {
+            settingsRepo.clockMinutes = minSeek.progress + 1
+            settingsRepo.clockIncrement = incSeek.progress
             chessBoard.sideToMove = if (moverWhite[0]) 'w' else 'b'
             startPlaying(false)
             dialog.dismiss()

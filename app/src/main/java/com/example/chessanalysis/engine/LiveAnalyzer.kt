@@ -119,7 +119,7 @@ class LiveAnalyzer(
                     var nodes = 0L
                     var nps = 0L
                     engine.setPosition(fen)
-                    engine.startSearch(rv.depth)
+                    engine.startSearch(rv.depth, EVAL_MOVETIME_MS)
                     val bl = TreeMap<Int, PvLine>()
                     while (running) {
                         val resp = engine.getResponse()

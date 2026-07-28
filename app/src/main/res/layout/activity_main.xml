@@ -278,6 +278,57 @@
                 android:textSize="24sp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Best-move hint" />
+
+            <TextView
+                android:id="@+id/btnResign"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="@string/btn_resign"
+                android:textColor="#FA412D"
+                android:textSize="11sp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/btn_resign" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/clockRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tvClockWhite"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textSize="24sp"
+                android:textColor="#FFFFFFFF"
+                android:text="10:00" />
+
+            <TextView
+                android:id="@+id/tvClockDivider"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="18sp"
+                android:textColor="#FF888888"
+                android:text=":" />
+
+            <TextView
+                android:id="@+id/tvClockBlack"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textSize="24sp"
+                android:textColor="#FFFFFFFF"
+                android:text="10:00" />
         </LinearLayout>
 
         <!-- Top-3 engine moves (live), best move always on top -->
@@ -492,6 +543,13 @@
                 android:layout_marginStart="4dp"
                 android:text="@string/import_history" />
         </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/llDashboard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:orientation="vertical" />
 
         <Button
             android:id="@+id/btnExportPgnHistory"

@@ -1,5 +1,7 @@
 package com.example.chessanalysis.controller
 
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -7,6 +9,7 @@ import com.example.chessanalysis.MainActivity
 import com.example.chessanalysis.R
 import com.example.chessanalysis.audio.SoundManager
 import com.example.chessanalysis.data.SettingsRepository
+import com.example.chessanalysis.engine.DrawDetector
 import com.example.chessanalysis.engine.EngineHolder
 import com.example.chessanalysis.engine.LiveAnalyzer
 import com.example.chessanalysis.engine.StockfishEngine
@@ -33,7 +36,31 @@ class GamePlayController(
         get() = EngineHolder.ready
         set(v) { EngineHolder.ready = v }
 
-    private fun isGameOver(board: ChessBoardView): Boolean = board.isCheckmate() || board.isStalemate()
+    private var whiteTimeMs = 0L
+    private var blackTimeMs = 0L
+    private var clockActive = false
+    private var clockRunning = false
+    private val clockHandler = Handler(Looper.getMainLooper())
+    private val clockTick = object : Runnable {
+        override fun run() {
+            if (!clockRunning) return
+            val now = chessBoard.sideToMove
+            if (now == 'w') whiteTimeMs = (whiteTimeMs - 1000).coerceAtLeast(0)
+            else blackTimeMs = (blackTimeMs - 1000).coerceAtLeast(0)
+            updateClockDisplay()
+            if (whiteTimeMs == 0L || blackTimeMs == 0L) {
+                clockRunning = false
+                onTimeout(whiteTimeMs == 0L)
+                return
+            }
+            clockHandler.postDelayed(this, 1000)
+        }
+    }
+
+    private fun isGameOver(board: ChessBoardView): Boolean =
+        board.isCheckmate() || board.isStalemate() ||
+        DrawDetector.isFiftyMoves(board.halfMoveClock) ||
+        DrawDetector.isInsufficientMaterial(board.board)
 
     fun initPromotionCallback() {
         chessBoard.onPromotionSelected = { fromRow, fromCol, toRow, toCol, pieceType ->
@@ -82,6 +109,13 @@ class GamePlayController(
         if (activity.puzzleController.isActive) { activity.puzzleController.handlePuzzleMove(fromRow, fromCol, toRow, toCol); return }
         if (gameModel.reviewMode) { exploreMove(Pair(fromRow, fromCol)); return }
         commitMove(Pair(fromRow, fromCol))
+        clockRunning = false
+        if (clockActive) {
+            if (chessBoard.sideToMove == 'w') blackTimeMs += settingsRepo.clockIncrement * 1000L
+            else whiteTimeMs += settingsRepo.clockIncrement * 1000L
+            clockHandler.postDelayed(clockTick, 1000)
+            clockRunning = true
+        }
         updateGameStatus()
         maybeEngineMove()
     }
@@ -120,7 +154,7 @@ class GamePlayController(
             activity.getString(R.string.variation_fmt, gameModel.viewIndex - gameModel.branchIndex)
         if (gameModel.analysisMode || gameModel.liveEvalEnabled)
             activity.analysisController.classifyMoveAsync(fenBefore, gameModel.currentFen, gameModel.explorationLine.lastIndex)
-        playPositionSound()
+        playPositionSound(fenBefore)
         if (!gameModel.theoryMode) activity.coachController.requestCoachComment()
     }
 
@@ -160,8 +194,57 @@ class GamePlayController(
                 gameModel.positionHistory[gameModel.positionHistory.size - 2], gameModel.currentFen
             )
         }
+        startClockIfNeeded()
         maybeShowGameOver()
         if (!gameModel.theoryMode) activity.coachController.requestCoachComment()
+    }
+
+    private fun startClockIfNeeded() {
+        if (clockActive || gameModel.reviewMode || gameModel.analysisMode) return
+        val minutes = settingsRepo.clockMinutes
+        if (minutes <= 0) return
+        clockActive = true
+        whiteTimeMs = minutes * 60 * 1000L
+        blackTimeMs = minutes * 60 * 1000L
+        chessBoard.fullMoveNumber = 1
+        chessBoard.halfMoveClock = 0
+        activity.findViewById<View>(R.id.clockRow)?.visibility = View.VISIBLE
+        updateClockDisplay()
+        clockHandler.post(clockTick)
+        clockRunning = true
+    }
+
+    private fun updateClockDisplay() {
+        val tvW = activity.findViewById<TextView>(R.id.tvClockWhite)
+        val tvB = activity.findViewById<TextView>(R.id.tvClockBlack)
+        if (tvW != null) tvW.text = formatTime(whiteTimeMs)
+        if (tvB != null) tvB.text = formatTime(blackTimeMs)
+        if (tvW != null) tvW.setTextColor(if (clockRunning && chessBoard.sideToMove == 'w') 0xFFFFFFFF.toInt() else 0xFF888888.toInt())
+        if (tvB != null) tvB.setTextColor(if (clockRunning && chessBoard.sideToMove == 'b') 0xFFFFFFFF.toInt() else 0xFF888888.toInt())
+    }
+
+    private fun formatTime(ms: Long): String {
+        val totalSec = (ms / 1000).toInt()
+        val min = totalSec / 60
+        val sec = totalSec % 60
+        return activity.getString(R.string.clock_time_fmt, min, sec)
+    }
+
+    private fun onTimeout(whiteExpired: Boolean) {
+        if (gameModel.gameOverShown) return
+        gameModel.gameOverShown = true
+        clockActive = false
+        clockRunning = false
+        showGameOverDialog(winnerWhite = !whiteExpired, reason = GameEndReason.TIMEOUT)
+    }
+
+    fun resign() {
+        if (gameModel.gameOverShown || gameModel.reviewMode || gameModel.analysisMode) return
+        if (chessBoard.setupMode || gameModel.positionHistory.size <= 1) return
+        gameModel.gameOverShown = true
+        clockRunning = false
+        clockActive = false
+        showGameOverDialog(winnerWhite = chessBoard.sideToMove != 'w', reason = GameEndReason.RESIGNATION)
     }
 
     fun maybeEngineMove() {
@@ -196,9 +279,36 @@ class GamePlayController(
     }
 
     fun maybeShowGameOver() {
-        if (gameModel.gameOverShown || !chessBoard.isCheckmate()) return
-        gameModel.gameOverShown = true
-        showGameOverDialog(winnerWhite = chessBoard.sideToMove != 'w', reason = GameEndReason.CHECKMATE)
+        if (gameModel.gameOverShown) return
+        when {
+            chessBoard.isCheckmate() -> {
+                gameModel.gameOverShown = true
+                showGameOverDialog(winnerWhite = chessBoard.sideToMove != 'w', reason = GameEndReason.CHECKMATE)
+            }
+            chessBoard.isStalemate() -> {
+                gameModel.gameOverShown = true; showDrawDialog()
+            }
+            DrawDetector.isFiftyMoves(chessBoard.halfMoveClock) -> {
+                gameModel.gameOverShown = true; showDrawDialog()
+            }
+            DrawDetector.isThreefoldRepetition(gameModel.positionHistory) -> {
+                gameModel.gameOverShown = true; showDrawDialog()
+            }
+            DrawDetector.isInsufficientMaterial(chessBoard.board) -> {
+                gameModel.gameOverShown = true; showDrawDialog()
+            }
+        }
+    }
+
+    private fun showDrawDialog() {
+        clockRunning = false
+        AlertDialog.Builder(activity)
+            .setTitle(R.string.stalemate)
+            .setMessage(R.string.stalemate)
+            .setCancelable(true)
+            .setPositiveButton(R.string.start_analyzation) { d, _ -> d.dismiss(); activity.analysisController.startAnalysis() }
+            .setNegativeButton(R.string.review_board) { d, _ -> d.dismiss(); activity.analysisController.enterReviewMode() }
+            .show()
     }
 
     fun showGameOverDialog(winnerWhite: Boolean, reason: GameEndReason) {
@@ -227,6 +337,11 @@ class GamePlayController(
 
     fun newGame() {
         gameModel.vsEngine = false
+        clockActive = false
+        clockRunning = false
+        whiteTimeMs = 0L
+        blackTimeMs = 0L
+        activity.findViewById<View>(R.id.clockRow)?.visibility = View.GONE
         gameModel.currentFen = START_FEN
         chessBoard.setFen(gameModel.currentFen)
         chessBoard.evalScore = 0f
@@ -238,7 +353,6 @@ class GamePlayController(
 
     fun undoMove() {
         if (chessBoard.setupMode || gameModel.positionHistory.size <= 1) return
-        // Exploring: remove last exploration move instead of modifying history
         if (gameModel.exploring && gameModel.viewIndex > gameModel.branchIndex) {
             gameModel.explorationLine.removeAt(gameModel.explorationLine.lastIndex)
             gameModel.explorationFrom.removeAt(gameModel.explorationFrom.lastIndex)
@@ -264,13 +378,12 @@ class GamePlayController(
             chessBoard.interactionEnabled = true
             activity.analysisController.requestAnalysis()
             updateGameStatus()
-            playPositionSound()
+            val fb = gameModel.effectiveLine().getOrNull(gameModel.viewIndex - 1)
+            playPositionSound(fb)
             if (!gameModel.theoryMode) activity.coachController.requestCoachComment()
             return
         }
-        // Review/analysis mode without exploring: undo would corrupt game history → no-op
         if (gameModel.reviewMode || gameModel.analysisMode) return
-        // Live play: undo last move(s)
         gameModel.undoMove(gameModel.vsEngine, gameModel.engineIsWhite)
         chessBoard.hintSquare = null
         chessBoard.moveBadge = null
@@ -283,18 +396,30 @@ class GamePlayController(
         chessBoard.interactionEnabled = !chessBoard.setupMode
         activity.analysisController.requestAnalysis()
         updateGameStatus()
-        playPositionSound()
+        val fb = gameModel.positionHistory.getOrNull(gameModel.positionHistory.lastIndex - 1)
+        playPositionSound(fb)
         if (!gameModel.theoryMode) activity.coachController.requestCoachComment()
     }
 
-    fun playPositionSound() {
-        val isMate = chessBoard.isCheckmate()
+    fun playPositionSound(fenBefore: String? = null) {
+        val currentFen = chessBoard.getFen()
         val isCheck = chessBoard.isInCheck(chessBoard.sideToMove == 'w')
-        when {
-            isMate -> soundManager.playMoveSound(false, false, true, true)
-            isCheck -> soundManager.playMoveSound(false, false, true, false)
-            else -> soundManager.playMoveSound(false, false, false, false)
+        val isMate = isCheck && chessBoard.isCheckmate()
+        var isCapture = false
+        var isCastle = false
+        if (fenBefore != null) {
+            val piecesBefore = fenBefore.substringBefore(' ').count { it.isLetter() }
+            val piecesAfter = currentFen.substringBefore(' ').count { it.isLetter() }
+            isCapture = piecesAfter < piecesBefore
+            val from = chessBoard.lastMoveFrom
+            val to = chessBoard.lastMoveTo
+            if (from != null && to != null) {
+                val boardBefore = gameModel.fenBoard(fenBefore)
+                val movedPiece = boardBefore.getOrNull(from.first * 8 + from.second)
+                isCastle = movedPiece?.uppercaseChar() == 'K' && abs(to.second - from.second) >= 2
+            }
         }
+        soundManager.playMoveSound(isCapture, isCastle, isCheck, isMate)
     }
 
     fun toggleHint() {

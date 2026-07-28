@@ -58,6 +58,14 @@ class SettingsRepository(context: Context) {
         get() = prefs.getBoolean(KEY_PUZZLE_SHOW_THEME, true)
         set(v) = prefs.edit().putBoolean(KEY_PUZZLE_SHOW_THEME, v).apply()
 
+    var clockMinutes: Int
+        get() = prefs.getInt(KEY_CLOCK_MINUTES, 10)
+        set(v) = prefs.edit().putInt(KEY_CLOCK_MINUTES, v).apply()
+
+    var clockIncrement: Int
+        get() = prefs.getInt(KEY_CLOCK_INCREMENT, 0)
+        set(v) = prefs.edit().putInt(KEY_CLOCK_INCREMENT, v).apply()
+
     companion object {
         fun displayElo(engineElo: Int): Int {
             val capped = engineElo.coerceAtMost(StockfishEngine.MAX_ELO)
@@ -78,6 +86,8 @@ class SettingsRepository(context: Context) {
         const val KEY_SOUND_THEME = "sound_theme"
         const val KEY_BOOK_PROMPTED = "book_prompted"
         const val KEY_PUZZLE_SHOW_THEME = "puzzle_show_theme"
+        const val KEY_CLOCK_MINUTES = "clock_minutes"
+        const val KEY_CLOCK_INCREMENT = "clock_increment"
         const val REAL_ELO_AT_MAX = 3600
     }
 }
