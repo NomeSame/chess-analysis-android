@@ -252,7 +252,7 @@
                 android:textStyle="bold"
                 android:textSize="20sp"
                 android:background="@drawable/bg_review_analyze"
-                android:visibility="visible"
+                android:visibility="gone"
                 android:contentDescription="@string/analyze_game" />
 
             <TextView
@@ -266,7 +266,7 @@
                 android:textStyle="bold"
                 android:textSize="32sp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:contentDescription="Flip board" />
 
             <TextView
