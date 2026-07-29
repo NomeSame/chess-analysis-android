@@ -201,6 +201,7 @@ class GamePlayController(
 
     private fun startClockIfNeeded() {
         if (clockActive || gameModel.reviewMode || gameModel.analysisMode) return
+        if (!settingsRepo.clockEnabled) return
         val minutes = settingsRepo.clockMinutes
         if (minutes <= 0) return
         clockActive = true
@@ -342,6 +343,7 @@ class GamePlayController(
         whiteTimeMs = 0L
         blackTimeMs = 0L
         activity.findViewById<View>(R.id.clockRow)?.visibility = View.GONE
+        activity.findViewById<android.widget.TextView>(R.id.tvEloLevel)?.visibility = View.GONE
         gameModel.currentFen = START_FEN
         chessBoard.setFen(gameModel.currentFen)
         chessBoard.evalScore = 0f

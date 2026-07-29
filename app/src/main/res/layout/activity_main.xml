@@ -137,6 +137,16 @@
                     android:visibility="gone" />
             </LinearLayout>
 
+            <TextView
+                android:id="@+id/tvEloLevel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFDDDD"
+                android:visibility="gone" />
+
             <com.example.chessanalysis.ui.ChessBoardView
                 android:id="@+id/chessBoard"
                 android:layout_width="match_parent"

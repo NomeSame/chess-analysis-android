@@ -54,7 +54,13 @@ class SetupModeController(
         container.addView(label)
         container.addView(seek)
 
-        container.addView(ViewFactory.sectionLabel(activity.getString(R.string.clock_title), pad, activity))
+        val clockSwitch = android.widget.Switch(activity).apply {
+            text = activity.getString(R.string.clock_title)
+            isChecked = settingsRepo.clockEnabled
+            setTextColor(0xFF212121.toInt())
+            textSize = 15f
+        }
+        container.addView(clockSwitch)
         val minLabel = TextView(activity).apply { textSize = 14f; setTextColor(0xFF212121.toInt()) }
         val minSeek = SeekBar(activity).apply {
             max = 59; progress = settingsRepo.clockMinutes - 1
@@ -82,6 +88,12 @@ class SetupModeController(
         })
         container.addView(incLabel)
         container.addView(incSeek)
+        fun updateClockVis() {
+            val vis = clockSwitch.isChecked
+            for (v in listOf(minLabel, minSeek, incLabel, incSeek)) v.visibility = if (vis) android.view.View.VISIBLE else android.view.View.GONE
+        }
+        clockSwitch.setOnCheckedChangeListener { _, _ -> updateClockVis() }
+        updateClockVis()
 
         val engineWhite = booleanArrayOf(gameModel.engineIsWhite)
         val moverWhite = booleanArrayOf(chessBoard.sideToMove == 'w')
@@ -102,6 +114,7 @@ class SetupModeController(
             settingsRepo.gameElo = gameModel.gameElo
             settingsRepo.clockMinutes = minSeek.progress + 1
             settingsRepo.clockIncrement = incSeek.progress
+            settingsRepo.clockEnabled = clockSwitch.isChecked
             activity.findViewById<SeekBar>(R.id.sbElo).progress = (gameModel.gameElo - StockfishEngine.MIN_ELO) / 50
             activity.findViewById<TextView>(R.id.tvEloValue).text = SettingsRepository.eloLabel(gameModel.gameElo)
             gameModel.engineIsWhite = engineWhite[0]
@@ -112,6 +125,7 @@ class SetupModeController(
         btnAnalyze.setOnClickListener {
             settingsRepo.clockMinutes = minSeek.progress + 1
             settingsRepo.clockIncrement = incSeek.progress
+            settingsRepo.clockEnabled = clockSwitch.isChecked
             chessBoard.sideToMove = if (moverWhite[0]) 'w' else 'b'
             startPlaying(false)
             dialog.dismiss()
@@ -158,6 +172,13 @@ class SetupModeController(
         activity.btnSetup.text = activity.getString(R.string.setup_board)
         chessBoard.onBoardChanged?.invoke(chessBoard.board)
         chessBoard.requestLayout()
+        val tvElo = activity.findViewById<android.widget.TextView>(R.id.tvEloLevel)
+        if (vs) {
+            tvElo?.text = activity.getString(R.string.engine_strength_fmt, SettingsRepository.eloLabel(gameModel.gameElo))
+            tvElo?.visibility = android.view.View.VISIBLE
+        } else {
+            tvElo?.visibility = android.view.View.GONE
+        }
         activity.gamePlayController.maybeEngineMove()
     }
 
