@@ -1,0 +1,28 @@
+{
+  "phase": "C — OHNE Tools (Baseline)",
+  "headroom_proxy": false,
+  "ponytail": false,
+  "graphify_extracted": false,
+  "task": "Game Review: evaluatePositions() pro Position movetime-Limit von EVAL_MOVETIME_MS (500ms) setzen statt nur depth",
+  "metrics": {
+    "files_read_lines_total": 628,
+    "estimated_input_tokens": 31400,
+    "estimated_output_tokens": 500,
+    "code_changes_count": 1,
+    "lines_changed": 1,
+    "wall_clock_seconds_estimated": 300,
+    "one_shot_rate_percent": 67,
+    "tool_usage": {
+      "read_calls": 4,
+      "edit_calls": 2,
+      "grep_calls": 1,
+      "bash_calls": 5
+    }
+  },
+  "fix_applied": {
+    "file": "LiveAnalyzer.kt:122",
+    "before": "engine.startSearch(rv.depth)",
+    "after": "engine.startSearch(rv.depth, EVAL_MOVETIME_MS)"
+  },
+  "notes": "Volle Dateien gelesen (LiveAnalyzer.kt 283Z + GameReviewer.kt 345Z), manuell nach startSearch() gesucht"
+}

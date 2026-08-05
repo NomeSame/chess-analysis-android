@@ -17,8 +17,9 @@ object PgnExporter {
                 sb.append(". ")
             }
             sb.append(san)
-            if (i < game.sanMoves.lastIndex || game.tags.containsKey("Result")) sb.append(' ')
+            if (i < game.sanMoves.lastIndex) sb.append(' ')
         }
+        if (game.sanMoves.isNotEmpty()) sb.append(' ')
         sb.append(game.tags["Result"] ?: "*")
         sb.append('\n')
         return sb.toString()

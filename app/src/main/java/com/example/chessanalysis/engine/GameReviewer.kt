@@ -63,8 +63,8 @@ class GameReviewer(private val explorer: LichessExplorer? = null) {
         // Running UCI move path from the start (for the offline local-book fallback).
         val standardStart = fens.firstOrNull()?.substringBefore(' ') == OpeningBook.START_PLACEMENT
         val uciPath = ArrayList<String>()
-        val bestEvalPerPly = ArrayList<String?>(n - 1)
-        val playedEvalPerPly = ArrayList<String?>(n - 1)
+        val bestEvalPerPly = ArrayList<String?>(n)
+        val playedEvalPerPly = ArrayList<String?>(n)
 
         for (i in 0 until n - 1) {
             val before = lines[i]
@@ -102,8 +102,14 @@ class GameReviewer(private val explorer: LichessExplorer? = null) {
             playedEvalPerPly.add(formatEval(playedCp, playedMate))
 
             val sacrifice = isSacrifice(fens, i, moverWhite)
-            // cp-loss for the chart/tactics (lenient).
-            val cpLoss = ((best?.cp ?: 0) - (playedCp ?: 0)).coerceAtLeast(0)
+            // cp-loss for the chart/tactics (lenient). Map mate scores to a consistent cp magnitude so a
+            // delivered mate costs 0 and a missed mate is a huge loss.
+            fun cpOf(cp: Int?, mate: Int?): Int = when {
+                mate != null && mate >= 0 -> MATE_CP   // mate in N or mate delivered (0) = winning
+                mate != null && mate < 0 -> -MATE_CP
+                else -> cp ?: 0
+            }
+            val cpLoss = (cpOf(best?.cp, best?.mate) - cpOf(playedCp, playedMate)).coerceAtLeast(0)
             // Chess.com-style: classify purely on win%-drop. The raw cp-loss tier used to be combined
             // via worseOf() here, but it bumped small win%-drops (e.g. -3.00 while already +6.00) to
             // MISTAKE → Inaccuracy ≈ 0 and inflated Mistake counts. Pass null to disable that override.
@@ -203,7 +209,8 @@ class GameReviewer(private val explorer: LichessExplorer? = null) {
             val cpLoss = review.cpLosses[i]
             if (cpLoss < 80) continue
             val before = lines.getOrNull(i)?.firstOrNull { it.rank == 1 } ?: continue
-            val bestCp = before.cp ?: 0
+            // A mate-in-N line has cp=null; treat it as a huge advantage so MATE tactics pass the guard.
+            val bestCp = before.cp ?: if (before.mate != null) MATE_CP else 0
             if (bestCp < 150) continue
             val bestMove = before.firstMove ?: continue
             val playedUci = playedMoveUci(fens[i], fens[i + 1], whiteToMove(fens[i]))

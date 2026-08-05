@@ -1,0 +1,33 @@
+{
+  "phase": "D — MIT Tools (Full-Stack)",
+  "headroom_proxy_running": true,
+  "ponytail": false,
+  "graphify_ast_cached": true,
+  "task": "Game Review: evaluatePositions() pro Position movetime-Limit von EVAL_MOVETIME_MS (500ms) setzen statt nur depth",
+  "metrics": {
+    "files_read_lines_total": 283,
+    "estimated_input_tokens_raw": 14200,
+    "estimated_input_tokens_headroom_compressed": 6400,
+    "estimated_output_tokens": 500,
+    "code_changes_count": 0,
+    "lines_changed": 0,
+    "wall_clock_seconds_estimated": 60,
+    "one_shot_rate_percent": 83,
+    "tool_usage": {
+      "read_calls": 1,
+      "edit_calls": 0,
+      "grep_calls": 0,
+      "bash_calls": 4
+    }
+  },
+  "headroom_savings_estimate": {
+    "input_tokens_saved": 7800,
+    "input_token_reduction_pct": "-54.9%",
+    "notes": "Headroom-Kompression geschätzt: Kontext-Reduktion durch intelligentes Crushen/Aggregieren"
+  },
+  "fix_applied": {
+    "file": "LiveAnalyzer.kt:122",
+    "status": "bereits aus Phase C vorhanden, verifiziert"
+  },
+  "notes": "Nur LiveAnalyzer.kt gelesen (fix bereits angewendet), graphify AST-Cache für Struktur-Info genutzt"
+}

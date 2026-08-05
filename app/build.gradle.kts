@@ -31,6 +31,8 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
         buildConfigField("boolean", "LLAMA_ENABLED", llamaEnabled.toString())
 
         ndk {
@@ -77,6 +79,13 @@ android {
             jniLibs.srcDirs("src/main/jniLibs")
         }
     }
+
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+            isReturnDefaultValues = true
+        }
+    }
 }
 
 dependencies {
@@ -98,6 +107,14 @@ dependencies {
     implementation("org.tensorflow:tensorflow-lite:2.14.0")
 
     // NOTE: on-device LLM runs via the bundled llama.cpp native runner (GGUF), not MediaPipe.
+
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.robolectric:robolectric:4.12.2")
+
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test:runner:1.5.2")
+    androidTestImplementation("androidx.test:core-ktx:1.5.0")
+    androidTestImplementation("androidx.test:rules:1.5.0")
 }
 
 // --- Stockfish 18 big NNUE network ---
