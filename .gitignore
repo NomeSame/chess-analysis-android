@@ -50,12 +50,8 @@ app/src/main/cpp/llama.cpp/
 __pycache__/
 
 # Documentation / status files — removed from history
-SVG_IMPLEMENTATION.md
-status.md
+*.md
 .claude/
-ANALYSIS_REVIEW_TODO.md
-TODO.md
-UMFORMULIERUNG.md
 
 # Local test/example images — not part of the app
 chess1.jpg
