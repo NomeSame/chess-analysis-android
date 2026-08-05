@@ -38,7 +38,7 @@ class GameHistoryController(
             val names = if (rec.blackName != null && rec.whiteName != null)
                 "| ${rec.blackName} vs ${rec.whiteName} |" else "|-|"
             val tv = TextView(activity).apply {
-                text = "${date}  ${names}  ${result}  ${rec.fens.size - 1} moves"
+                text = "${date}  ${names}  ${result}  ${rec.fens.size - 1} Moves"
                 setTextColor(Color.WHITE)
                 textSize = 14f
                 setPadding(16, 12, 16, 12)
@@ -46,7 +46,7 @@ class GameHistoryController(
                 setOnLongClickListener {
                     AlertDialog.Builder(activity)
                         .setTitle("Delete game?")
-                        .setMessage("${date} - ${result}")
+                        .setMessage("${date}  ${names}  ${result}  ${rec.fens.size - 1} Moves")
                         .setPositiveButton("Delete") { _, _ -> GameHistoryManager.deleteGame(activity, rec.id); refreshGameHistoryList() }
                         .setNegativeButton("Cancel", null)
                         .show()
