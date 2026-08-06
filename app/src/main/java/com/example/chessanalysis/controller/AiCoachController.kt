@@ -9,6 +9,8 @@ import androidx.lifecycle.lifecycleScope
 import com.example.chessanalysis.MainActivity
 import com.example.chessanalysis.R
 import com.example.chessanalysis.state.GameViewModel
+import android.provider.DocumentsContract
+import com.example.chessanalysis.data.ModelStorage
 import com.example.chessanalysis.data.SettingsRepository
 import com.example.chessanalysis.ai.*
 import com.example.chessanalysis.engine.LlamaRunner
@@ -22,6 +24,13 @@ class AiCoachController(
     private val gameModel: GameViewModel,
     private val settingsRepo: SettingsRepository
 ) {
+    companion object {
+        const val REQ_PICK_MODEL_FOLDER = 1002
+        private const val REQ_STORAGE_PERMISSION = 1003
+        /** Downloads nest one repo folder deep; more than that is someone's whole storage. */
+        private const val MAX_FOLDER_DEPTH = 3
+    }
+
     var gemmaDownloading = false
 
     fun setupAiCoachSection() {
@@ -170,9 +179,10 @@ class AiCoachController(
     }
 
     private fun aiCoachSubline(mode: AiCoachMode): String = when (mode) {
-        AiCoachMode.GEMMA_1B ->
-            if (AiCoachManager.isModelDownloaded(activity, mode)) activity.getString(R.string.ai_coach_installed)
-            else activity.getString(R.string.ai_coach_gemma_1b_desc)
+        AiCoachMode.GEMMA_1B -> AiCoachManager.customModelName(activity)?.let {
+            activity.getString(R.string.ai_coach_custom_model_fmt, it)
+        } ?: if (AiCoachManager.isModelDownloaded(activity, mode)) activity.getString(R.string.ai_coach_installed)
+        else activity.getString(R.string.ai_coach_gemma_1b_desc)
         AiCoachMode.API_KEY -> activity.getString(R.string.ai_coach_api_desc)
         AiCoachMode.LICHESS -> activity.getString(R.string.ai_coach_lichess_desc)
         else -> ""
@@ -184,15 +194,114 @@ class AiCoachController(
 
     private fun onAiCoachBulletClick(mode: AiCoachMode, subTv: TextView) {
         when (mode) {
-            AiCoachMode.GEMMA_1B -> when {
-                gemmaDownloading -> Snackbar.make(subTv, "Download already in progress", Snackbar.LENGTH_SHORT).show()
-                AiCoachManager.isModelDownloaded(activity, mode) -> selectAiCoachMode(mode)
-                else -> showGemmaDownloadDialog(mode, subTv)
-            }
+            AiCoachMode.GEMMA_1B ->
+                if (gemmaDownloading) Snackbar.make(subTv, "Download already in progress", Snackbar.LENGTH_SHORT).show()
+                else showModelSourceDialog(mode, subTv)
             AiCoachMode.API_KEY -> showApiKeyDialog()
             AiCoachMode.LICHESS -> selectAiCoachMode(mode)
             else -> {}
         }
+    }
+
+    /** Where does the model come from — a folder the user points at, or the built-in download? */
+    private fun showModelSourceDialog(mode: AiCoachMode, subTv: TextView) {
+        val items = arrayOf(
+            activity.getString(R.string.ai_coach_choose_folder),
+            activity.getString(R.string.ai_coach_pick_downloaded)
+        )
+        AlertDialog.Builder(activity)
+            .setTitle(R.string.ai_coach_model_source_title)
+            .setItems(items) { _, which ->
+                if (which == 0) launchFolderPicker()
+                else {
+                    // The built-in model always wins back over a previously picked folder.
+                    AiCoachManager.setCustomModelUri(activity, null)
+                    if (AiCoachManager.isModelDownloaded(activity, mode)) selectAiCoachMode(mode)
+                    else showGemmaDownloadDialog(mode, subTv)
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun launchFolderPicker() {
+        val intent = android.content.Intent(android.content.Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
+            addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                android.content.Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        try {
+            activity.startActivityForResult(intent, REQ_PICK_MODEL_FOLDER)
+        } catch (e: Exception) {
+            Snackbar.make(activity.findViewById(R.id.drawerLayout), R.string.ai_coach_no_file_picker, Snackbar.LENGTH_LONG).show()
+        }
+    }
+
+    /**
+     * Result of "choose folder": searches the picked tree for a model file and uses the biggest one.
+     * Sub-folders are searched too — downloads usually land in a per-repository sub-folder.
+     */
+    fun handlePickedFolder(treeUri: android.net.Uri) {
+        try {
+            activity.contentResolver.takePersistableUriPermission(
+                treeUri, android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
+        } catch (e: Exception) {
+            android.util.Log.w("AiCoach", "no persistable permission for $treeUri", e)
+        }
+        val found = findModelInTree(treeUri, DocumentsContract.getTreeDocumentId(treeUri), 0)
+        if (found == null) {
+            Snackbar.make(activity.findViewById(R.id.drawerLayout), R.string.ai_coach_no_model_in_folder, Snackbar.LENGTH_LONG).show()
+            return
+        }
+        val (docUri, name) = found
+        AiCoachManager.setCustomModelUri(activity, docUri.toString(), name)
+        AiCoachManager.setActiveMode(activity, AiCoachMode.GEMMA_1B)
+        setupAiCoachSection()
+        Snackbar.make(activity.findViewById(R.id.drawerLayout),
+            activity.getString(R.string.ai_coach_custom_model_fmt, name), Snackbar.LENGTH_LONG).show()
+        activity.lifecycleScope.launch(Dispatchers.IO) {
+            val ok = AiCoachManager.ensureModelLoaded(activity)
+            if (!ok) withContext(Dispatchers.Main) {
+                Snackbar.make(activity.findViewById(R.id.drawerLayout), R.string.coach_failed, Snackbar.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    /** Biggest `.gguf` in this document tree (depth-limited so a deep tree can't stall the UI). */
+    private fun findModelInTree(treeUri: android.net.Uri, docId: String, depth: Int): Pair<android.net.Uri, String>? {
+        if (depth > MAX_FOLDER_DEPTH) return null
+        val children = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, docId)
+        val here = ArrayList<Pair<String, Long>>()
+        val byName = HashMap<String, String>()          // display name → document id
+        val subDirs = ArrayList<String>()
+        try {
+            activity.contentResolver.query(
+                children,
+                arrayOf(
+                    DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+                    DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+                    DocumentsContract.Document.COLUMN_MIME_TYPE,
+                    DocumentsContract.Document.COLUMN_SIZE
+                ), null, null, null
+            )?.use { c ->
+                while (c.moveToNext()) {
+                    val id = c.getString(0) ?: continue
+                    val name = c.getString(1) ?: continue
+                    val mime = c.getString(2)
+                    if (mime == DocumentsContract.Document.MIME_TYPE_DIR) subDirs.add(id)
+                    else { here.add(name to c.getLong(3)); byName[name] = id }
+                }
+            }
+        } catch (e: Exception) {
+            android.util.Log.w("AiCoach", "cannot list $docId", e)
+            return null
+        }
+        ModelStorage.pickBestModel(here)?.let { name ->
+            val id = byName[name] ?: return@let
+            return DocumentsContract.buildDocumentUriUsingTree(treeUri, id) to name
+        }
+        for (sub in subDirs) findModelInTree(treeUri, sub, depth + 1)?.let { return it }
+        return null
     }
 
     private fun selectAiCoachMode(mode: AiCoachMode) {
@@ -216,7 +325,23 @@ class AiCoachController(
             .show()
     }
 
+    /**
+     * Android 9 and older write the model straight into `Download/…` and need the storage
+     * permission for it. From Android 10 MediaStore handles the same folder without any permission.
+     */
+    private fun hasStoragePermission(): Boolean {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) return true
+        val granted = activity.checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
+            android.content.pm.PackageManager.PERMISSION_GRANTED
+        if (!granted) {
+            activity.requestPermissions(arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE), REQ_STORAGE_PERMISSION)
+            Snackbar.make(activity.findViewById(R.id.drawerLayout), R.string.ai_coach_storage_permission, Snackbar.LENGTH_LONG).show()
+        }
+        return granted
+    }
+
     private fun startGemmaDownload(mode: AiCoachMode, subTv: TextView) {
+        if (!hasStoragePermission()) return
         gemmaDownloading = true
         subTv.setTextColor(0xFF1976D2.toInt())
         subTv.text = activity.getString(R.string.ai_coach_downloading_fmt, 0)

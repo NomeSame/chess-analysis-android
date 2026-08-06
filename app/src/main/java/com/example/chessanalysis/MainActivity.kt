@@ -178,6 +178,17 @@ class MainActivity : AppCompatActivity() {
 
         settingsController.setupOpeningBook()
         lifecycleScope.launch { initEngine() }
+
+        // PGN shared/opened from another app. Only on a fresh start — on rotation the same intent is
+        // redelivered and would import the game a second time.
+        if (savedInstanceState == null) importController.handleIncomingIntent(intent)
+    }
+
+    /** singleTop: a share that arrives while the app is already running lands here, not in onCreate. */
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        importController.handleIncomingIntent(intent)
     }
 
     private suspend fun initEngine() = withContext(Dispatchers.IO) {
@@ -251,7 +262,10 @@ class MainActivity : AppCompatActivity() {
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == ImportExportController.REQ_IMPORT_DATA && resultCode == RESULT_OK)
-            data?.data?.let { uri -> importController.handleImportUri(uri) }
+        if (resultCode != RESULT_OK) return
+        when (requestCode) {
+            ImportExportController.REQ_IMPORT_DATA -> data?.data?.let { importController.handleImportUri(it) }
+            AiCoachController.REQ_PICK_MODEL_FOLDER -> data?.data?.let { aiCoachController.handlePickedFolder(it) }
+        }
     }
 }

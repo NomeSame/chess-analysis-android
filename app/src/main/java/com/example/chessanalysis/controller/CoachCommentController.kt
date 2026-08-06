@@ -8,7 +8,6 @@ import com.example.chessanalysis.ui.ChessBoardView
 import com.example.chessanalysis.engine.*
 import com.example.chessanalysis.model.*
 import com.example.chessanalysis.ai.*
-import com.google.android.material.snackbar.Snackbar
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -22,6 +21,7 @@ class CoachCommentController(
 ) {
     companion object {
         const val COACH_DEBOUNCE_MS = 1200L
+        private val WHITESPACE = Regex("\\s+")
     }
 
     private var coachToken = 0
@@ -56,6 +56,7 @@ class CoachCommentController(
             bestPv = review.bestPvPerPos.getOrNull(ply) ?: emptyList()
         )
         coachPanel.visibility = View.VISIBLE
+        hideStatus()   // new position → no stale speed from the previous comment
         val token = ++coachToken
 
         val theoryEntry = if (gameModel.theoryMode) activity.theoryController.currentTheory else null
@@ -81,39 +82,55 @@ class CoachCommentController(
             val german = isGerman()
             val r = Runnable {
                 if (token != coachToken) return@Runnable
-                tvCoachBody.text = activity.getString(R.string.coach_thinking)
+                // The deterministic text stays visible until real tokens replace it; the status
+                // line above the panel carries the "working on it" state instead.
+                showStatus(activity.getString(R.string.coach_thinking))
                 activity.lifecycleScope.launch(Dispatchers.IO) {
-                    val out = when {
-                        wantLlm && theoryEntry != null ->
-                            LlamaRunner.generate(CoachManager.buildTheoryPrompt(ctx, theoryEntry, locale), maxTokens = 96)?.trim()
-                        wantLlm ->
-                            LlamaRunner.generate(CoachManager.buildPrompt(ctx, german), maxTokens = 32)?.trim()
-                        else -> {
-                            val system = CoachManager.systemPrompt(german)
-                            val user = CoachManager.buildUser(ctx)
-                            AiCoachManager.apiChat(activity, system, user, maxTokens = 600)?.trim()
+                    // The on-device model and Stockfish fight over the same cores. Park the live
+                    // analysis for the (short) generation and put it back afterwards — without this
+                    // both run at half speed while the user waits for two sentences.
+                    val resumeFen = if (wantLlm) gameModel.analyzedFen else null
+                    if (wantLlm) analyzer.idle()
+                    val out = try {
+                        when {
+                            wantLlm && theoryEntry != null ->
+                                LlamaRunner.generate(
+                                    CoachManager.buildTheoryPrompt(ctx, theoryEntry, locale),
+                                    maxTokens = 96, onToken = streamInto(tvCoachBody, token)
+                                )?.trim()
+                            wantLlm ->
+                                LlamaRunner.generate(
+                                    CoachManager.buildPrompt(ctx, german),
+                                    maxTokens = 32, onToken = streamInto(tvCoachBody, token)
+                                )?.trim()
+                            else -> {
+                                val system = CoachManager.systemPrompt(german)
+                                val user = CoachManager.buildUser(ctx)
+                                AiCoachManager.apiChat(activity, system, user, maxTokens = 600)?.trim()
+                            }
                         }
+                    } finally {
+                        resumeFen?.let { fen -> withContext(Dispatchers.Main) { analyzer.analyze(fen) } }
                     }
                     val timedOut = wantLlm && LlamaRunner.lastTimedOut
                     val tps = if (wantLlm) LlamaRunner.lastTokensPerSec else 0.0
                     withContext(Dispatchers.Main) {
                         if (token == coachToken) {
+                            // A time-out is no longer a failure: the model wrote something, it just
+                            // stopped early. Keep it (cut back to the last finished sentence) and only
+                            // fall back to the deterministic text when nothing usable came out at all.
+                            val usable = out?.let { if (timedOut) LlamaRunner.trimToLastSentence(it) else it }
+                                ?.trim().orEmpty()
                             when {
-                                (out.isNullOrBlank() || timedOut) && theoryEntry != null -> {
+                                usable.isEmpty() && theoryEntry != null ->
                                     tvCoachBody.text = CoachManager.buildTheoryFallback(theoryEntry, locale)
-                                    if (timedOut) Snackbar.make(activity.findViewById(R.id.drawerLayout),
-                                        activity.getString(R.string.coach_timeout_snackbar), Snackbar.LENGTH_LONG).show()
-                                }
-                                out.isNullOrBlank() || timedOut -> {
+                                usable.isEmpty() ->
                                     tvCoachBody.text = localizedFactualComment(ctx)
-                                    if (timedOut) Snackbar.make(activity.findViewById(R.id.drawerLayout),
-                                        activity.getString(R.string.coach_timeout_snackbar), Snackbar.LENGTH_LONG).show()
-                                }
-                                else -> {
-                                    val tpsLabel = if (tps > 0.0) " [%.1f t/s]".format(tps) else ""
-                                    tvCoachBody.text = capCoach(out) + tpsLabel
-                                }
+                                else -> tvCoachBody.text = capCoach(usable)
                             }
+                            // Final speed stays visible above the comment; the API path has no t/s.
+                            if (tps > 0.0) showStatus(activity.getString(R.string.coach_tps_fmt, tps))
+                            else hideStatus()
                         }
                     }
                 }
@@ -121,6 +138,46 @@ class CoachCommentController(
             coachRunnable = r
             coachHandler.postDelayed(r, COACH_DEBOUNCE_MS)
         }
+    }
+
+    /**
+     * Writes the answer into the panel while it is being generated, so the first half-sentence shows
+     * up after ~a second instead of the whole comment appearing at the end (or not at all).
+     * Chunks arrive on the generating thread; a stale run ([token] outdated) is silently dropped.
+     */
+    private fun streamInto(tvCoachBody: android.widget.TextView, token: Int): LlamaRunner.TokenSink {
+        val sb = StringBuilder()
+        val startMs = System.currentTimeMillis()
+        return LlamaRunner.TokenSink { chunk ->
+            activity.runOnUiThread {
+                if (token == coachToken) {
+                    sb.append(chunk)
+                    val text = sb.toString().trimStart()
+                    tvCoachBody.text = capCoach(text)
+                    val elapsed = System.currentTimeMillis() - startMs
+                    val tps = if (elapsed > 0) estimateTokens(text) * 1000.0 / elapsed else 0.0
+                    showStatus(activity.getString(R.string.coach_writing_fmt, tps))
+                }
+            }
+        }
+    }
+
+    /**
+     * Live speed while streaming. The runner reports its measured t/s only when it is done, so the
+     * running value is estimated from the text (≈ words × 1.3, same rule of thumb as the tokenizer's
+     * average) — it is a progress indicator, not a benchmark.
+     */
+    private fun estimateTokens(text: String): Int =
+        if (text.isBlank()) 0 else (text.trim().split(WHITESPACE).size * 1.3).toInt()
+
+    private fun showStatus(text: String) {
+        val tv = activity.findViewById<android.widget.TextView>(R.id.tvCoachStatus)
+        tv.text = text
+        tv.visibility = View.VISIBLE
+    }
+
+    private fun hideStatus() {
+        activity.findViewById<android.widget.TextView>(R.id.tvCoachStatus).visibility = View.GONE
     }
 
     fun cancelCoach() {

@@ -26,6 +26,27 @@ struct LlamaCtx {
 };
 
 bool g_backend_ready = false;
+
+/**
+ * Bytes at the end of [s] that are the start of a UTF-8 sequence but not all of it.
+ *
+ * A token boundary is not a character boundary — "ö" or "→" arrive split across two tokens.
+ * Handing such a fragment to NewStringUTF produces garbage (and the coach answers in German),
+ * so a partial tail is held back until the next token completes it.
+ */
+size_t incomplete_utf8_tail(const std::string& s) {
+    const size_t n = s.size();
+    for (size_t back = 1; back <= 4 && back <= n; ++back) {
+        const unsigned char c = (unsigned char) s[n - back];
+        if ((c & 0xC0) == 0x80) continue;                 // continuation byte, keep looking
+        size_t need = 1;
+        if ((c & 0xE0) == 0xC0) need = 2;
+        else if ((c & 0xF0) == 0xE0) need = 3;
+        else if ((c & 0xF8) == 0xF0) need = 4;
+        return need > back ? back : 0;
+    }
+    return 0;
+}
 }
 
 extern "C" JNIEXPORT jlong JNICALL
@@ -54,9 +75,19 @@ Java_com_example_chessanalysis_engine_LlamaRunner_nativeLoad(
 
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_example_chessanalysis_engine_LlamaRunner_nativeGenerate(
-        JNIEnv* env, jobject, jlong handle, jstring jprompt, jint maxTokens) {
+        JNIEnv* env, jobject, jlong handle, jstring jprompt, jint maxTokens,
+        jint timeoutMs, jobject sink) {
     auto* h = reinterpret_cast<LlamaCtx*>(handle);
     if (!h) return env->NewStringUTF("");
+
+    // Optional token sink: the caller sees the answer grow instead of waiting for the whole thing.
+    jmethodID onToken = nullptr;
+    if (sink != nullptr) {
+        jclass sinkCls = env->GetObjectClass(sink);
+        onToken = env->GetMethodID(sinkCls, "onToken", "(Ljava/lang/String;)V");
+        env->DeleteLocalRef(sinkCls);
+        if (env->ExceptionCheck()) env->ExceptionClear();
+    }
 
     const char* prompt = env->GetStringUTFChars(jprompt, nullptr);
     const int promptLen = (int) strlen(prompt);
@@ -73,33 +104,63 @@ Java_com_example_chessanalysis_engine_LlamaRunner_nativeGenerate(
     llama_sampler_chain_add(smpl, llama_sampler_init_temp(0.8f));
     llama_sampler_chain_add(smpl, llama_sampler_init_dist(LLAMA_DEFAULT_SEED));
 
-    // J5: timeout + t/s measurement
+    // J5: time budget + t/s measurement. The budget only STOPS the generation — whatever was
+    // produced until then is returned and used; nothing is thrown away (see LlamaRunner docs).
     auto start = std::chrono::steady_clock::now();
     int generated = 0;
     bool timed_out = false;
-    static constexpr long TIMEOUT_MS = 6000;
+    const long timeout_ms = timeoutMs > 0 ? (long) timeoutMs : 10000L;
+
+    // Prefill (reading the prompt) and decode (writing the answer) are separate costs and must be
+    // reported separately — a long prompt otherwise drags the reported speed towards zero and looks
+    // like a hung model.
+    long prefill_ms = 0;
 
     std::string out;
+    std::string pending;   // bytes not yet handed to the sink (incomplete UTF-8 tail)
     llama_batch batch = llama_batch_get_one(tokens.data(), (int32_t) tokens.size());
     for (int i = 0; i < maxTokens; ++i) {
         if (llama_decode(h->ctx, batch) != 0) { LOGE("decode failed"); break; }
+        if (i == 0) {
+            prefill_ms = (long) std::chrono::duration_cast<std::chrono::milliseconds>(
+                    std::chrono::steady_clock::now() - start).count();
+        }
         llama_token tok = llama_sampler_sample(smpl, h->ctx, -1);
         // J5: EOG stop — Gemma emits <end_of_turn> as an EOG token; llama_vocab_is_eog covers it.
         if (llama_vocab_is_eog(h->vocab, tok)) break;
         char buf[256];
         int m = llama_token_to_piece(h->vocab, tok, buf, sizeof(buf), 0, true);
-        if (m > 0) out.append(buf, m);
+        if (m > 0) {
+            out.append(buf, m);
+            if (onToken != nullptr) {
+                pending.append(buf, m);
+                const size_t tail = incomplete_utf8_tail(pending);
+                if (pending.size() > tail) {
+                    const std::string chunk = pending.substr(0, pending.size() - tail);
+                    pending.erase(0, pending.size() - tail);
+                    jstring js = env->NewStringUTF(chunk.c_str());
+                    env->CallVoidMethod(sink, onToken, js);
+                    env->DeleteLocalRef(js);
+                    // A throwing callback must not abort generation — the text is still valid.
+                    if (env->ExceptionCheck()) env->ExceptionClear();
+                }
+            }
+        }
         generated++;
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
                 std::chrono::steady_clock::now() - start).count();
-        if (elapsed > TIMEOUT_MS) { timed_out = true; break; }
+        if (elapsed > timeout_ms) { timed_out = true; break; }
         batch = llama_batch_get_one(&tok, 1);
     }
 
     auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now() - start).count();
-    double tps = (generated > 0 && elapsed_ms > 0) ? generated * 1000.0 / elapsed_ms : 0.0;
-    LOGI("generated %d tokens in %ldms (%.1f t/s)%s", generated, (long)elapsed_ms, tps,
+    // Decode speed = what the user watches being written. Prefill is a one-off before the first word.
+    const long decode_ms = (long) elapsed_ms - prefill_ms;
+    double tps = (generated > 1 && decode_ms > 0) ? (generated - 1) * 1000.0 / decode_ms : 0.0;
+    const double prefill_tps = (prefill_ms > 0) ? nPrompt * 1000.0 / prefill_ms : 0.0;
+    LOGI("prompt %d tokens · prefill %ldms (%.1f tok/s) · decode %d tokens in %ldms (%.1f t/s)%s",
+         nPrompt, prefill_ms, prefill_tps, generated, decode_ms, tps,
          timed_out ? " [TIMEOUT]" : "");
 
     if (timed_out) out += "\n[TIMEOUT]";

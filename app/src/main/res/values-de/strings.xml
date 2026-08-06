@@ -86,6 +86,7 @@
     <string name="import_pgn_error">PGN konnte nicht importiert werden.</string>
     <string name="import_fen_ok">Stellung importiert.</string>
     <string name="import_read_error">Datei konnte nicht gelesen werden.</string>
+    <string name="share_target_label">Partie analysieren</string>
     <string name="import_screenshot_working">Brett wird aus Bild gelesen…</string>
     <string name="import_screenshot_none">Kein Schachbrett gefunden — Bild auf das Brett zuschneiden und erneut versuchen.</string>
     <string name="import_screenshot_ok_fmt">%1$d Figuren erkannt — im Setup prüfen &amp; korrigieren, dann \"Von hier spielen\".</string>
@@ -112,6 +113,13 @@
     <string name="ai_coach_gemma_3b_desc">~2,5 GB Download · ~5 GB RAM zur Laufzeit</string>
     <string name="ai_coach_gemma_3b_warning">Dein Gerät könnte zu schwach sein</string>
     <string name="ai_coach_gemma_3b_tooltip">Empfohlen ab Snapdragon 8 Gen 3 oder vergleichbar mit mindestens 12 GB RAM. Bitte prüfe deine Gerätespezifikationen bevor du diese Option wählst.</string>
+    <string name="ai_coach_model_source_title">Modell-Quelle</string>
+    <string name="ai_coach_choose_folder">Ordner wählen…</string>
+    <string name="ai_coach_pick_downloaded">Heruntergeladenes Modell</string>
+    <string name="ai_coach_custom_model_fmt">Eigenes Modell: %1$s</string>
+    <string name="ai_coach_no_model_in_folder">Kein .gguf-Modell in diesem Ordner gefunden.</string>
+    <string name="ai_coach_no_file_picker">Kein Dateiauswahl-Dialog auf diesem Gerät verfügbar.</string>
+    <string name="ai_coach_storage_permission">Zum Speichern im Download-Ordner wird die Speicher-Berechtigung gebraucht.</string>
     <string name="ai_coach_api_title">Eigener API Schlüssel</string>
     <string name="ai_coach_api_badge">Beste Qualität · Minimale Kosten</string>
     <string name="ai_coach_api_desc">Kein Download · Kein RAM · Benötigt Internet</string>
@@ -163,7 +171,8 @@
     <string name="theory_better_move_fmt">besser war %1$s</string>
     <string name="coach_title">KI-Coach</string>
     <string name="coach_thinking">Coach denkt nach…</string>
-    <string name="coach_timeout_snackbar">KI-Antwort unvollständig, Fallback verwendet.</string>
+    <string name="coach_writing_fmt">schreibt… %1$.1f t/s</string>
+    <string name="coach_tps_fmt">%1$.1f t/s</string>
     <string name="coach_disabled">KI-Coach ist aus — in den Einstellungen aktivieren.</string>
     <!-- AICOACH-2 toggle -->
     <string name="ai_coach_toggle">KI-Coach auf dem Gerät</string>

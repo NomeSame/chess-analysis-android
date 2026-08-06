@@ -87,6 +87,7 @@
     <string name="import_pgn_error">Couldn\'t import that PGN.</string>
     <string name="import_fen_ok">Position imported.</string>
     <string name="import_read_error">Couldn\'t read that file.</string>
+    <string name="share_target_label">Analyze game</string>
     <string name="import_screenshot_working">Reading board from image…</string>
     <string name="import_screenshot_none">No chess board found — crop the image to just the board and retry.</string>
     <string name="import_screenshot_ok_fmt">Recognized %1$d pieces — check &amp; fix in setup, then \"Play from here\".</string>
@@ -114,6 +115,13 @@
     <string name="ai_coach_gemma_3b_desc">~2.5 GB Download · ~5 GB RAM runtime</string>
     <string name="ai_coach_gemma_3b_warning">Your device may be underpowered</string>
     <string name="ai_coach_gemma_3b_tooltip">Recommended from Snapdragon 8 Gen 3 or equivalent with at least 12 GB RAM. Please check your device specifications before choosing this option.</string>
+    <string name="ai_coach_model_source_title">Model source</string>
+    <string name="ai_coach_choose_folder">Choose folder…</string>
+    <string name="ai_coach_pick_downloaded">Pick downloaded model</string>
+    <string name="ai_coach_custom_model_fmt">Own model: %1$s</string>
+    <string name="ai_coach_no_model_in_folder">No .gguf model found in that folder.</string>
+    <string name="ai_coach_no_file_picker">No file picker available on this device.</string>
+    <string name="ai_coach_storage_permission">Storage permission is needed to save the model to Downloads.</string>
     <string name="ai_coach_api_title">Custom API Key</string>
     <string name="ai_coach_api_badge">Best Quality · Minimal Cost</string>
     <string name="ai_coach_api_desc">No download · No RAM · Internet required</string>
@@ -165,7 +173,8 @@
     <string name="theory_better_move_fmt">better was %1$s</string>
     <string name="coach_title">AI Coach</string>
     <string name="coach_thinking">Coach is thinking…</string>
-    <string name="coach_timeout_snackbar">AI response timed out — showing factual summary instead.</string>
+    <string name="coach_writing_fmt">writing… %1$.1f t/s</string>
+    <string name="coach_tps_fmt">%1$.1f t/s</string>
     <string name="coach_disabled">AI Coach is off — enable it in Settings.</string>
     <!-- AICOACH-2 toggle -->
     <string name="ai_coach_toggle">On-device AI coach</string>

@@ -111,6 +111,32 @@ class PgnImporterTest {
     }
 
     @Test
+    fun `share text with url and prose around the pgn still parses`() {
+        // What chess.com / lichess actually put into an ACTION_SEND share.
+        val shared = """
+            Check out this game I played on Chess.com: https://www.chess.com/game/live/123456789
+
+            [Event "Live Chess"]
+            [White "Alice"]
+            [Black "Bob"]
+
+            1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 1-0
+
+            Sent from Chess.com
+        """.trimIndent()
+        val game = PgnImporter.parse(shared)
+        assertNotNull(game)
+        assertEquals(listOf("e4", "e5", "Nf3", "Nc6", "Bb5", "a6"), game!!.sanMoves)
+        assertEquals("Alice", game.tags["White"])
+    }
+
+    @Test
+    fun `text without any move returns null instead of garbage moves`() {
+        assertNull(PgnImporter.parse("Check out this game: https://www.chess.com/game/live/1"))
+        assertNull(PgnImporter.parse("just a plain shopping list, milk and bread"))
+    }
+
+    @Test
     fun `no NAG or annotation survives`() {
         val pgn = "1. e4?! e5 $2 2. Nf3!? Nc6"
         val game = PgnImporter.parse(pgn)

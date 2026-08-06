@@ -77,6 +77,24 @@ class ImportExportController(
         activity.startActivityForResult(intent, REQ_IMPORT_DATA)
     }
 
+    /**
+     * PGN/FEN handed over by another app — "Share PGN" (ACTION_SEND) or opening a .pgn file
+     * (ACTION_VIEW). Loads the game straight into review mode, so only the analyze button is left
+     * to press. Returns false if the intent carries nothing importable (normal app start).
+     */
+    @Suppress("DEPRECATION")
+    fun handleIncomingIntent(intent: Intent?): Boolean {
+        val uri: Uri? = when (intent?.action) {
+            Intent.ACTION_SEND -> intent.getParcelableExtra(Intent.EXTRA_STREAM)
+            Intent.ACTION_VIEW -> intent.data
+            else -> return false
+        }
+        if (uri != null) { handleImportUri(uri); return true }
+        val text = intent.getStringExtra(Intent.EXTRA_TEXT)?.takeIf { it.isNotBlank() } ?: return false
+        if (looksLikeFen(text.trimStart())) importFenText(text) else importPgnText(text)
+        return true
+    }
+
     fun handleImportUri(uri: Uri) {
         val mime = activity.contentResolver.getType(uri) ?: ""
         if (mime.startsWith("image/")) { importScreenshot(uri); return }

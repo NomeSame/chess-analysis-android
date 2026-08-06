@@ -6,6 +6,7 @@ import android.os.Environment
 import android.util.Log
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
+import com.example.chessanalysis.data.ModelStorage
 import com.example.chessanalysis.engine.LlamaRunner
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -53,6 +54,8 @@ object AiCoachManager {
     private const val KEY_DOWNLOADED_1B = "gemma_1b_downloaded"
     private const val KEY_DOWNLOADED_3B = "gemma_3b_downloaded"
     private const val KEY_LICHESS_BANNER_SEEN = "lichess_banner_seen"
+    private const val KEY_CUSTOM_MODEL_URI = "ai_coach_custom_model_uri"
+    private const val KEY_CUSTOM_MODEL_NAME = "ai_coach_custom_model_name"
     private const val TAG = "AiCoach"
 
     private var _prefs: SharedPreferences? = null
@@ -112,15 +115,32 @@ object AiCoachManager {
         prefs(ctx).edit().putString(KEY_MODE, mode.key).apply()
     }
 
-    fun isModelDownloaded(ctx: Context, mode: AiCoachMode): Boolean {
-        val info = models[mode] ?: return false
-        return File(ctx.filesDir, "models/${info.fileName}").exists()
-    }
+    fun isModelDownloaded(ctx: Context, mode: AiCoachMode): Boolean = modelFile(ctx, mode) != null
 
+    /** The downloaded model file, wherever it lives (see [ModelStorage]), or null if absent. */
     fun modelFile(ctx: Context, mode: AiCoachMode): File? {
         val info = models[mode] ?: return null
-        return File(ctx.filesDir, "models/${info.fileName}")
+        return ModelStorage.findModel(ctx, info.fileName)
     }
+
+    // --- Manually picked model (folder chosen by the user via SAF) -------------------------------
+
+    /**
+     * A model the user pointed the app at instead of the built-in download. Stored as a document
+     * URI because a folder picked through SAF has no usable filesystem path on Android 10+.
+     */
+    fun customModelUri(ctx: Context): String? =
+        prefs(ctx).getString(KEY_CUSTOM_MODEL_URI, null)?.takeIf { it.isNotBlank() }
+
+    fun setCustomModelUri(ctx: Context, uri: String?, displayName: String? = null) {
+        prefs(ctx).edit()
+            .putString(KEY_CUSTOM_MODEL_URI, uri)
+            .putString(KEY_CUSTOM_MODEL_NAME, displayName)
+            .apply()
+    }
+
+    fun customModelName(ctx: Context): String? =
+        prefs(ctx).getString(KEY_CUSTOM_MODEL_NAME, null)?.takeIf { it.isNotBlank() }
 
     /**
      * If the active mode is an on-device Gemma model that's downloaded, load it into [LlamaRunner].
@@ -131,8 +151,9 @@ object AiCoachManager {
         val mode = getActiveModeRaw(ctx)
         if (mode != AiCoachMode.GEMMA_1B && mode != AiCoachMode.GEMMA_3B) return false
         if (!LlamaRunner.isAvailable) return false
+        // A manually picked model wins over the downloaded one — that's why the user picked it.
+        customModelUri(ctx)?.let { return LlamaRunner.loadFromUri(ctx, android.net.Uri.parse(it)) }
         val f = modelFile(ctx, mode) ?: return false
-        if (!f.exists()) return false
         return LlamaRunner.load(f.absolutePath)
     }
 
@@ -142,13 +163,11 @@ object AiCoachManager {
         onProgress: (Int) -> Unit
     ) = withContext(Dispatchers.IO) {
         val info = models[mode] ?: throw IllegalArgumentException("Unknown model: $mode")
-        val dir = File(ctx.filesDir, "models")
-        dir.mkdirs()
-        val file = File(dir, info.fileName)
-        if (file.exists()) {
+        if (ModelStorage.findModel(ctx, info.fileName) != null) {
             onProgress(100)
             return@withContext
         }
+        val sink = ModelStorage.openForWrite(ctx, info.fileName)
         val url = URL(info.downloadUrl)
         val conn = url.openConnection() as HttpURLConnection
         conn.connectTimeout = 30000
@@ -157,23 +176,27 @@ object AiCoachManager {
             conn.connect()
             val totalSize = conn.contentLength.coerceAtLeast(1)
             val input = conn.inputStream
-            val output = FileOutputStream(file)
+            val output = sink.stream
             val buffer = ByteArray(8192)
             var bytesRead: Int
-            var totalRead = 0
+            var totalRead = 0L
             var lastProgress = 0
             while (input.read(buffer).also { bytesRead = it } != -1) {
                 output.write(buffer, 0, bytesRead)
                 totalRead += bytesRead
-                val pct = (totalRead * 100 / totalSize).coerceIn(0, 100)
+                val pct = (totalRead * 100 / totalSize).toInt().coerceIn(0, 100)
                 if (pct > lastProgress) {
                     lastProgress = pct
                     onProgress(pct)
                 }
             }
-            output.flush()
-            output.close()
             input.close()
+            // A connection that dies mid-transfer also ends the read loop — a short file here means
+            // a truncated model, which would later fail to load with an unhelpful native error.
+            if (conn.contentLength > 0 && totalRead < conn.contentLength) {
+                throw java.io.IOException("Download incomplete: $totalRead of ${conn.contentLength} bytes")
+            }
+            sink.finish(info.fileName)
             onProgress(100)
             // Mark as downloaded
             when (mode) {
@@ -183,7 +206,7 @@ object AiCoachManager {
             }
         } catch (e: Exception) {
             Log.e(TAG, "Download failed", e)
-            file.delete()
+            sink.discard()
             throw e
         } finally {
             conn.disconnect()

@@ -124,6 +124,16 @@ if(LLAMA_ENABLED STREQUAL "ON")
     set(GGML_NATIVE OFF CACHE BOOL "" FORCE)
     set(GGML_CPU_ARM_ARCH "armv8.2-a+dotprod" CACHE STRING "" FORCE)
     set(GGML_CPU_AARCH64 ON CACHE BOOL "" FORCE)
+    # PERF (measured 2026-08-06): a debug variant compiles native code with NO -O flag, i.e. -O0.
+    # For an inference engine that is a 5-15x penalty — on a Snapdragon 780G the prompt was read at
+    # ~23-34 tok/s, so a 450-token coach prompt cost ~20 s before the first word appeared. Optimise
+    # llama.cpp/ggml even in debug builds (Stockfish already sets its own -O3); -g stays, so the
+    # native debugger still works. Only the app's own Kotlin/JNI code keeps debug codegen.
+    # Plain variables, NOT cache entries: the NDK toolchain file already defines these as normal
+    # variables, and a normal variable shadows the cache in this scope and every subdirectory —
+    # a `set(... CACHE ... FORCE)` here changes the cache and has no effect on the actual build.
+    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O3")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O3")
     add_subdirectory(llama.cpp)
 
     add_library(llama_jni SHARED llama_jni.cpp)

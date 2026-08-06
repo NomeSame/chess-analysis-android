@@ -174,15 +174,33 @@
             android:background="#FF333333"
             android:visibility="gone">
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/coach_title"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:textColor="#FF9E9E9E"
-                android:textAllCaps="true"
-                android:letterSpacing="0.05" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="@string/coach_title"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="#FF9E9E9E"
+                    android:textAllCaps="true"
+                    android:letterSpacing="0.05" />
+
+                <!-- Live generation status: "Thinking…" → "Writing… 12.3 t/s" → final t/s. -->
+                <TextView
+                    android:id="@+id/tvCoachStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="11sp"
+                    android:textColor="#FF64B5F6"
+                    android:maxLines="1"
+                    android:visibility="gone" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/tvCoachBody"

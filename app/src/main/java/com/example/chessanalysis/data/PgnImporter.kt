@@ -11,6 +11,14 @@ object PgnImporter {
 
     data class Game(val startFen: String, val sanMoves: List<String>, val tags: Map<String, String>)
 
+    /**
+     * Shape of a single SAN move. Everything else in the movetext is ignored — shares from other apps
+     * wrap the PGN in prose ("Check out this game: https://…"), and those words are not moves.
+     */
+    private val SAN = Regex(
+        """^(?:[Oo0]-[Oo0](?:-[Oo0])?|[KQRBN][a-h]?[1-8]?x?[a-h][1-8]|[a-h](?:x[a-h])?[1-8](?:=[QRBN])?)[+#]?$"""
+    )
+
     fun parse(text: String): Game? {
         val tags = Regex("""\[\s*(\w+)\s+"([^"]*)"\s*]""").findAll(text)
             .associate { it.groupValues[1] to it.groupValues[2] }
@@ -37,6 +45,7 @@ object PgnImporter {
             if (t.matches(Regex("""\d+"""))) continue   // stray move number
             t = t.replace(Regex("""[?!]+$"""), "")      // "?!" / "!?" / "??" annotation suffixes
             if (t.isEmpty()) continue
+            if (!SAN.matches(t)) continue              // prose/URLs around a shared PGN
             sans.add(t)
         }
         if (sans.isEmpty()) return null
