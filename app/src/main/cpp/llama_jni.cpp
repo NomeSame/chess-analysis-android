@@ -80,6 +80,13 @@ Java_com_example_chessanalysis_engine_LlamaRunner_nativeGenerate(
     auto* h = reinterpret_cast<LlamaCtx*>(handle);
     if (!h) return env->NewStringUTF("");
 
+    // J3: each generate() is a FRESH single-turn conversation. The KV cache would otherwise keep
+    // every earlier position's prompt+answer and append the new prompt after them (batch positions
+    // continue from kv->pos_max()+1) — context bloat per move, and after a few positions the
+    // 2048-token window fills up and decode starts failing. Clearing makes every move start at 0,
+    // so the model sees only the current position's Stockfish eval and nothing older.
+    llama_kv_self_clear(h->ctx);
+
     // Optional token sink: the caller sees the answer grow instead of waiting for the whole thing.
     jmethodID onToken = nullptr;
     if (sink != nullptr) {
