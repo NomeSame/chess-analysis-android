@@ -845,6 +845,12 @@
             </LinearLayout>
             <!-- /llToggles -->
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="16dp"
+                android:background="#E0E0E0" />
+
             <!-- Sound theme (collapsible) -->
             <TextView
                 android:id="@+id/tvSoundThemeHeader"
@@ -868,6 +874,12 @@
                 android:layout_marginTop="4dp"
                 android:orientation="vertical"
                 android:visibility="gone" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="16dp"
+                android:background="#E0E0E0" />
 
             <!-- Puzzles (collapsible) -->
             <TextView
