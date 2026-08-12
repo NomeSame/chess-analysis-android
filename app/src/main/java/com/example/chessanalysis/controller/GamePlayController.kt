@@ -12,12 +12,12 @@ import com.example.chessanalysis.data.SettingsRepository
 import com.example.chessanalysis.engine.DrawDetector
 import com.example.chessanalysis.engine.EngineHolder
 import com.example.chessanalysis.engine.LiveAnalyzer
+import com.example.chessanalysis.engine.SoundEventDetector
 import com.example.chessanalysis.engine.StockfishEngine
 import com.example.chessanalysis.model.GameEndReason
 import com.example.chessanalysis.state.GameViewModel
 import com.example.chessanalysis.ui.ChessBoardView
 import com.google.android.material.snackbar.Snackbar
-import kotlin.math.abs
 
 class GamePlayController(
     private val activity: MainActivity,
@@ -169,21 +169,7 @@ class GamePlayController(
         val fenBefore = gameModel.positionHistory.getOrNull(gameModel.positionHistory.lastIndex - 1) ?: ""
         val fenAfter  = gameModel.positionHistory.last()
         chessBoard.lastMoveTo = gameModel.destSquare(fenBefore, fenAfter)
-        val piecesBefore = fenBefore.substringBefore(' ').count { it.isLetter() }
-        val piecesAfter  = fenAfter.substringBefore(' ').count { it.isLetter() }
-        val isCaptureDone = piecesAfter < piecesBefore
-        val isCastleDone  = from != null && run {
-            val boardBefore = gameModel.fenBoard(fenBefore)
-            val movedPiece = boardBefore.getOrNull(from.first * 8 + from.second)
-            if (movedPiece?.uppercaseChar() != 'K') false
-            else {
-                val dest = gameModel.destSquare(fenBefore, fenAfter)
-                dest != null && abs(dest.second - from.second) >= 2
-            }
-        }
-        val isCheckNow = chessBoard.isInCheck(chessBoard.sideToMove == 'w')
-        val isMateNow = isCheckNow && chessBoard.isCheckmate()
-        playMoveSound(isCaptureDone, isCastleDone, isCheckNow, isMateNow)
+        playMoveSound(SoundEventDetector.detect(fenBefore, fenAfter))
         activity.analysisController.requestAnalysis()
         if (gameModel.liveEvalEnabled && gameModel.positionHistory.size >= 2) {
             chessBoard.moveBadge2 = chessBoard.moveBadge
@@ -277,6 +263,15 @@ class GamePlayController(
 
     fun playMoveSound(isCapture: Boolean, isCastle: Boolean, isCheck: Boolean, isCheckmate: Boolean) {
         soundManager.playMoveSound(isCapture, isCastle, isCheck, isCheckmate)
+    }
+
+    fun playMoveSound(event: SoundEventDetector.SoundEvent) {
+        soundManager.playMoveSound(
+            event == SoundEventDetector.SoundEvent.CAPTURE,
+            event == SoundEventDetector.SoundEvent.CASTLE,
+            event == SoundEventDetector.SoundEvent.CHECK || event == SoundEventDetector.SoundEvent.CHECKMATE,
+            event == SoundEventDetector.SoundEvent.CHECKMATE
+        )
     }
 
     fun maybeShowGameOver() {
@@ -404,31 +399,10 @@ class GamePlayController(
     }
 
     fun playPositionSound(fenBefore: String? = null) {
-        val currentFen = chessBoard.getFen()
-        val isCheck = chessBoard.isInCheck(chessBoard.sideToMove == 'w')
-        val isMate = isCheck && chessBoard.isCheckmate()
-        var isCapture = false
-        var isCastle = false
-        if (fenBefore != null) {
-            val piecesBefore = fenBefore.substringBefore(' ').count { it.isLetter() }
-            val piecesAfter = currentFen.substringBefore(' ').count { it.isLetter() }
-            isCapture = piecesAfter < piecesBefore
-            isCastle = run {
-                val boardBefore = gameModel.fenBoard(fenBefore)
-                val boardAfter = gameModel.fenBoard(currentFen)
-                var kingFrom: Int? = null
-                var kingTo: Int? = null
-                for (s in 0 until 64) {
-                    if (boardBefore[s] == boardAfter[s]) continue
-                    val afterPiece = boardAfter[s] ?: continue
-                    val beforePiece = boardBefore[s]
-                    if (afterPiece.uppercaseChar() == 'K') kingTo = s
-                    if (beforePiece != null && beforePiece.uppercaseChar() == 'K') kingFrom = s
-                }
-                kingFrom != null && kingTo != null && abs(kingTo % 8 - kingFrom % 8) >= 2
-            }
-        }
-        soundManager.playMoveSound(isCapture, isCastle, isCheck, isMate)
+        val fenB = fenBefore ?: return
+        // Same event detection as commitMove: the sound depends only on the two positions, so
+        // forward navigation, backward navigation and undo of the same move all report the same event.
+        playMoveSound(SoundEventDetector.detect(fenB, chessBoard.getFen()))
     }
 
     fun toggleHint() {

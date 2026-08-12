@@ -899,6 +899,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/puzzle_show_theme"
                     android:textSize="15sp"
+                    android:textColor="#212121"
                     android:padding="8dp" />
 
             </LinearLayout>

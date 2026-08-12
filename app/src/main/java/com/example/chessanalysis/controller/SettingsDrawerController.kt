@@ -40,6 +40,30 @@ class SettingsDrawerController(
     lateinit var tvDepthValue: TextView
     lateinit var swAnalysisArrows: SwitchCompat
 
+    companion object {
+        // Rendered on the hardcoded-white end drawer; must stay dark even in dark mode (white-on-white bug).
+        internal val DRAWER_TEXT_COLOR = 0xFF212121.toInt()
+        internal val DRAWER_RADIO_ACTIVE = 0xFF1976D2.toInt()
+        internal val DRAWER_RADIO_IDLE = 0xFF616161.toInt()
+
+        internal fun drawerRadioButton(activity: android.app.Activity, text: String): RadioButton =
+            RadioButton(activity).apply {
+                this.text = text
+                textSize = 15f
+                setTextColor(DRAWER_TEXT_COLOR)
+                // The unselected radio ball is normally tinted with colorControlNormal, which is white in
+                // dark mode → invisible on the white drawer (only the selected ball showed). Pin explicit
+                // colors for both states.
+                buttonTintList = android.content.res.ColorStateList(
+                    arrayOf(
+                        intArrayOf(android.R.attr.state_checked),
+                        intArrayOf(-android.R.attr.state_checked)
+                    ),
+                    intArrayOf(DRAWER_RADIO_ACTIVE, DRAWER_RADIO_IDLE)
+                )
+            }
+    }
+
     fun setupSettingsDrawer() {
         val lp = activity.settingsDrawer.layoutParams as DrawerLayout.LayoutParams
         lp.width = activity.resources.displayMetrics.widthPixels * 2 / 3
@@ -97,9 +121,7 @@ class SettingsDrawerController(
         chessBoard.boardTheme = activeTheme
         val rgBoard = activity.findViewById<RadioGroup>(R.id.rgBoardTheme)
         for (theme in BoardThemes.all) {
-            val rb = RadioButton(activity).apply {
-                text = activity.getString(theme.nameRes)
-                textSize = 15f
+            val rb = drawerRadioButton(activity, activity.getString(theme.nameRes)).apply {
                 id = View.generateViewId()
                 isChecked = theme.id == activeTheme.id
                 setOnClickListener {
@@ -114,9 +136,7 @@ class SettingsDrawerController(
         chessBoard.pieceStyle = activeStyle
         val rgPiece = activity.findViewById<RadioGroup>(R.id.rgPieceStyle)
         for (style in PieceStyle.entries) {
-            val rb = RadioButton(activity).apply {
-                text = activity.getString(style.nameRes)
-                textSize = 15f
+            val rb = drawerRadioButton(activity, activity.getString(style.nameRes)).apply {
                 id = View.generateViewId()
                 isChecked = style == activeStyle
                 setOnClickListener {
@@ -206,9 +226,7 @@ class SettingsDrawerController(
 
         val rgSound = activity.findViewById<RadioGroup>(R.id.rgSoundTheme)
         for (t in SoundTheme.entries) {
-            val rb = RadioButton(activity).apply {
-                text = activity.getString(t.labelRes)
-                textSize = 15f
+            val rb = drawerRadioButton(activity, activity.getString(t.labelRes)).apply {
                 id = View.generateViewId()
                 isChecked = t == soundManager.soundTheme
                 setOnClickListener {
