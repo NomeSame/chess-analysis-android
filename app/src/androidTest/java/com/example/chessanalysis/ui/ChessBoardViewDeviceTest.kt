@@ -48,7 +48,6 @@ class ChessBoardViewDeviceTest {
         v.setFen("r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3")
         v.showLegalMoves = true
         v.evalScore = -1.2f
-        v.render()
         render(v)
         assertEquals("r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3", v.getFen())
     }

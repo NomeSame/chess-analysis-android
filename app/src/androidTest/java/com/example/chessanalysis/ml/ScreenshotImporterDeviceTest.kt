@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import org.junit.Before
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -30,6 +31,13 @@ class ScreenshotImporterDeviceTest {
         "........", "........", "PPPPPPPP", "RNBQKBNR"
     )
 
+    @Before
+    fun useDeterministicFallback() {
+        // Earlier device tests launch MainActivity, which initializes optional asset templates.
+        // This fixture intentionally validates the deterministic glyph-silhouette path instead.
+        ScreenshotImporter.useDeterministicFallbackForTesting()
+    }
+
     private fun drawBoard(): Bitmap {
         val size = 1024
         val cell = size / 8
@@ -42,25 +50,26 @@ class ScreenshotImporterDeviceTest {
             bg.color = if ((r + c) % 2 == 0) light else dark
             canvas.drawRect((c * cell).toFloat(), (r * cell).toFloat(), ((c + 1) * cell).toFloat(), ((r + 1) * cell).toFloat(), bg)
         }
-        val whiteGlyphs = charArrayOf('♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜')
-        val blackGlyphs = charArrayOf('♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖')
+        // The deterministic fallback compares filled silhouettes.  Use the same filled shapes
+        // for both colours and vary only paint colour, as a real piece set does.
+        val filledGlyphs = charArrayOf('♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜')
         val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             typeface = Typeface.DEFAULT_BOLD
             textAlign = Paint.Align.CENTER
             textSize = cell * 0.78f
         }
-        fun drawRow(row: Int, chars: CharArray) {
+        fun drawRow(row: Int, chars: CharArray, color: Int) {
             for (c in 0 until 8) {
-                paint.color = if (chars[c].isUpperCase()) Color.BLACK else Color.WHITE
+                paint.color = color
                 val fm = paint.fontMetrics
                 val cy = row * cell + cell / 2f - (fm.ascent + fm.descent) / 2f
                 canvas.drawText(chars[c].toString(), c * cell + cell / 2f, cy, paint)
             }
         }
-        drawRow(0, blackGlyphs)   // black back rank
-        drawRow(1, "♟♟♟♟♟♟♟♟".toCharArray())
-        drawRow(6, "♙♙♙♙♙♙♙♙".toCharArray())
-        drawRow(7, whiteGlyphs)   // white back rank
+        drawRow(0, filledGlyphs, Color.BLACK)  // black back rank
+        drawRow(1, "♟♟♟♟♟♟♟♟".toCharArray(), Color.BLACK)
+        drawRow(6, "♙♙♙♙♙♙♙♙".toCharArray(), Color.WHITE)
+        drawRow(7, filledGlyphs, Color.WHITE)  // white back rank
         return bmp
     }
 
@@ -87,16 +96,16 @@ class ScreenshotImporterDeviceTest {
         }
         assertEquals("white pieces", 16, white)
         assertEquals("black pieces", 16, black)
-        assertTrue("white king present", fen.contains("K"))
-        assertTrue("black king present", fen.contains("k"))
+        assertTrue("white king present in $fen", fen.contains("K"))
+        assertTrue("black king present in $fen", fen.contains("k"))
     }
 
     @Test
     fun recognize_reportsHighConfidence_forCleanBoard() {
         val result = ScreenshotImporter.recognize(drawBoard())
         assertNotNull(result)
-        assertFalse("unexpected uncertainty flag", result!!.uncertain)
-        assertTrue("confidence should be decent", result.perspectiveConfidence >= 0.7f)
+        assertFalse("unexpected uncertainty flag for ${result!!.fen}", result.uncertain)
+        assertTrue("confidence should be decent for ${result.fen}", result.perspectiveConfidence >= 0.7f)
     }
 
     @Test

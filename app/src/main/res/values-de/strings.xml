@@ -132,6 +132,7 @@
     <string name="ai_coach_api_model_hint">Modellname</string>
     <string name="ai_coach_api_save">Speichern</string>
     <string name="ai_coach_api_testing">Verbindung wird getestet…</string>
+    <string name="ai_coach_api_provider_detected">%1$s erkannt — die kostenlose Fallback-Kette ist aktiv.</string>
     <string name="ai_coach_api_example_fmt">Beispiel (%1$s):\nBasis-URL: %2$s\nModell: %3$s\nKey: %4$s</string>
     <string name="ai_coach_api_key_lmstudio">beliebig, oder dein LM-Studio-Token</string>
     <string name="ai_coach_api_key_secret">dein geheimer Schlüssel</string>
@@ -278,4 +279,33 @@
     <string name="clock_minutes">Minuten</string>
     <string name="clock_increment">Inkrement (s)</string>
     <string name="clock_time_fmt">%1$d:%2$02d</string>
+
+    <!-- Gespeicherte Spielstände (benannte Slots über dem Auto-Entwurf) -->
+    <string name="saved_game_save">Spiel speichern</string>
+    <string name="saved_game_load">Spielstände</string>
+    <string name="saved_game_save_cd">Aktuelles Spiel unter einem Namen speichern</string>
+    <string name="saved_game_load_cd">Gespeicherten Spielstand laden oder löschen</string>
+    <string name="saved_game_save_ok">Speichern</string>
+    <string name="saved_game_cancel">Abbrechen</string>
+    <string name="saved_game_delete">Löschen</string>
+    <string name="saved_game_ok">OK</string>
+    <string name="saved_game_new_name">Neuer Name</string>
+    <string name="saved_game_overwrite">Vorhandenen überschreiben</string>
+    <string name="saved_game_name_hint">Spielname</string>
+    <string name="saved_game_no_existing">Noch keine Spielstände gespeichert</string>
+    <string name="saved_game_name_empty">Der Name darf nicht leer sein.</string>
+    <string name="saved_game_name_duplicate">Ein Spiel mit diesem Namen existiert bereits — wähle es oben zur Überschreibung.</string>
+    <string name="saved_game_confirm_overwrite_title">Spielstand überschreiben?</string>
+    <string name="saved_game_confirm_overwrite_message">„%1$s“ (%2$s) durch die aktuelle Stellung ersetzen? Der alte Inhalt ist danach nicht wiederherstellbar.</string>
+    <string name="saved_game_confirm_delete_title">Spielstand löschen?</string>
+    <string name="saved_game_confirm_delete_message">„%1$s“ endgültig löschen? Die laufende Partie bleibt unverändert.</string>
+    <string name="saved_game_none">Noch keine Spielstände gespeichert.</string>
+    <string name="saved_game_saved">„%1$s“ gespeichert.</string>
+    <string name="saved_game_loaded">„%1$s“ geladen.</string>
+    <string name="saved_game_load_failed">Dieser Spielstand konnte nicht geladen werden.</string>
+    <string name="saved_game_deleted">„%1$s“ gelöscht.</string>
+    <string name="saved_game_storage_error">Speichern fehlgeschlagen — bitte erneut versuchen.</string>
+    <string name="saved_game_blocked">Speichern ist in diesem Modus deaktiviert.</string>
+    <string name="saved_game_load_blocked">Laden ist während eines Rätsels deaktiviert.</string>
+    <string name="saved_game_row_fmt">%1$s · %2$d Züge</string>
 </resources>

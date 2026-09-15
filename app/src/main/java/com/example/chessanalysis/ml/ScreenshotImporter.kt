@@ -33,6 +33,16 @@ object ScreenshotImporter {
         tfliteClassifier = try { TFLiteClassifier(context) } catch (_: Exception) { null }
     }
 
+    /**
+     * Keeps bitmap-pipeline tests independent of Activities that initialized the optional
+     * learned/template classifiers earlier in the same instrumentation process.
+     * Production flows must use [init] and never call this test seam.
+     */
+    internal fun useDeterministicFallbackForTesting() {
+        templateMatcher = null
+        tfliteClassifier = null
+    }
+
     /** [fen] best guess, [confidence] mean silhouette-match score 0..1, [pieces] non-empty squares found. */
     data class Result(val fen: String, val confidence: Float, val pieces: Int)
 
@@ -57,8 +67,8 @@ object ScreenshotImporter {
         val px = IntArray(WORK * WORK)
         board.getPixels(px, 0, WORK, 0, 0, WORK, WORK)
 
-        // L3: Adaptive thresholds derived from corner cells
-        val (lightCol, darkCol) = squareColorsAdaptive(px)
+        // Board corners normally contain rooks, so derive backgrounds from all square insets.
+        val (lightCol, darkCol) = squareColorsFull(px)
         val contrast = colorDist(lightCol, darkCol)
         val fgThresh = maxOf(45f, 0.4f * contrast)
 
@@ -135,6 +145,10 @@ object ScreenshotImporter {
      */
     private fun cropToBoard(src: Bitmap): Bitmap? {
         if (src.width < 32 || src.height < 32) return null
+
+        // A square image is already a board candidate.  Running edge-based discovery on it can
+        // mistake the piece silhouettes for grid edges and crop into individual squares.
+        if (src.width == src.height) return centerCropAndScale(src, WORK)
 
         // Strategy A: detect alternating light/dark chess pattern
         val aResult = detectChessPattern(src)

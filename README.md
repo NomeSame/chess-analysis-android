@@ -15,6 +15,7 @@ An **on-device Android chess app** for playing, analyzing, and studying — powe
 ## What it does
 
 - **Play vs the engine** — pick a strength (ELO, up to full Stockfish), choose which side the engine plays, or set up any position and *play from here*.
+- **Resume exactly where you left off** — normal games are tracked move by move, saved as an atomic live draft every 20 seconds and on app exit, and restored on the next cold start. Save named PGN snapshots, load them later, or deliberately overwrite an existing slot.
 - **Analyze a full game** — move-by-move review with accuracy %, an evaluation bar, best-move arrows, top-3 candidate bars, and per-move labels (Brilliant, Great, Best, Book, Inaccuracy, Mistake, Blunder…).
 - **AI Coach** — plain-language explanations of your moves. Runs fully on-device (Gemma 3 1B/4B via a bundled llama.cpp runner), through your own OpenAI-compatible API key (e.g. a local LM Studio server), or falls back to free Lichess analysis.
 - **Import any position** — paste a PGN, load a FEN, or **import a screenshot**: the app recognizes the board from an image and learns from your corrections.
@@ -31,6 +32,7 @@ An **on-device Android chess app** for playing, analyzing, and studying — powe
 5. **Coach** — enable *AI Coach* in Settings and pick a backend (on-device model, your own API, or Lichess).
 6. **Puzzles / Theory** — open *Puzzles* to train tactics, or *Learn theory* to study openings.
 7. **Settings** (side drawer) — themes, pieces, sounds, analysis depth, eval/quality display, opponent strength, language.
+8. **Continue / save a game** — on the home screen, use *Save game* to name the current position or overwrite a selected slot; use *Saved games* to resume, delete, or continue from its exact final position.
 
 ## Build it yourself
 

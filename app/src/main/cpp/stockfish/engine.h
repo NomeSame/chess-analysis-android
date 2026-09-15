@@ -85,7 +85,7 @@ class Engine {
 
     // network related
 
-    void verify_networks() const;
+    bool verify_networks() const;
     void load_networks();
     void load_big_network(const std::string& file);
     void load_small_network(const std::string& file);

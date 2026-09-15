@@ -134,6 +134,7 @@
     <string name="ai_coach_api_model_hint">Model name</string>
     <string name="ai_coach_api_save">Save</string>
     <string name="ai_coach_api_testing">Testing connection…</string>
+    <string name="ai_coach_api_provider_detected">%1$s recognized — its free fallback chain is active.</string>
     <string name="ai_coach_api_example_fmt">Example (%1$s):\nBase URL: %2$s\nModel: %3$s\nKey: %4$s</string>
     <string name="ai_coach_api_key_lmstudio">any string, or your LM Studio token</string>
     <string name="ai_coach_api_key_secret">your secret key</string>
@@ -281,4 +282,33 @@
     <string name="clock_increment">Increment (s)</string>
     <string name="clock_time_fmt">%1$d:%2$02d</string>
     <string name="clock_enabled">Clock</string>
+
+    <!-- Saved games (named slots on top of the auto-draft) -->
+    <string name="saved_game_save">Save game</string>
+    <string name="saved_game_load">Saved games</string>
+    <string name="saved_game_save_cd">Save the current game under a name</string>
+    <string name="saved_game_load_cd">Load or delete a saved game</string>
+    <string name="saved_game_save_ok">Save</string>
+    <string name="saved_game_cancel">Cancel</string>
+    <string name="saved_game_delete">Delete</string>
+    <string name="saved_game_ok">OK</string>
+    <string name="saved_game_new_name">New name</string>
+    <string name="saved_game_overwrite">Overwrite existing</string>
+    <string name="saved_game_name_hint">Game name</string>
+    <string name="saved_game_no_existing">No saved games yet</string>
+    <string name="saved_game_name_empty">The name must not be empty.</string>
+    <string name="saved_game_name_duplicate">A game with this name already exists — pick it above to overwrite it.</string>
+    <string name="saved_game_confirm_overwrite_title">Overwrite saved game?</string>
+    <string name="saved_game_confirm_overwrite_message">Replace \"%1$s\" (%2$s) with the current position? The old content cannot be restored.</string>
+    <string name="saved_game_confirm_delete_title">Delete saved game?</string>
+    <string name="saved_game_confirm_delete_message">Delete \"%1$s\" permanently? The running game is not affected.</string>
+    <string name="saved_game_none">No saved games yet.</string>
+    <string name="saved_game_saved">\"%1$s\" saved.</string>
+    <string name="saved_game_loaded">\"%1$s\" loaded.</string>
+    <string name="saved_game_load_failed">That saved game could not be loaded.</string>
+    <string name="saved_game_deleted">\"%1$s\" deleted.</string>
+    <string name="saved_game_storage_error">Saving failed — please try again.</string>
+    <string name="saved_game_blocked">Saving is disabled in this mode.</string>
+    <string name="saved_game_load_blocked">Loading is disabled while a puzzle is active.</string>
+    <string name="saved_game_row_fmt">%1$s · %2$d moves</string>
 </resources>

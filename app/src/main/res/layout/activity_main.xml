@@ -511,6 +511,39 @@
 
         </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/savedGameActionsRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="6dp">
+
+            <Button
+                android:id="@+id/btnSaveGame"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:text="@string/saved_game_save"
+                android:contentDescription="@string/saved_game_save_cd"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:singleLine="true" />
+
+            <Button
+                android:id="@+id/btnSavedGames"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:text="@string/saved_game_load"
+                android:contentDescription="@string/saved_game_load_cd"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:singleLine="true" />
+
+        </LinearLayout>
+
         <!-- Game History header + Learn Theory button (same line) -->
         <LinearLayout
             android:id="@+id/historyHeaderRow"

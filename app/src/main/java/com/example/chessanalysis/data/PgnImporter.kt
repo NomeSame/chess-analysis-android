@@ -20,8 +20,8 @@ object PgnImporter {
     )
 
     fun parse(text: String): Game? {
-        val tags = Regex("""\[\s*(\w+)\s+"([^"]*)"\s*]""").findAll(text)
-            .associate { it.groupValues[1] to it.groupValues[2] }
+        val tags = Regex("""\[\s*(\w+)\s+"((?:\\.|[^"\\])*)"\s*]""").findAll(text)
+            .associate { it.groupValues[1] to unescapeTag(it.groupValues[2]) }
         val startFen = tags["FEN"]?.trim()?.takeIf { it.isNotEmpty() } ?: START_FEN
 
         var mt = text.replace(Regex("""(?m)^\s*\[[^\n\]]*]\s*$"""), " ") // [Tag "…"] lines
@@ -76,5 +76,22 @@ object PgnImporter {
             else -> if (depth == 0) sb.append(c)
         }
         return sb.toString()
+    }
+
+    private fun unescapeTag(value: String): String {
+        val out = StringBuilder(value.length)
+        var escaped = false
+        for (char in value) {
+            if (escaped) {
+                out.append(char)
+                escaped = false
+            } else if (char == '\\') {
+                escaped = true
+            } else {
+                out.append(char)
+            }
+        }
+        if (escaped) out.append('\\')
+        return out.toString()
     }
 }

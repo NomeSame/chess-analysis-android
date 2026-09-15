@@ -54,6 +54,8 @@ class UCIEngine {
 
     auto& engine_options() { return engine.get_options(); }
 
+    bool verify_networks() const { return engine.verify_networks(); }
+
    private:
     Engine      engine;
     CommandLine cli;

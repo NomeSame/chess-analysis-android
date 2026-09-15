@@ -55,6 +55,8 @@ class MainActivity : AppCompatActivity() {
     internal lateinit var historyController: GameHistoryController
     internal lateinit var puzzleController: PuzzleController
     internal lateinit var aiCoachController: AiCoachController
+    internal lateinit var liveGameSaveController: LiveGameSaveController
+    internal lateinit var savedGameController: SavedGameController
     private lateinit var soundManager: SoundManager
     private var lichessExplorer: LichessExplorer? = null
     internal lateinit var theoryController: TheoryController
@@ -89,7 +91,6 @@ class MainActivity : AppCompatActivity() {
         analysisController.onReviewCompleted = { if (BuildConfig.DEBUG) writeAnalysisLog() }
 
         importController = ImportExportController(this, gameModel, chessBoard, settingsRepo, analyzer)
-        setupModeController = SetupModeController(this, gameModel, chessBoard, analyzer, settingsRepo)
         settingsController = SettingsDrawerController(this, gameModel, chessBoard, soundManager, settingsRepo)
         puzzleController = PuzzleController(this, gameModel, chessBoard, settingsRepo, soundManager, analyzer).also { it.init() }
         aiCoachController = AiCoachController(this, gameModel, settingsRepo)
@@ -97,9 +98,27 @@ class MainActivity : AppCompatActivity() {
         historyController = GameHistoryController(this, gameModel, chessBoard, settingsRepo)
         dashboardController = DashboardController(this)
         findViewById<LinearLayout>(R.id.llDashboard).let { dashboardController.attach(it) }
-        gamePlayController = GamePlayController(this, gameModel, chessBoard, soundManager, settingsRepo, analyzer, engine)
+        liveGameSaveController = LiveGameSaveController(
+            context = this,
+            gameModel = gameModel,
+            isSetupMode = { chessBoard.setupMode },
+            isPuzzleActive = { puzzleController.isActive }
+        )
+        setupModeController = SetupModeController(this, gameModel, chessBoard, analyzer, settingsRepo) {
+            liveGameSaveController.markDirty()
+        }
+        gamePlayController = GamePlayController(this, gameModel, chessBoard, soundManager, settingsRepo, analyzer, engine) {
+            liveGameSaveController.markDirty()
+        }
+        savedGameController = SavedGameController(
+            this, gameModel, chessBoard, liveGameSaveController,
+            isSetupMode = { chessBoard.setupMode },
+            isPuzzleActive = { puzzleController.isActive }
+        )
         settingsController.setupSettingsDrawer()
+        val restoredDraft = savedInstanceState == null && liveGameSaveController.restoreDraftOnColdStart()
         chessBoard.setFen(gameModel.currentFen)
+        if (restoredDraft) gamePlayController.renderRestoredLiveSession()
 
         gamePlayController.initPromotionCallback()
 
@@ -117,7 +136,6 @@ class MainActivity : AppCompatActivity() {
             chessBoard.enPassantSquare = null
             chessBoard.castlingRights = chessBoard.computeCastlingRights()
             gameModel.currentFen = chessBoard.getFen()
-            gameModel.resetHistory(gameModel.currentFen)
             chessBoard.hintSquare = null
             analysisController.requestAnalysis()
             gamePlayController.updateGameStatus()
@@ -139,6 +157,8 @@ class MainActivity : AppCompatActivity() {
         findViewById<View>(R.id.btnResetView).setOnClickListener { analysisController.onResetView() }
         findViewById<View>(R.id.btnUndo).setOnClickListener { gamePlayController.undoMove() }
         findViewById<View>(R.id.btnHint).setOnClickListener { gamePlayController.toggleHint() }
+        findViewById<Button>(R.id.btnSaveGame).setOnClickListener { savedGameController.showSaveDialog() }
+        findViewById<Button>(R.id.btnSavedGames).setOnClickListener { savedGameController.showLoadDialog() }
 
         btnSetup.setOnClickListener {
             if (!chessBoard.setupMode) setupModeController.enterSetupMode() else setupModeController.showPlayDialog()
@@ -191,19 +211,39 @@ class MainActivity : AppCompatActivity() {
         importController.handleIncomingIntent(intent)
     }
 
+    override fun onStart() {
+        super.onStart()
+        liveGameSaveController.startAutoSave()
+    }
+
+    override fun onStop() {
+        liveGameSaveController.stopAutoSave()
+        liveGameSaveController.flushDraftNow()
+        super.onStop()
+    }
+
     private suspend fun initEngine() = withContext(Dispatchers.IO) {
         if (EngineHolder.ready) {
-            withContext(Dispatchers.Main) { tvStatus.text = getString(R.string.ready); analysisController.requestAnalysis() }
+            withContext(Dispatchers.Main) {
+                tvStatus.text = getString(R.string.ready)
+                analysisController.requestAnalysis()
+                gamePlayController.maybeEngineMove()
+            }
             return@withContext
         }
         withContext(Dispatchers.Main) { tvStatus.text = getString(R.string.initializing) }
         try {
-            engine.init(this@MainActivity)
-            EngineHolder.ready = true
-            withContext(Dispatchers.Main) {
-                tvStatus.text = getString(R.string.ready)
-                analyzer.start()
-                analysisController.requestAnalysis()
+            val engineReady = engine.init(this@MainActivity)
+            if (engineReady) {
+                EngineHolder.ready = true
+                withContext(Dispatchers.Main) {
+                    tvStatus.text = getString(R.string.ready)
+                    analyzer.start()
+                    analysisController.requestAnalysis()
+                    gamePlayController.maybeEngineMove()
+                }
+            } else {
+                withContext(Dispatchers.Main) { tvStatus.text = getString(R.string.engine_init_failed) }
             }
         } catch (e: Exception) {
             android.util.Log.e("Main", "Engine init failed", e)
@@ -221,10 +261,9 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         analysisController.stopAutoPlay()
+        liveGameSaveController.close()
         soundManager.release()
         if (isFinishing) {
-            analyzer.onUpdate = null
-            analyzer.stop()
             engine.shutdown()
             EngineHolder.ready = false
         }

@@ -16,13 +16,18 @@
 
 using namespace Stockfish;
 
-static std::mutex              g_mtx;
+// Commands and engine output have independent producers/consumers.  A shared lock can starve a
+// command (notably `stop` before a review) while Stockfish emits a high volume of info lines.
+static std::mutex              g_cmdMtx;
+static std::mutex              g_respMtx;
+static std::mutex              g_engineMtx;
 static std::condition_variable g_cv;
 static std::queue<std::string> g_cmdQueue;
 static std::queue<std::string> g_respQueue;
 static std::thread             g_thread;
 static std::atomic<bool>       g_running{false};
 static std::atomic<int>        g_lastScore{0};
+static UCIEngine*              g_uciEngine = nullptr;
 
 static std::streambuf* g_origCin  = nullptr;
 static std::streambuf* g_origCout = nullptr;
@@ -33,7 +38,7 @@ struct InBuf : std::streambuf {
     int underflow() override {
         if (gptr() < egptr())
             return traits_type::to_int_type(*gptr());
-        std::unique_lock lock(g_mtx);
+        std::unique_lock lock(g_cmdMtx);
         g_cv.wait(lock, [] { return !g_cmdQueue.empty() || !g_running; });
         if (g_cmdQueue.empty())
             return traits_type::eof();
@@ -62,7 +67,7 @@ struct OutBuf : std::streambuf {
                         // malformed/edge line — keep previous score
                     }
                 }
-                std::lock_guard lock(g_mtx);
+                std::lock_guard lock(g_respMtx);
                 g_respQueue.push(std::move(buf));
                 buf.clear();
             }
@@ -72,7 +77,7 @@ struct OutBuf : std::streambuf {
 
     int sync() override {
         if (!buf.empty()) {
-            std::lock_guard lock(g_mtx);
+            std::lock_guard lock(g_respMtx);
             g_respQueue.push(std::move(buf));
             buf.clear();
         }
@@ -95,8 +100,16 @@ static void uciThread() {
 
     static const char* dummyArgv[] = {"stockfish", nullptr};
     auto uci = std::make_unique<UCIEngine>(1, const_cast<char**>(dummyArgv));
+    {
+        std::lock_guard lock(g_engineMtx);
+        g_uciEngine = uci.get();
+    }
     Tune::init(uci->engine_options());
     uci->loop();
+    {
+        std::lock_guard lock(g_engineMtx);
+        g_uciEngine = nullptr;
+    }
 }
 
 extern "C" JNIEXPORT void JNICALL
@@ -112,7 +125,7 @@ extern "C" JNIEXPORT void JNICALL
 Java_com_example_chessanalysis_engine_StockfishEngine_nativeSendCommand(JNIEnv* env, jobject, jstring command) {
     const char* cmdStr = env->GetStringUTFChars(command, nullptr);
     {
-        std::lock_guard lock(g_mtx);
+        std::lock_guard lock(g_cmdMtx);
         g_cmdQueue.push(cmdStr);
     }
     g_cv.notify_one();
@@ -121,7 +134,7 @@ Java_com_example_chessanalysis_engine_StockfishEngine_nativeSendCommand(JNIEnv* 
 
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_example_chessanalysis_engine_StockfishEngine_nativeGetResponse(JNIEnv* env, jobject) {
-    std::lock_guard lock(g_mtx);
+    std::lock_guard lock(g_respMtx);
     if (g_respQueue.empty()) return env->NewStringUTF("");
     std::string resp = std::move(g_respQueue.front());
     g_respQueue.pop();
@@ -131,7 +144,7 @@ Java_com_example_chessanalysis_engine_StockfishEngine_nativeGetResponse(JNIEnv* 
 extern "C" JNIEXPORT void JNICALL
 Java_com_example_chessanalysis_engine_StockfishEngine_nativeShutdown(JNIEnv*, jobject) {
     {
-        std::lock_guard lock(g_mtx);
+        std::lock_guard lock(g_cmdMtx);
         g_cmdQueue.push("quit");
     }
     g_cv.notify_all();
@@ -144,4 +157,14 @@ Java_com_example_chessanalysis_engine_StockfishEngine_nativeShutdown(JNIEnv*, jo
 extern "C" JNIEXPORT jint JNICALL
 Java_com_example_chessanalysis_engine_StockfishEngine_nativeGetScore(JNIEnv*, jobject) {
     return static_cast<jint>(g_lastScore.load());
+}
+
+extern "C" JNIEXPORT jboolean JNICALL
+Java_com_example_chessanalysis_engine_StockfishEngine_nativeVerifyNetworks(JNIEnv*, jobject) {
+    UCIEngine* engine;
+    {
+        std::lock_guard lock(g_engineMtx);
+        engine = g_uciEngine;
+    }
+    return engine ? engine->verify_networks() : false;
 }

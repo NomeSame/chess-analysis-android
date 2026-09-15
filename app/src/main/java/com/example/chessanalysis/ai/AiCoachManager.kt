@@ -32,8 +32,12 @@ enum class ApiProvider(
     CLAUDE("Claude (Anthropic)", "https://console.anthropic.com", "https://api.anthropic.com/v1", "claude-opus-4-8"),
     OPENAI("OpenAI", "https://platform.openai.com", "https://api.openai.com/v1", "gpt-4o-mini"),
     OPENROUTER("OpenRouter", "https://openrouter.ai/keys", "https://openrouter.ai/api/v1", "openai/gpt-4o-mini"),
+    GOOGLE("Google Gemini", "https://aistudio.google.com/app/apikey", "https://generativelanguage.googleapis.com/v1beta/openai", "gemini-3.1-pro-preview"),
+    NVIDIA("NVIDIA NIM", "https://build.nvidia.com", "https://integrate.api.nvidia.com/v1", "deepseek-ai/deepseek-v4-pro-0813"),
     CUSTOM("Custom / LM Studio", "https://lmstudio.ai/docs/api/server", "http://localhost:1234/v1", "local-model")
 }
+
+data class ApiProviderDetection(val provider: ApiProvider, val modelChain: List<String>)
 
 data class ModelInfo(
     val mode: AiCoachMode,
@@ -51,6 +55,7 @@ object AiCoachManager {
     private const val KEY_API_PROVIDER = "ai_coach_api_provider"
     private const val KEY_API_BASE_URL = "ai_coach_api_base_url"
     private const val KEY_API_MODEL = "ai_coach_api_model"
+    private const val KEY_API_FALLBACK_MODELS = "ai_coach_api_fallback_models"
     private const val KEY_DOWNLOADED_1B = "gemma_1b_downloaded"
     private const val KEY_DOWNLOADED_3B = "gemma_3b_downloaded"
     private const val KEY_LICHESS_BANNER_SEEN = "lichess_banner_seen"
@@ -247,7 +252,46 @@ object AiCoachManager {
     }
 
     fun setApiModel(ctx: Context, v: String) {
-        prefs(ctx).edit().putString(KEY_API_MODEL, v).apply()
+        // A hand-picked model is intentional; do not silently append a previous provider route.
+        prefs(ctx).edit().putString(KEY_API_MODEL, v).remove(KEY_API_FALLBACK_MODELS).apply()
+    }
+
+    fun getApiModelChain(ctx: Context): List<String> {
+        val saved = prefs(ctx).getString(KEY_API_FALLBACK_MODELS, null)
+            ?.let { raw -> runCatching { JSONArray(raw) }.getOrNull() }
+            ?.let { array -> List(array.length()) { array.optString(it) }.filter { it.isNotBlank() } }
+            .orEmpty()
+        return if (saved.isNotEmpty()) saved else listOf(getApiModel(ctx))
+    }
+
+    /**
+     * Tests only the official endpoint for a key whose prefix identifies Google/NVIDIA, or for the
+     * provider explicitly selected in the dialog.  This avoids sending an arbitrary third-party key
+     * to another vendor merely to guess its origin.
+     */
+    fun detectKnownProvider(key: String, selectedProvider: ApiProvider? = null): ApiProviderDetection? {
+        val candidates = when {
+            selectedProvider == ApiProvider.GOOGLE || selectedProvider == ApiProvider.NVIDIA -> listOf(selectedProvider)
+            ApiFallbackRouter.isLikelyGoogleKey(key) -> listOf(ApiProvider.GOOGLE)
+            ApiFallbackRouter.isLikelyNvidiaKey(key) -> listOf(ApiProvider.NVIDIA)
+            else -> emptyList()
+        }
+        return candidates.firstNotNullOfOrNull { provider ->
+            val modelIds = probeOpenAiModels(provider, key) ?: return@firstNotNullOfOrNull null
+            val chain = ApiFallbackRouter.availableChain(provider, modelIds)
+            // A reachable key can have a restricted catalog; preserve the documented route only
+            // when at least one of its models is actually available to this key.
+            if (chain.isEmpty()) null else ApiProviderDetection(provider, chain)
+        }
+    }
+
+    fun applyProviderDetection(ctx: Context, detection: ApiProviderDetection) {
+        prefs(ctx).edit()
+            .putString(KEY_API_PROVIDER, detection.provider.name)
+            .putString(KEY_API_BASE_URL, detection.provider.defaultBaseUrl)
+            .putString(KEY_API_MODEL, detection.modelChain.first())
+            .putString(KEY_API_FALLBACK_MODELS, JSONArray(detection.modelChain).toString())
+            .apply()
     }
 
     /**
@@ -263,9 +307,19 @@ object AiCoachManager {
         val key = getApiKey(ctx)
         if (key.isBlank()) throw IllegalStateException("no key")
         val baseUrl = getApiBaseUrl(ctx).trimEnd('/')
-        val model = getApiModel(ctx)
-        return if (getApiProvider(ctx) == ApiProvider.CLAUDE) anthropicChat(baseUrl, key, model, system, user, maxTokens)
-        else openAiChat(baseUrl, key, model, system, user, maxTokens)
+        val provider = getApiProvider(ctx)
+        val models = getApiModelChain(ctx)
+        var lastFailure: Exception? = null
+        for ((index, model) in models.withIndex()) {
+            try {
+                return if (provider == ApiProvider.CLAUDE) anthropicChat(baseUrl, key, model, system, user, maxTokens)
+                else openAiChat(baseUrl, key, model, system, user, maxTokens)
+            } catch (e: ApiRequestException) {
+                lastFailure = e
+                if (index == models.lastIndex || !ApiFallbackRouter.shouldTryNext(e.statusCode)) throw e
+            }
+        }
+        throw lastFailure ?: IllegalStateException("no configured model")
     }
 
     /** Connection test: returns "ok" on success, otherwise the provider's real error message. Call off the UI thread. */
@@ -286,9 +340,34 @@ object AiCoachManager {
         val code = conn.responseCode
         val stream = if (code in 200..299) conn.inputStream else conn.errorStream
         val text = stream?.bufferedReader()?.use { it.readText() } ?: ""
-        if (code !in 200..299) throw java.io.IOException("HTTP $code: ${text.take(300)}")
+        if (code !in 200..299) throw ApiRequestException(code, text.take(300))
         return text
     }
+
+    private fun probeOpenAiModels(provider: ApiProvider, key: String): List<String>? = try {
+        val conn = URL("${provider.defaultBaseUrl.trimEnd('/')}/models").openConnection() as HttpURLConnection
+        conn.requestMethod = "GET"
+        conn.connectTimeout = 10_000
+        conn.readTimeout = 10_000
+        conn.setRequestProperty("Authorization", "Bearer $key")
+        if (provider == ApiProvider.GOOGLE) conn.setRequestProperty("x-goog-api-client", "chess-analysis-app/1")
+        val code = conn.responseCode
+        val text = (if (code in 200..299) conn.inputStream else conn.errorStream)
+            ?.bufferedReader()?.use { it.readText() }.orEmpty()
+        conn.disconnect()
+        if (code !in 200..299) null
+        else {
+            JSONObject(text).optJSONArray("data")?.let { data ->
+                List(data.length()) { data.optJSONObject(it)?.optString("id").orEmpty() }
+                    .filter { it.isNotBlank() }
+            }
+        }
+    } catch (_: Exception) {
+        null
+    }
+
+    private class ApiRequestException(val statusCode: Int, response: String) :
+        java.io.IOException("HTTP $statusCode: $response")
 
     private fun openAiChat(baseUrl: String, key: String, model: String, system: String, user: String, maxTokens: Int): String? {
         val conn = URL("$baseUrl/chat/completions").openConnection() as HttpURLConnection

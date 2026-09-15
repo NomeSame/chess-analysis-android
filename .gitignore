@@ -56,8 +56,12 @@ __pycache__/
 # Local test/example images — not part of the app
 chess1.jpg
 chess2.jpg
+/*.jpg
 
 # Placeholder model dir (no trained chess_cnn.tflite shipped yet);
 # remove this rule when a real model is added so it gets committed
 app/src/main/assets/models/
 graphify-out/
+
+# Local device-game backups — user data, never commit
+Savedgames/

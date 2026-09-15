@@ -190,7 +190,7 @@ Network<Arch, Transformer>::evaluate(const Position&                         pos
 
 
 template<typename Arch, typename Transformer>
-void Network<Arch, Transformer>::verify(std::string                                  evalfilePath,
+bool Network<Arch, Transformer>::verify(std::string                                  evalfilePath,
                                         const std::function<void(std::string_view)>& f) const {
     if (evalfilePath.empty())
         evalfilePath = evalFile.defaultName;
@@ -207,7 +207,7 @@ void Network<Arch, Transformer>::verify(std::string                             
             std::string msg4 = "The default net can be downloaded from: "
                                "https://tests.stockfishchess.org/api/nn/"
                              + std::string(evalFile.defaultName);
-            std::string msg5 = "The engine will be terminated now.";
+            std::string msg5 = "The engine will refuse to search until a compatible network is loaded.";
 
             std::string msg = "ERROR: " + msg1 + '\n' + "ERROR: " + msg2 + '\n' + "ERROR: " + msg3
                             + '\n' + "ERROR: " + msg4 + '\n' + "ERROR: " + msg5 + '\n';
@@ -215,7 +215,7 @@ void Network<Arch, Transformer>::verify(std::string                             
             f(msg);
         }
 
-        exit(EXIT_FAILURE);
+        return false;
     }
 
     if (f)
@@ -227,6 +227,8 @@ void Network<Arch, Transformer>::verify(std::string                             
           + std::to_string(network[0].FC_0_OUTPUTS) + ", " + std::to_string(network[0].FC_1_OUTPUTS)
           + ", 1))");
     }
+
+    return true;
 }
 
 

@@ -25,7 +25,8 @@ class SetupModeController(
     private val gameModel: GameViewModel,
     private val chessBoard: ChessBoardView,
     private val analyzer: LiveAnalyzer,
-    private val settingsRepo: SettingsRepository
+    private val settingsRepo: SettingsRepository,
+    private val onLiveGameChanged: () -> Unit = {}
 ) {
     private var btnFlipBoard: Button? = null
 
@@ -168,9 +169,13 @@ class SetupModeController(
         reportSetupCorrections()
         hideFlipButton()
         gameModel.vsEngine = vs
+        chessBoard.enPassantSquare = null
+        chessBoard.castlingRights = chessBoard.computeCastlingRights()
+        gameModel.currentFen = chessBoard.getFen()
+        gameModel.resetHistory(gameModel.currentFen)
+        onLiveGameChanged()
         chessBoard.setupMode = false
         activity.btnSetup.text = activity.getString(R.string.setup_board)
-        chessBoard.onBoardChanged?.invoke(chessBoard.board)
         chessBoard.requestLayout()
         val tvElo = activity.findViewById<android.widget.TextView>(R.id.tvEloLevel)
         if (vs) {

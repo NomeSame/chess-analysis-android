@@ -238,8 +238,8 @@ class PuzzleController(
 
     private fun setPuzzleChrome(puzzle: Boolean) {
         val homeRows = listOf(
-            R.id.navButtonsRow, R.id.homeActionsRow, R.id.historyHeaderRow,
-            R.id.historyImportRow, R.id.btnExportPgnHistory
+            R.id.navButtonsRow, R.id.homeActionsRow, R.id.savedGameActionsRow,
+            R.id.historyHeaderRow, R.id.historyImportRow, R.id.btnExportPgnHistory
         )
         if (puzzle) {
             for (id in homeRows) activity.findViewById<View>(id).visibility = View.GONE

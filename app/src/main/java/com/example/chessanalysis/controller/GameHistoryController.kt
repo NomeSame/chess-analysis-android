@@ -75,6 +75,7 @@ class GameHistoryController(
         gameModel.moveFromHistory.addAll(rec.moveFrom)
         gameModel.gameOverShown = false
         gameModel.currentPgnGame = null
+        gameModel.liveSessionActive = false
         activity.analysisController.enterReviewMode()
         activity.tvStatus.text = "Loaded game from ${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.getDefault()).format(java.util.Date(rec.timestamp))}"
     }

@@ -22,6 +22,18 @@ data class EvalInfo(
     val openingStats: OpeningStats? = null
 )
 
+/** Global review thresholds. One immutable configuration is applied to every game. */
+data class MoveClassificationThresholds(
+    val onlyMoveWinPctGap: Double = 25.0,
+    val nearBestWinPctDrop: Double = 0.5,
+    val excellentWinPctDrop: Double = 1.5,
+    val goodWinPctDrop: Double = 5.0,
+    val inaccuracyWinPctDrop: Double = 10.0,
+    val mistakeWinPctDrop: Double = 24.0,
+    val missBestWinPct: Double = 60.0,
+    val missPlayedWinPct: Double = 55.0
+)
+
 /** Quality classification of a played move (ordered best to worst). */
 enum class MoveClass(val symbol: String, val color: Int, val label: String) {
     BRILLIANT("!!", Color.parseColor("#26C2A3"), "Brilliant"),
@@ -66,15 +78,20 @@ enum class MoveClass(val symbol: String, val color: Int, val label: String) {
          * never downgraded; for everything else the class is the WORSE of the win%-drop tier and the
          * cp-loss tier ([cpLoss], pass null on mate lines where cp-loss is meaningless).
          */
-        fun classify(e: EvalInfo, materialSacrificed: Boolean = false, cpLoss: Int? = null, ply: Int = e.ply): MoveClass {
+        fun classify(
+            e: EvalInfo,
+            materialSacrificed: Boolean = false,
+            cpLoss: Int? = null,
+            thresholds: MoveClassificationThresholds = MoveClassificationThresholds()
+        ): MoveClass {
             val bestWin = evalToWinPct(e.bestCp, e.bestMate)
             val playedWin = evalToWinPct(e.playedCp, e.playedMate)
             val secondWin = evalToWinPct(e.secondCp, e.secondMate)
 
             val drop = (bestWin - playedWin).coerceAtLeast(0.0)
             val isBest = e.playedMoveUci != null && e.playedMoveUci == e.bestMoveUci
-            val onlyMove = (bestWin - secondWin) >= 12.0
-            val nearBest = playedWin >= bestWin - 2.0
+            val onlyMove = (bestWin - secondWin) >= thresholds.onlyMoveWinPctGap
+            val nearBest = playedWin >= bestWin - thresholds.nearBestWinPctDrop
 
             // H-fix2: Brilliant only for healthy sacrifices that CREATE an advantage, not when already winning.
             if (isBest && materialSacrificed && playedWin >= 50.0 && nearBest && secondWin < 85.0) return BRILLIANT
@@ -89,13 +106,17 @@ enum class MoveClass(val symbol: String, val color: Int, val label: String) {
             // Delivering checkmate is always at least GREAT (never Excellent or below).
             if (e.playedMate != null && e.playedMate == 0) return if (isBest) BEST else GREAT
 
-            // H-fix1: BLUNDER threshold 25%→20% (chess.com Expected Points model).
+            // Global Expected-Points bands, calibrated on the frozen multi-game reference set.
             val winCls = when {
-                drop < 2.0 -> EXCELLENT
-                drop < 5.0 -> GOOD
-                drop < 10.0 -> INACCURACY
-                drop < 20.0 -> if (bestWin >= 65.0 && playedWin < 50.0) MISS else MISTAKE
-                else -> if (bestWin >= 65.0 && playedWin < 50.0) MISS else BLUNDER
+                drop < thresholds.excellentWinPctDrop -> EXCELLENT
+                drop < thresholds.goodWinPctDrop -> GOOD
+                drop < thresholds.inaccuracyWinPctDrop -> INACCURACY
+                drop < thresholds.mistakeWinPctDrop -> {
+                    if (bestWin >= thresholds.missBestWinPct && playedWin < thresholds.missPlayedWinPct) MISS else MISTAKE
+                }
+                else -> {
+                    if (bestWin >= thresholds.missBestWinPct && playedWin < thresholds.missPlayedWinPct) MISS else BLUNDER
+                }
             }
             return if (cpLoss != null) worseOf(winCls, cpLossClassify(cpLoss)) else winCls
         }

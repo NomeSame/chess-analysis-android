@@ -82,6 +82,7 @@ class TheoryController(
             gameModel.moveFromHistory.clear(); gameModel.moveFromHistory.addAll(froms)
             gameModel.currentFen = gameModel.positionHistory.last()
             gameModel.gameOverShown = false
+            gameModel.liveSessionActive = false
             currentTheory = entry
             gameModel.theoryMode = true
             analysisController.enterReviewMode()

@@ -8,6 +8,49 @@ import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 class LiveAnalyzerParseInfoTest {
+    @Test
+    fun scoreOnlyUpdatePreservesPreviouslyReportedPrincipalVariation() {
+        val previous = LiveAnalyzer.PvLine(
+            rank = 1,
+            cp = 24,
+            mate = null,
+            firstMove = "e2e4",
+            pv = listOf("e2e4", "e7e5"),
+            reachedDepth = 14
+        )
+        val scoreOnlyUpdate = LiveAnalyzer.PvLine(
+            rank = 1,
+            cp = 31,
+            mate = null,
+            firstMove = null,
+            reachedDepth = 16
+        )
+
+        val merged = scoreOnlyUpdate.preservingPvFrom(previous)
+
+        assertEquals(31, merged.cp)
+        assertEquals(16, merged.reachedDepth)
+        assertEquals("e2e4", merged.firstMove)
+        assertEquals(listOf("e2e4", "e7e5"), merged.pv)
+    }
+
+    @Test
+    fun finalBestmoveFillsMissingRootMove() {
+        val scoreOnly = LiveAnalyzer.PvLine(
+            rank = 1,
+            cp = 31,
+            mate = null,
+            firstMove = null,
+            reachedDepth = 16
+        )
+
+        val completed = scoreOnly.withFinalBestMove("e2e4")
+
+        assertEquals("e2e4", completed.firstMove)
+        assertEquals(listOf("e2e4"), completed.pv)
+        assertEquals(31, completed.cp)
+    }
+
 
     // parseInfo is a pure instance method that never touches the engine (native lib unavailable on JVM),
     // so allocate a LiveAnalyzer instance without running its constructor or StockfishEngine's <clinit>.

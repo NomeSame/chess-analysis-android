@@ -6,6 +6,70 @@ import org.junit.Test
 
 class MoveClassTest {
 
+    @Test
+    fun calibratedThresholdsAreOneGlobalConfiguration() {
+        assertEquals(
+            MoveClassificationThresholds(
+                onlyMoveWinPctGap = 25.0,
+                nearBestWinPctDrop = 0.5,
+                excellentWinPctDrop = 1.5,
+                goodWinPctDrop = 5.0,
+                inaccuracyWinPctDrop = 10.0,
+                mistakeWinPctDrop = 24.0,
+                missBestWinPct = 60.0,
+                missPlayedWinPct = 55.0
+            ),
+            MoveClassificationThresholds()
+        )
+    }
+
+    @Test
+    fun calibratedOnlyMoveGapDoesNotPromoteAnOrdinaryBestMoveToGreat() {
+        val e = info(bestCp = 100, playedCp = 100, secondCp = -100)
+
+        assertEquals(MoveClass.BEST, MoveClass.classify(e))
+    }
+
+    @Test
+    fun calibratedNearBestWindowRejectsAVisibleDropForGreat() {
+        val e = info(
+            bestCp = 200,
+            playedCp = 190,
+            secondCp = -400,
+            bestMove = "d2d4",
+            playedMove = "e2e4"
+        )
+
+        assertEquals(MoveClass.EXCELLENT, MoveClass.classify(e))
+    }
+
+    @Test
+    fun calibratedMissBandRecognizesAThrownAwayModerateAdvantage() {
+        val e = info(
+            bestCp = 140,
+            playedCp = 0,
+            secondCp = 130,
+            bestMove = "d2d4",
+            playedMove = "e2e4"
+        )
+
+        assertEquals(MoveClass.MISS, MoveClass.classify(e))
+    }
+
+    @Test
+    fun calibratedMistakeCeilingAvoidsPrematureBlunder() {
+        val e = info(
+            bestCp = 0,
+            playedCp = -270,
+            secondCp = -10,
+            bestMove = "d2d4",
+            playedMove = "e2e4"
+        )
+
+        assertEquals(MoveClass.MISTAKE, MoveClass.classify(e))
+    }
+
+
     private fun info(
         bestCp: Int? = null, bestMate: Int? = null,
         playedCp: Int? = null, playedMate: Int? = null,

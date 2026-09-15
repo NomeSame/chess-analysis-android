@@ -5,6 +5,7 @@ import com.example.chessanalysis.engine.GameReviewer
 import com.example.chessanalysis.controller.GamePlayController
 import com.example.chessanalysis.data.PgnImporter
 import com.example.chessanalysis.model.MoveClass
+import com.example.chessanalysis.model.LiveGameSnapshot
 
 data class MoveItem(val position: Int, val displayText: String, val isLast: Boolean)
 
@@ -31,6 +32,11 @@ class GameViewModel : ViewModel() {
     var analysisArrowsEnabled = true
     var liveEvalEnabled = false
     var currentPgnGame: PgnImporter.Game? = null
+    var liveSessionActive = true
+    var liveSessionRevision: Long = 0L
+        private set
+    private var persistedLiveSessionRevision: Long = 0L
+    val liveSessionDirty: Boolean get() = liveSessionRevision != persistedLiveSessionRevision
 
     fun effectiveLine(): List<String> =
         if (exploring) positionHistory.subList(0, (branchIndex + 1).coerceAtMost(positionHistory.size)) + explorationLine else positionHistory
@@ -59,7 +65,46 @@ class GameViewModel : ViewModel() {
         reviewMode = false
         exploring = false
         currentPgnGame = null
+        liveSessionActive = true
         explorationLine.clear(); explorationFrom.clear(); explorationClass.clear(); explorationBest.clear()
+    }
+
+    fun toLiveSnapshot(pgn: String): LiveGameSnapshot = LiveGameSnapshot(
+        startFen = positionHistory.first(),
+        fens = positionHistory.toList(),
+        moveFrom = moveFromHistory.toList(),
+        pgn = pgn,
+        vsEngine = vsEngine,
+        engineIsWhite = engineIsWhite,
+        gameElo = gameElo
+    ).validate().immutableCopy()
+
+    fun restoreLiveSnapshot(snapshot: LiveGameSnapshot) {
+        val safe = snapshot.validate().immutableCopy()
+        positionHistory.clear(); positionHistory.addAll(safe.fens)
+        moveFromHistory.clear(); moveFromHistory.addAll(safe.moveFrom)
+        currentFen = safe.fens.last()
+        viewIndex = safe.fens.lastIndex
+        vsEngine = safe.vsEngine
+        engineIsWhite = safe.engineIsWhite
+        gameElo = safe.gameElo
+        analyzedFen = null
+        bestMoveUci = null
+        analysisMode = false
+        reviewMode = false
+        theoryMode = false
+        exploring = false
+        branchIndex = 0
+        gameOverShown = false
+        currentPgnGame = null
+        liveSessionActive = true
+        explorationLine.clear(); explorationFrom.clear(); explorationClass.clear(); explorationBest.clear()
+    }
+
+    fun markLiveSessionDirty(): Long = ++liveSessionRevision
+
+    fun markLiveSessionPersisted(revision: Long) {
+        if (revision == liveSessionRevision) persistedLiveSessionRevision = revision
     }
 
     fun undoMove(vsEngine: Boolean, engineIsWhite: Boolean): Boolean {

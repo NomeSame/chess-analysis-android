@@ -437,10 +437,37 @@ class AiCoachController(
         AlertDialog.Builder(activity)
             .setTitle(R.string.ai_coach_api_title)
             .setView(root)
-            .setPositiveButton(R.string.ai_coach_api_save) { _, _ -> persist(); selectAiCoachMode(AiCoachMode.API_KEY) }
+            .setPositiveButton(R.string.ai_coach_api_save, null)
             .setNeutralButton(R.string.ai_coach_api_test, null)
             .setNegativeButton(R.string.ai_coach_download_dialog_cancel, null)
             .show().also { dlg ->
+                fun detectProvider(onDone: () -> Unit) {
+                    val key = keyField.text.toString().trim()
+                    val selected = ApiProvider.entries.getOrNull(spinner.selectedItemPosition)
+                    if (key.isBlank()) { onDone(); return }
+                    activity.lifecycleScope.launch {
+                        val detection = withContext(Dispatchers.IO) {
+                            AiCoachManager.detectKnownProvider(key, selected)
+                        }
+                        if (detection != null) {
+                            AiCoachManager.applyProviderDetection(activity, detection)
+                            baseField.setText(detection.provider.defaultBaseUrl)
+                            modelField.setText(detection.modelChain.first())
+                            spinner.setSelection(ApiProvider.entries.indexOf(detection.provider))
+                            Snackbar.make(root,
+                                activity.getString(R.string.ai_coach_api_provider_detected, detection.provider.label),
+                                Snackbar.LENGTH_LONG).show()
+                        }
+                        onDone()
+                    }
+                }
+                dlg.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                    persist()
+                    detectProvider {
+                        selectAiCoachMode(AiCoachMode.API_KEY)
+                        dlg.dismiss()
+                    }
+                }
                 dlg.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
                     persist()
                     if (keyField.text.toString().isBlank()) {
@@ -448,12 +475,14 @@ class AiCoachController(
                         return@setOnClickListener
                     }
                     Snackbar.make(root, R.string.ai_coach_api_testing, Snackbar.LENGTH_SHORT).show()
-                    activity.lifecycleScope.launch {
-                        val result = withContext(Dispatchers.IO) { AiCoachManager.apiTest(activity) }
-                        Snackbar.make(root,
-                            if (result == "ok") activity.getString(R.string.ai_coach_api_test_success)
-                            else activity.getString(R.string.ai_coach_api_test_fail, result),
-                            Snackbar.LENGTH_LONG).show()
+                    detectProvider {
+                        activity.lifecycleScope.launch {
+                            val result = withContext(Dispatchers.IO) { AiCoachManager.apiTest(activity) }
+                            Snackbar.make(root,
+                                if (result == "ok") activity.getString(R.string.ai_coach_api_test_success)
+                                else activity.getString(R.string.ai_coach_api_test_fail, result),
+                                Snackbar.LENGTH_LONG).show()
+                        }
                     }
                 }
             }

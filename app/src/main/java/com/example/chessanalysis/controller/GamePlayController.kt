@@ -26,7 +26,8 @@ class GamePlayController(
     private val soundManager: SoundManager,
     private val settingsRepo: SettingsRepository,
     private val analyzer: LiveAnalyzer,
-    private val engine: StockfishEngine
+    private val engine: StockfishEngine,
+    private val onLiveGameChanged: () -> Unit = {}
 ) {
     companion object {
         const val START_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
@@ -163,6 +164,7 @@ class GamePlayController(
         gameModel.positionHistory.add(gameModel.currentFen)
         gameModel.moveFromHistory.add(from)
         gameModel.viewIndex = gameModel.positionHistory.lastIndex
+        onLiveGameChanged()
         chessBoard.interactionEnabled = true
         chessBoard.hintSquare = null
         chessBoard.lastMoveFrom = from
@@ -331,6 +333,21 @@ class GamePlayController(
         }
     }
 
+    fun renderRestoredLiveSession() {
+        chessBoard.interactionEnabled = true
+        activity.findViewById<View>(R.id.clockRow)?.visibility = View.GONE
+        activity.findViewById<TextView>(R.id.tvEloLevel)?.apply {
+            if (gameModel.vsEngine) {
+                text = activity.getString(R.string.engine_strength_fmt, SettingsRepository.eloLabel(gameModel.gameElo))
+                visibility = View.VISIBLE
+            } else {
+                visibility = View.GONE
+            }
+        }
+        updateGameStatus()
+        activity.analysisController.requestAnalysis()
+    }
+
     fun newGame() {
         gameModel.vsEngine = false
         clockActive = false
@@ -344,6 +361,7 @@ class GamePlayController(
         chessBoard.evalScore = 0f
         chessBoard.hintSquare = null
         gameModel.resetHistory(gameModel.currentFen)
+        onLiveGameChanged()
         activity.analysisController.requestAnalysis()
         updateGameStatus()
     }
@@ -381,7 +399,8 @@ class GamePlayController(
             return
         }
         if (gameModel.reviewMode || gameModel.analysisMode) return
-        gameModel.undoMove(gameModel.vsEngine, gameModel.engineIsWhite)
+        if (!gameModel.undoMove(gameModel.vsEngine, gameModel.engineIsWhite)) return
+        onLiveGameChanged()
         chessBoard.hintSquare = null
         chessBoard.moveBadge = null
         chessBoard.moveBadgeSquare = null

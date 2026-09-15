@@ -20,6 +20,7 @@ import com.example.chessanalysis.data.PgnImporter
 import com.example.chessanalysis.data.GameHistoryManager
 import com.example.chessanalysis.engine.GameReviewer
 import com.example.chessanalysis.engine.LiveAnalyzer
+import com.example.chessanalysis.engine.PgnGameBuilder
 import com.example.chessanalysis.model.*
 import com.example.chessanalysis.ui.*
 import com.example.chessanalysis.ml.ScreenshotImporter
@@ -126,6 +127,7 @@ class ImportExportController(
         chessBoard.setupMode = false
         activity.btnSetup.text = activity.getString(R.string.setup_board)
         activity.gameModel.vsEngine = false
+        activity.gameModel.liveSessionActive = false
         activity.analysisController.exitAnalysisView()
         chessBoard.setFen(fen)
         activity.gameModel.currentFen = chessBoard.getFen()
@@ -218,6 +220,7 @@ class ImportExportController(
             activity.gameModel.moveFromHistory.clear(); activity.gameModel.moveFromHistory.addAll(froms)
             activity.gameModel.currentFen = activity.gameModel.positionHistory.last()
             activity.gameModel.gameOverShown = false
+            activity.gameModel.liveSessionActive = false
             activity.gameModel.currentPgnGame = game
             activity.analysisController.enterReviewMode()
             Snackbar.make(chessBoard, activity.getString(R.string.import_pgn_ok_fmt, game.sanMoves.size), Snackbar.LENGTH_LONG).show()
@@ -230,15 +233,8 @@ class ImportExportController(
     }
 
     fun buildExportGame(): PgnImporter.Game {
-        activity.gameModel.currentPgnGame?.let { return it }
         val fens = activity.gameModel.positionHistory.toList()
-        val startFen = fens.firstOrNull() ?: PgnImporter.START_FEN
-        val moves = mutableListOf<String>()
-        for (i in 0 until fens.size - 1) {
-            val uci = GameReviewer.playedUci(fens[i], fens[i + 1])
-            moves.add(uci ?: "?")
-        }
-        return PgnImporter.Game(startFen, moves, emptyMap())
+        return PgnGameBuilder.build(fens, existingTags = activity.gameModel.currentPgnGame?.tags ?: emptyMap())
     }
 
     fun exportCurrentPgn() {

@@ -32,42 +32,87 @@ class StockfishEngine {
     external fun nativeGetResponse(): String
     external fun nativeShutdown()
     external fun nativeGetScore(): Int
+    external fun nativeVerifyNetworks(): Boolean
 
-    fun init(context: Context) {
-        if (initialized) return
+    /**
+     * Initialise the engine. Returns false (and shuts the engine down) if the NNUE
+     * networks could not be loaded, so the caller can decide whether to enable analysis.
+     */
+    fun init(context: Context): Boolean {
+        if (initialized) return true
         // Stockfish 18 needs BOTH networks: big (EvalFile) + small (EvalFileSmall).
         val smallPath = extractRaw(context, R.raw.nnue_network, "nnue_small.nnue")
         val bigPath = extractRaw(context, R.raw.nnue_big, "nnue_big.nnue")
         nativeInit()
         initialized = true
         sendCommand("uci")
-        waitFor("uciok")
+        if (!waitFor("uciok")) {
+            Log.e(TAG, "Engine did not answer with uciok")
+            shutdown()
+            return false
+        }
         sendCommand("setoption name EvalFile value $bigPath")
         sendCommand("setoption name EvalFileSmall value $smallPath")
         sendCommand("setoption name Threads value 1")   // DO NOT INCREASE - breaks Game-Review idempotency
         applyElo(pendingElo)
         sendCommand("isready")
-        waitFor("readyok")
+        // A cold load of the ~104 MB big net can take a while under memory pressure.
+        if (!waitFor("readyok", 60000)) {
+            Log.e(TAG, "Engine did not answer with readyok (network load may have failed)")
+            shutdown()
+            return false
+        }
+        if (!verifyNetworks()) {
+            // Transient load failure: drop the extracted nets once, re-extract, reload.
+            Log.w(TAG, "NNUE verify failed - re-extracting and retrying")
+            File(context.filesDir, "nnue").listFiles()?.forEach { it.delete() }
+            val retryBig = extractRaw(context, R.raw.nnue_big, "nnue_big.nnue")
+            val retrySmall = extractRaw(context, R.raw.nnue_network, "nnue_small.nnue")
+            sendCommand("setoption name EvalFile value $retryBig")
+            sendCommand("setoption name EvalFileSmall value $retrySmall")
+            if (!verifyNetworks()) {
+                Log.e(TAG, "NNUE verify still failing after retry")
+                shutdown()
+                return false
+            }
+        }
         Log.d("Stockfish", "Engine initialized (big=$bigPath, small=$smallPath)")
+        return true
+    }
+
+    /** Ask the engine to verify both NNUE nets are loaded; drains the info/error lines it emits. */
+    fun verifyNetworks(): Boolean {
+        val ok = nativeVerifyNetworks()
+        var resp = getResponse()
+        while (resp.isNotBlank()) {
+            if (ok) Log.d("Stockfish", "<- $resp") else Log.e(TAG, "<- $resp")
+            resp = getResponse()
+        }
+        return ok
     }
 
     private fun extractRaw(context: Context, resId: Int, name: String): String {
         val dir = File(context.filesDir, "nnue")
         dir.mkdirs()
         val file = File(dir, name)
-        if (!file.exists()) {
+        val expected = context.resources.openRawResource(resId).use { it.available() }
+        if (!file.exists() || (expected > 0 && file.length() != expected.toLong())) {
             context.resources.openRawResource(resId).use { input ->
                 file.outputStream().use { output -> input.copyTo(output) }
             }
-            Log.d("Stockfish", "Extracted $name to ${file.absolutePath}")
+            Log.d("Stockfish", "Extracted $name (${file.length()}/${expected} bytes) to ${file.absolutePath}")
         }
         return file.absolutePath
     }
 
     /** Set engine playing strength in ELO. Values >= [MAX_ELO] disable the limit (full strength). */
-    fun setElo(elo: Int) {
+    /**
+     * Records a requested playing strength. UI callers deliberately only update this value: sending
+     * UCI commands can wait on native engine output. The analyzer worker opts into immediate apply.
+     */
+    fun setElo(elo: Int, applyImmediately: Boolean = false) {
         pendingElo = elo
-        if (initialized) applyElo(elo)
+        if (initialized && applyImmediately) applyElo(elo)
     }
 
     private fun applyElo(elo: Int) {

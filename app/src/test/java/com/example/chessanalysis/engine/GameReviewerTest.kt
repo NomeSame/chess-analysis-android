@@ -44,6 +44,25 @@ class GameReviewerTest {
     }
 
     @Test
+    fun `review exposes the raw inputs and final class for every played ply`() {
+        val before = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+        val after = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"
+        val review = reviewer.review(
+            listOf(before, after),
+            listOf(listOf(pv(1, cp = 100, first = "e2e4")), listOf(pv(1, cp = -90, first = "e7e5")))
+        )
+
+        val measurement = review.measurements.single()
+        assertEquals(before, measurement.fenBefore)
+        assertEquals("e2e4", measurement.playedMoveUci)
+        assertEquals("e2e4", measurement.bestMoveUci)
+        assertEquals(100L, measurement.bestCp?.toLong() ?: -1L)
+        assertEquals(90L, measurement.playedCp?.toLong() ?: -1L)
+        assertEquals(review.cpLosses.single().toLong(), measurement.cpLoss.toLong())
+        assertEquals(review.perPly.single(), measurement.moveClass)
+    }
+
+    @Test
     fun `checkmate delivery sets playedMate zero`() {
         // Scholar's mate: 4.Qxf7# — fens[1] is the checkmate position (black to move, king in check, no moves).
         val fens = listOf(

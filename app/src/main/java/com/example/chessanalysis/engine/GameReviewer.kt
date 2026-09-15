@@ -15,6 +15,24 @@ import kotlin.math.abs
  */
 class GameReviewer(private val explorer: LichessExplorer? = null) {
 
+    /** Reproducible inputs and outcome of one reviewed half-move, for diagnostics/calibration. */
+    data class PlyMeasurement(
+        val ply: Int,
+        val fenBefore: String,
+        val playedMoveUci: String?,
+        val bestMoveUci: String?,
+        val bestCp: Int?,
+        val bestMate: Int?,
+        val secondCp: Int?,
+        val secondMate: Int?,
+        val playedCp: Int?,
+        val playedMate: Int?,
+        val winPctDrop: Double,
+        val cpLoss: Int,
+        val materialSacrificed: Boolean,
+        val moveClass: MoveClass
+    )
+
     /** Result of reviewing a full game. [perPly] index = ply (0-based, move that produced position i+1). */
     data class GameReview(
         val perPly: List<MoveClass>,
@@ -27,7 +45,8 @@ class GameReviewer(private val explorer: LichessExplorer? = null) {
         val tactics: List<TacticalChance> = emptyList(),
         val bestEvalPerPos: List<String?> = emptyList(),   // formatted eval of best move per ply
         val playedEvalPerPos: List<String?> = emptyList(),  // formatted eval of played move per ply
-        val bestPvPerPos: List<List<String>> = emptyList() // full PV (UCI) of best line per position
+        val bestPvPerPos: List<List<String>> = emptyList(), // full PV (UCI) of best line per position
+        val measurements: List<PlyMeasurement> = emptyList()
     )
 
     private val MATE_CP = 2000  // chart magnitude for a mate score
@@ -65,6 +84,7 @@ class GameReviewer(private val explorer: LichessExplorer? = null) {
         val uciPath = ArrayList<String>()
         val bestEvalPerPly = ArrayList<String?>(n)
         val playedEvalPerPly = ArrayList<String?>(n)
+        val measurements = ArrayList<PlyMeasurement>(n)
 
         for (i in 0 until n - 1) {
             val before = lines[i]
@@ -150,13 +170,30 @@ class GameReviewer(private val explorer: LichessExplorer? = null) {
                     bookEnded = true  // out of book → don't check the remaining plies
                 }
             }
+
+            measurements.add(PlyMeasurement(
+                ply = i,
+                fenBefore = fens[i],
+                playedMoveUci = playedUci,
+                bestMoveUci = best?.firstMove,
+                bestCp = best?.cp,
+                bestMate = best?.mate,
+                secondCp = second?.cp,
+                secondMate = second?.mate,
+                playedCp = playedCp,
+                playedMate = playedMate,
+                winPctDrop = drop,
+                cpLoss = cpLoss,
+                materialSacrificed = sacrifice,
+                moveClass = perPly[i]
+            ))
         }
 
         val accuracy = mapOf(
             true to (accSum[true]!! / accCnt[true]!!.coerceAtLeast(1)),
             false to (accSum[false]!! / accCnt[false]!!.coerceAtLeast(1))
         )
-        val review = GameReview(perPly, evalWhitePov, counts.mapValues { it.value.toMap() }, accuracy, bestMovePerPos, openingTexts, cpLosses, bestEvalPerPos = bestEvalPerPly, playedEvalPerPos = playedEvalPerPly, bestPvPerPos = bestPvPerPos)
+        val review = GameReview(perPly, evalWhitePov, counts.mapValues { it.value.toMap() }, accuracy, bestMovePerPos, openingTexts, cpLosses, bestEvalPerPos = bestEvalPerPly, playedEvalPerPos = playedEvalPerPly, bestPvPerPos = bestPvPerPos, measurements = measurements)
         val tactics = detectTactics(review, fens, lines)
         return review.copy(tactics = tactics)
     }

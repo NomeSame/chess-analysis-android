@@ -152,14 +152,16 @@ Engine::Engine(std::optional<std::string> path) :
 }
 
 std::uint64_t Engine::perft(const std::string& fen, Depth depth, bool isChess960) {
-    verify_networks();
+    if (!verify_networks())
+        return 0;
 
     return Benchmark::perft(fen, depth, isChess960);
 }
 
 void Engine::go(Search::LimitsType& limits) {
     assert(limits.perft == 0);
-    verify_networks();
+    if (!verify_networks())
+        return;
 
     threads.start_thinking(options, pos, states, limits);
 }
@@ -259,9 +261,9 @@ void Engine::set_ponderhit(bool b) { threads.main_manager()->ponder = b; }
 
 // network related
 
-void Engine::verify_networks() const {
-    networks->big.verify(options["EvalFile"], onVerifyNetworks);
-    networks->small.verify(options["EvalFileSmall"], onVerifyNetworks);
+bool Engine::verify_networks() const {
+    bool ok = networks->big.verify(options["EvalFile"], onVerifyNetworks)
+            && networks->small.verify(options["EvalFileSmall"], onVerifyNetworks);
 
     auto statuses = networks.get_status_and_errors();
     for (size_t i = 0; i < statuses.size(); ++i)
@@ -292,6 +294,8 @@ void Engine::verify_networks() const {
 
         onVerifyNetworks(message);
     }
+
+    return ok;
 }
 
 void Engine::load_networks() {
