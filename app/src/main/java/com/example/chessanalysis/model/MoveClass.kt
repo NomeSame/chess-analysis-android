@@ -26,10 +26,35 @@ data class EvalInfo(
 data class MoveClassificationThresholds(
     val onlyMoveWinPctGap: Double = 25.0,
     val nearBestWinPctDrop: Double = 0.5,
-    val excellentWinPctDrop: Double = 1.5,
+    val exactBestSearchNoiseWinPctDrop: Double = 1.0,
+    val exactBandCrossingSearchNoiseWinPctDrop: Double = 2.0,
+    val equivalentBestWinPctGap: Double = 0.5,
+    val equivalentBestMinWinPct: Double = 85.0,
+    val equivalentBestMaxCpGap: Int = 10,
+    val equivalentBestMinWinPctDrop: Double = 0.1,
+    val decisiveWinPct: Double = 70.0,
+    val dominantMoveWinPctGap: Double = 11.0,
+    val rescueWinPct: Double = 55.0,
+    val excellentWinPctDrop: Double = 1.8,
     val goodWinPctDrop: Double = 5.0,
     val inaccuracyWinPctDrop: Double = 10.0,
+    val borderlineInaccuracyWinPctDrop: Double = 10.5,
+    val borderlineInaccuracyMaxCpLoss: Int = 125,
     val mistakeWinPctDrop: Double = 24.0,
+    val decisiveBlunderWinPctDrop: Double = 40.0,
+    val newlyForcedMateMistakeWinPct: Double = 5.0,
+    val newlyForcedMateBlunderWinPct: Double = 18.0,
+    val winningGoodBestWinPct: Double = 84.0,
+    val winningGoodPlayedWinPct: Double = 79.0,
+    val winningGoodMaxCpLoss: Int = 110,
+    val winningGoodMinWinPctDrop: Double = 5.0,
+    val balancedGoodMaxAbsBestCp: Int = 60,
+    val balancedGoodMaxCpLoss: Int = 55,
+    val balancedGoodMaxWinPctDrop: Double = 5.5,
+    val winningMissBestWinPct: Double = 91.0,
+    val winningMissPlayedWinPct: Double = 85.0,
+    val winningMissMinCpLoss: Int = 150,
+    val winningMissMinWinPctDrop: Double = 5.0,
     val missBestWinPct: Double = 60.0,
     val missPlayedWinPct: Double = 55.0
 )
@@ -92,7 +117,13 @@ enum class MoveClass(val symbol: String, val color: Int, val label: String) {
             val isBest = e.playedMoveUci != null && e.playedMoveUci == e.bestMoveUci
             val onlyMove = (bestWin - secondWin) >= thresholds.onlyMoveWinPctGap
             val nearBest = playedWin >= bestWin - thresholds.nearBestWinPctDrop
+            val exactBestWithinSearchNoise = isBest &&
+                playedWin >= bestWin - thresholds.exactBestSearchNoiseWinPctDrop
             val soundSacrifice = playedWin >= bestWin - thresholds.excellentWinPctDrop
+
+            // A delivered checkmate is always Best. It must win before sacrifice/only-move rules,
+            // because the terminal result is stronger evidence than search-rank heuristics.
+            if (e.playedMate == 0) return BEST
 
             // A sound material offer can also be Brilliant in an already winning tactical attack.
             // Independent before/after searches fluctuate slightly, hence the wider soundness
@@ -103,26 +134,140 @@ enum class MoveClass(val symbol: String, val color: Int, val label: String) {
             // H-fix3: Great on unique move OR band-jump (lost→drawn or drawn→won), not strictly the top engine move.
             fun band(w: Double) = if (w < 33.0) 0 else if (w <= 67.0) 1 else 2
             val bandJump = band(bestWin) > band(secondWin)
-            if (nearBest && (onlyMove || bandJump)) return GREAT
+            val dominantWinningMove = isBest && nearBest && bestWin > thresholds.decisiveWinPct &&
+                secondWin <= thresholds.decisiveWinPct &&
+                bestWin - secondWin >= thresholds.dominantMoveWinPctGap
+            val onlyDrawingRescue = exactBestWithinSearchNoise && bestWin >= thresholds.rescueWinPct &&
+                bestWin <= 67.0 && secondWin < 33.0
+            val exactWinningBandCrossing = isBest && drop <= thresholds.exactBandCrossingSearchNoiseWinPctDrop &&
+                bestWin > 67.0 && bestWin <= thresholds.decisiveWinPct && secondWin <= 67.0 &&
+                bestWin - secondWin >= thresholds.dominantMoveWinPctGap
+            val greatCandidate = (nearBest && (onlyMove || bandJump)) || dominantWinningMove ||
+                onlyDrawingRescue || exactWinningBandCrossing
+            // Simply collecting a hanging queen is Best, not Great. This is based on the board in
+            // the supplied FEN, never on SAN text, game identity, or a particular square.
+            if (greatCandidate && !capturesQueen(e)) return GREAT
+
+            // When two continuations are effectively tied in an already won position, an exact
+            // rank-1 move can be Excellent rather than uniquely Best. Equal trades use the stable
+            // win-percentage tie; a tiny raw root gap also covers harmless search-order noise.
+            // Material-winning captures remain Best unless the raw alternatives are truly tied.
+            val rawAlternativeGap = if (e.bestCp != null && e.secondCp != null) {
+                kotlin.math.abs(e.bestCp - e.secondCp)
+            } else null
+            val equivalentEqualTrade = bestWin - secondWin <= thresholds.equivalentBestWinPctGap &&
+                isEvenTradeCapture(e)
+            val equivalentSearchTie = rawAlternativeGap != null &&
+                rawAlternativeGap <= thresholds.equivalentBestMaxCpGap &&
+                drop >= thresholds.equivalentBestMinWinPctDrop
+            if (isBest && drop > 0.0 && bestWin >= thresholds.equivalentBestMinWinPct &&
+                (equivalentEqualTrade || equivalentSearchTie)) return EXCELLENT
 
             if (isBest) return BEST
 
-            // Delivering checkmate is always at least GREAT (never Excellent or below).
-            if (e.playedMate != null && e.playedMate == 0) return if (isBest) BEST else GREAT
+            // If mate was already unavoidable, shortening it is an Inaccuracy rather than a new
+            // decisive loss. A newly appearing mate still follows the calibrated loss bands below.
+            if (e.bestMate != null && e.bestMate < 0 && e.playedMate != null && e.playedMate < 0 &&
+                kotlin.math.abs(e.playedMate) < kotlin.math.abs(e.bestMate)) return INACCURACY
+
+            // Entering a forced-mate line is judged by how much practical winning chance still
+            // existed before the move. This separates a fresh decisive collapse from accelerating
+            // a position that was already overwhelmingly lost.
+            if (e.bestMate == null && e.playedMate != null && e.playedMate < 0) {
+                if (bestWin >= thresholds.newlyForcedMateBlunderWinPct) return BLUNDER
+                if (bestWin >= thresholds.newlyForcedMateMistakeWinPct) return MISTAKE
+            }
+
+            val rawCpLoss = if (e.bestCp != null && e.playedCp != null) {
+                (e.bestCp - e.playedCp).coerceAtLeast(0)
+            } else null
+
+            // In a clearly winning position, missing a substantial conversion while retaining a
+            // large advantage is a Miss rather than a generic Inaccuracy. A smaller loss is
+            // tolerated as Good because it does not materially endanger the winning position.
+            if (rawCpLoss != null && bestWin >= thresholds.winningMissBestWinPct &&
+                playedWin >= thresholds.winningMissPlayedWinPct &&
+                rawCpLoss >= thresholds.winningMissMinCpLoss &&
+                drop >= thresholds.winningMissMinWinPctDrop) return MISS
+            if (rawCpLoss != null && bestWin >= thresholds.winningGoodBestWinPct &&
+                playedWin >= thresholds.winningGoodPlayedWinPct &&
+                rawCpLoss <= thresholds.winningGoodMaxCpLoss &&
+                drop >= thresholds.winningGoodMinWinPctDrop) return GOOD
+
+            // Near equality, a small evaluation slip remains Good when both the raw loss and the
+            // expected-score loss stay inside a narrow margin. Larger positional or tactical
+            // concessions continue into the normal Inaccuracy band.
+            if (rawCpLoss != null && e.bestCp != null &&
+                kotlin.math.abs(e.bestCp) <= thresholds.balancedGoodMaxAbsBestCp &&
+                rawCpLoss <= thresholds.balancedGoodMaxCpLoss &&
+                drop >= thresholds.goodWinPctDrop &&
+                drop < thresholds.balancedGoodMaxWinPctDrop) return GOOD
+
+            // A small centipawn loss can sit just beyond the ordinary expected-score boundary;
+            // keep that narrow search-conversion margin in the Inaccuracy band without moving the
+            // boundary for larger tactical losses.
+            val inaccuracyCeiling = if (rawCpLoss != null &&
+                rawCpLoss <= thresholds.borderlineInaccuracyMaxCpLoss) {
+                thresholds.borderlineInaccuracyWinPctDrop
+            } else thresholds.inaccuracyWinPctDrop
 
             // Global Expected-Points bands, calibrated on the frozen multi-game reference set.
             val winCls = when {
                 drop < thresholds.excellentWinPctDrop -> EXCELLENT
                 drop < thresholds.goodWinPctDrop -> GOOD
-                drop < thresholds.inaccuracyWinPctDrop -> INACCURACY
+                drop < inaccuracyCeiling -> INACCURACY
                 drop < thresholds.mistakeWinPctDrop -> {
                     if (bestWin >= thresholds.missBestWinPct && playedWin < thresholds.missPlayedWinPct) MISS else MISTAKE
                 }
                 else -> {
-                    if (bestWin >= thresholds.missBestWinPct && playedWin < thresholds.missPlayedWinPct) MISS else BLUNDER
+                    if (bestWin >= thresholds.missBestWinPct && playedWin < thresholds.missPlayedWinPct &&
+                        drop < thresholds.decisiveBlunderWinPctDrop) MISS else BLUNDER
                 }
             }
             return if (cpLoss != null) worseOf(winCls, cpLossClassify(cpLoss)) else winCls
+        }
+
+        private fun capturesQueen(e: EvalInfo): Boolean {
+            return capturedPiece(e)?.equals('q', ignoreCase = true) == true
+        }
+
+        private fun isEvenTradeCapture(e: EvalInfo): Boolean {
+            val move = e.playedMoveUci ?: return false
+            val moving = pieceAt(e.fenBefore, move.take(2)) ?: return false
+            val captured = capturedPiece(e) ?: return false
+            fun value(piece: Char): Int = when (piece.lowercaseChar()) {
+                'p' -> 1
+                'n', 'b' -> 3
+                'r' -> 5
+                'q' -> 9
+                'k' -> 100
+                else -> 0
+            }
+            return value(moving) > 0 && value(moving) == value(captured)
+        }
+
+        private fun capturedPiece(e: EvalInfo): Char? {
+            val move = e.playedMoveUci ?: return null
+            if (move.length < 4) return null
+            return pieceAt(e.fenBefore, move.substring(2, 4))
+        }
+
+        private fun pieceAt(fen: String, square: String): Char? {
+            if (square.length != 2) return null
+            val file = square[0] - 'a'
+            val rank = square[1] - '0'
+            if (file !in 0..7 || rank !in 1..8) return null
+            val fenRank = fen.substringBefore(' ').split('/').getOrNull(8 - rank) ?: return null
+            var currentFile = 0
+            for (piece in fenRank) {
+                if (piece.isDigit()) {
+                    currentFile += piece.digitToInt()
+                } else {
+                    if (currentFile == file) return piece
+                    currentFile++
+                }
+            }
+            return null
         }
     }
 }

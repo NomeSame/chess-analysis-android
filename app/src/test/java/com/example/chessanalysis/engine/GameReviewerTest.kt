@@ -78,8 +78,8 @@ class GameReviewerTest {
         assertEquals(1, r.perPly.size)
         val cls = r.perPly[0]
         assertTrue(
-            "mate should be at least GREAT, was $cls",
-            cls == MoveClass.GREAT || cls == MoveClass.BEST || cls == MoveClass.BRILLIANT
+            "delivered mate should be BEST, was $cls",
+            cls == MoveClass.BEST
         )
         assertEquals(0, r.cpLosses[0].toLong())
     }
