@@ -155,6 +155,32 @@ class MoveClassTest {
     }
 
     @Test
+    fun equivalentNearBestSacrificeCanBeBrilliant() {
+        val e = info(
+            bestCp = 0,
+            playedCp = 0,
+            secondCp = 0,
+            bestMove = "d1e1",
+            playedMove = "h1e1"
+        )
+
+        assertEquals(MoveClass.BRILLIANT, MoveClass.classify(e, materialSacrificed = true))
+    }
+
+    @Test
+    fun soundSacrificeToleratesSmallIndependentSearchNoise() {
+        val e = info(
+            bestCp = 665,
+            playedCp = 630,
+            secondCp = 620,
+            bestMove = "f5g4",
+            playedMove = "g8g2"
+        )
+
+        assertEquals(MoveClass.BRILLIANT, MoveClass.classify(e, materialSacrificed = true))
+    }
+
+    @Test
     fun sacrificeWithoutWinIsNotBrilliant() {
         val e = info(bestCp = -100, playedCp = -90, secondCp = -120)
         assertTrue(MoveClass.classify(e, materialSacrificed = true) != MoveClass.BRILLIANT)

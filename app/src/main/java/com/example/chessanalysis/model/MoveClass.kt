@@ -92,9 +92,13 @@ enum class MoveClass(val symbol: String, val color: Int, val label: String) {
             val isBest = e.playedMoveUci != null && e.playedMoveUci == e.bestMoveUci
             val onlyMove = (bestWin - secondWin) >= thresholds.onlyMoveWinPctGap
             val nearBest = playedWin >= bestWin - thresholds.nearBestWinPctDrop
+            val soundSacrifice = playedWin >= bestWin - thresholds.excellentWinPctDrop
 
-            // H-fix2: Brilliant only for healthy sacrifices that CREATE an advantage, not when already winning.
-            if (isBest && materialSacrificed && playedWin >= 50.0 && nearBest && secondWin < 85.0) return BRILLIANT
+            // A sound material offer can also be Brilliant in an already winning tactical attack.
+            // Independent before/after searches fluctuate slightly, hence the wider soundness
+            // window. Even an exact root best move is not Brilliant when the after-search shows a
+            // larger loss; this prevents unstable shallow sacrifices from being promoted.
+            if (materialSacrificed && playedWin >= 50.0 && soundSacrifice) return BRILLIANT
 
             // H-fix3: Great on unique move OR band-jump (lost→drawn or drawn→won), not strictly the top engine move.
             fun band(w: Double) = if (w < 33.0) 0 else if (w <= 67.0) 1 else 2

@@ -22,7 +22,7 @@ object SavedGameRepository {
     fun loadDraft(context: Context): LiveGameDraft? {
         val file = File(context.filesDir, DRAFT_FILE_NAME)
         return try {
-            val text = AtomicFile(file).openRead().bufferedReader().use { it.readText() }
+            val text = readAtomic(file)
             draftFromJson(JSONObject(text))
         } catch (_: java.io.FileNotFoundException) {
             null
@@ -103,7 +103,7 @@ object SavedGameRepository {
     private fun loadTemplates(context: Context): List<SavedGameTemplate> {
         val file = File(context.filesDir, TEMPLATES_FILE_NAME)
         return try {
-            val text = AtomicFile(file).openRead().bufferedReader().use { it.readText() }
+            val text = readAtomic(file)
             val arr = JSONArray(text)
             buildList {
                 for (i in 0 until arr.length()) {
@@ -128,15 +128,35 @@ object SavedGameRepository {
         atomicWrite(File(context.filesDir, TEMPLATES_FILE_NAME), arr.toString(2))
     }
 
+    private fun readAtomic(file: File): String {
+        val backup = File(file.path + ".bak")
+        if (backup.exists()) {
+            if (file.exists() && !file.delete()) error("Cannot discard incomplete ${file.path}")
+            if (!backup.renameTo(file)) error("Cannot restore ${backup.path}")
+        }
+        return file.bufferedReader().use { it.readText() }
+    }
+
     private fun atomicWrite(file: File, content: String) {
-        val atomic = AtomicFile(file)
-        val output = atomic.startWrite()
+        val pending = File(file.path + ".new")
+        val backup = File(file.path + ".bak")
+        pending.parentFile?.mkdirs()
+        val output = pending.outputStream()
         try {
             output.write(content.toByteArray(Charsets.UTF_8))
             output.fd.sync()
-            atomic.finishWrite(output)
+            output.close()
+
+            if (backup.exists() && !backup.delete()) error("Cannot remove stale backup ${backup.path}")
+            if (file.exists() && !file.renameTo(backup)) error("Cannot back up ${file.path}")
+            if (!pending.renameTo(file)) error("Cannot publish ${pending.path}")
+            if (backup.exists() && !backup.delete()) {
+                Log.w("SavedGameRepository", "Could not remove completed-write backup ${backup.path}")
+            }
         } catch (e: Exception) {
-            atomic.failWrite(output)
+            runCatching { output.close() }
+            pending.delete()
+            if (!file.exists() && backup.exists()) backup.renameTo(file)
             throw e
         }
     }
