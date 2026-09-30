@@ -1,6 +1,10 @@
 package com.example.chessanalysis.data
 
 import android.content.Context
+import com.example.chessanalysis.model.GameReviewSnapshot
+import com.example.chessanalysis.model.MoveClass
+import com.example.chessanalysis.model.TacticKind
+import com.example.chessanalysis.model.TacticalChance
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
@@ -16,7 +20,8 @@ data class GameRecord(
     val accuracy: Map<String, Double>?,
     val counts: Map<String, Map<String, Int>>?,
     val whiteName: String? = null,
-    val blackName: String? = null
+    val blackName: String? = null,
+    val review: GameReviewSnapshot? = null
 )
 
 object GameHistoryManager {
@@ -34,7 +39,8 @@ object GameHistoryManager {
         accuracy: Map<String, Double>? = null,
         counts: Map<String, Map<String, Int>>? = null,
         whiteName: String? = null,
-        blackName: String? = null
+        blackName: String? = null,
+        review: GameReviewSnapshot? = null
     ) {
         val arr = loadJson(context)
         val entry = JSONObject().apply {
@@ -54,6 +60,7 @@ object GameHistoryManager {
             }
             whiteName?.let { put("whiteName", it) }
             blackName?.let { put("blackName", it) }
+            review?.let { put("review", reviewToJson(it.validate(fens.size))) }
         }
         arr.put(entry)
         while (arr.length() > MAX_ENTRIES) arr.remove(0)
@@ -90,7 +97,8 @@ object GameHistoryManager {
                 accuracy = accuracy,
                 counts = counts,
                 whiteName = obj.optString("whiteName", null),
-                blackName = obj.optString("blackName", null)
+                blackName = obj.optString("blackName", null),
+                review = obj.optJSONObject("review")?.let { runCatching { reviewFromJson(it).validate(fens.size) }.getOrNull() }
             ))
         }
         return result
@@ -118,7 +126,8 @@ object GameHistoryManager {
         accuracy: Map<String, Double>? = null,
         counts: Map<String, Map<String, Int>>? = null,
         whiteName: String? = null,
-        blackName: String? = null
+        blackName: String? = null,
+        review: GameReviewSnapshot? = null
     ): Boolean {
         val arr = loadJson(context)
         val targetHash = fens.joinToString(",").hashCode()
@@ -139,6 +148,7 @@ object GameHistoryManager {
                 }
                 whiteName?.let { obj.put("whiteName", it) }
                 blackName?.let { obj.put("blackName", it) }
+                review?.let { obj.put("review", reviewToJson(it.validate(fens.size))) }
                 arr.put(i, obj)
                 file(context).writeText(arr.toString(2))
                 return true
@@ -175,6 +185,83 @@ object GameHistoryManager {
         while (existing.length() > MAX_ENTRIES) existing.remove(0)
         file(context).writeText(existing.toString(2))
     }
+
+    private fun reviewToJson(review: GameReviewSnapshot) = JSONObject().apply {
+        put("perPly", JSONArray(review.perPly.map { it.name }))
+        put("evalWhitePov", JSONArray(review.evalWhitePov))
+        put("counts", JSONObject().apply {
+            put("white", JSONObject(review.counts[true].orEmpty().mapKeys { it.key.name }))
+            put("black", JSONObject(review.counts[false].orEmpty().mapKeys { it.key.name }))
+        })
+        put("accuracy", JSONObject().apply {
+            put("white", review.accuracy[true] ?: 0.0)
+            put("black", review.accuracy[false] ?: 0.0)
+        })
+        put("bestMovePerPos", nullableStringsToJson(review.bestMovePerPos))
+        put("openingTexts", JSONObject(review.openingTexts.mapKeys { it.key.toString() }))
+        put("cpLosses", JSONArray(review.cpLosses))
+        put("bestEvalPerPos", nullableStringsToJson(review.bestEvalPerPos))
+        put("playedEvalPerPos", nullableStringsToJson(review.playedEvalPerPos))
+        put("bestPvPerPos", JSONArray(review.bestPvPerPos.map { JSONArray(it) }))
+        put("tactics", JSONArray(review.tactics.map { tactic -> JSONObject().apply {
+            put("ply", tactic.ply)
+            put("fen", tactic.fen)
+            put("missedMove", tactic.missedMove ?: JSONObject.NULL)
+            put("bestMove", tactic.bestMove)
+            put("cpLoss", tactic.cpLoss)
+            put("kind", tactic.kind.name)
+            put("mateIn", tactic.mateIn ?: JSONObject.NULL)
+            put("givesCheck", tactic.givesCheck)
+            put("description", tactic.description)
+        } }))
+    }
+
+    private fun reviewFromJson(json: JSONObject): GameReviewSnapshot {
+        val counts = json.getJSONObject("counts")
+        val accuracy = json.getJSONObject("accuracy")
+        return GameReviewSnapshot(
+            perPly = json.getJSONArray("perPly").stringList().map(MoveClass::valueOf),
+            evalWhitePov = json.getJSONArray("evalWhitePov").intList(),
+            counts = mapOf(
+                true to counts.getJSONObject("white").moveClassCounts(),
+                false to counts.getJSONObject("black").moveClassCounts()
+            ),
+            accuracy = mapOf(true to accuracy.getDouble("white"), false to accuracy.getDouble("black")),
+            bestMovePerPos = json.getJSONArray("bestMovePerPos").nullableStringList(),
+            openingTexts = json.getJSONObject("openingTexts").let { values ->
+                values.keys().asSequence().associate { it.toInt() to values.getString(it) }
+            },
+            cpLosses = json.getJSONArray("cpLosses").intList(),
+            tactics = json.getJSONArray("tactics").let { array -> List(array.length()) { index ->
+                val tactic = array.getJSONObject(index)
+                TacticalChance(
+                    ply = tactic.getInt("ply"),
+                    fen = tactic.getString("fen"),
+                    missedMove = tactic.optString("missedMove", null),
+                    bestMove = tactic.getString("bestMove"),
+                    cpLoss = tactic.getInt("cpLoss"),
+                    kind = TacticKind.valueOf(tactic.getString("kind")),
+                    mateIn = if (tactic.isNull("mateIn")) null else tactic.getInt("mateIn"),
+                    givesCheck = tactic.getBoolean("givesCheck"),
+                    description = tactic.getString("description")
+                )
+            } },
+            bestEvalPerPos = json.getJSONArray("bestEvalPerPos").nullableStringList(),
+            playedEvalPerPos = json.getJSONArray("playedEvalPerPos").nullableStringList(),
+            bestPvPerPos = json.getJSONArray("bestPvPerPos").let { array ->
+                List(array.length()) { array.getJSONArray(it).stringList() }
+            }
+        )
+    }
+
+    private fun nullableStringsToJson(values: List<String?>) = JSONArray().apply {
+        values.forEach { put(it ?: JSONObject.NULL) }
+    }
+
+    private fun JSONArray.stringList() = List(length()) { getString(it) }
+    private fun JSONArray.nullableStringList() = List(length()) { if (isNull(it)) null else getString(it) }
+    private fun JSONArray.intList() = List(length()) { getInt(it) }
+    private fun JSONObject.moveClassCounts() = keys().asSequence().associate { MoveClass.valueOf(it) to getInt(it) }
 
     private fun loadJson(context: Context): JSONArray {
         val f = file(context)

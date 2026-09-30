@@ -7,7 +7,12 @@ import com.example.chessanalysis.data.PgnImporter
 import com.example.chessanalysis.model.MoveClass
 import com.example.chessanalysis.model.LiveGameSnapshot
 
-data class MoveItem(val position: Int, val displayText: String, val isLast: Boolean)
+data class MoveItem(
+    val position: Int,
+    val displayText: String,
+    val isLast: Boolean,
+    val moveClass: MoveClass? = null
+)
 
 class GameViewModel : ViewModel() {
     var currentFen = GamePlayController.START_FEN
@@ -132,10 +137,9 @@ class GameViewModel : ViewModel() {
             val moveNum = (i + 1) / 2
             val isBlack = i % 2 == 0
             val cls = review.perPly.getOrNull(i - 1)
-            val symbol = cls?.symbol ?: ""
             val dest = GameReviewer.playedUci(positionHistory[i - 1], positionHistory[i])?.takeLast(2) ?: "?"
-            val prefix = if (!isBlack) "$moveNum." else "…"
-            items.add(MoveItem(i, "$prefix$dest$symbol", i == positionHistory.lastIndex))
+            val prefix = if (!isBlack) "$moveNum. " else "… "
+            items.add(MoveItem(i, "$prefix$dest", i == positionHistory.lastIndex, cls))
         }
         return items
     }

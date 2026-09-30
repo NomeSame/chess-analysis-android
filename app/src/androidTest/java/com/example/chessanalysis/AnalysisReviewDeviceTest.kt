@@ -7,6 +7,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
 import androidx.test.runner.lifecycle.Stage
 import com.example.chessanalysis.engine.EngineHolder
+import com.example.chessanalysis.data.GameHistoryManager
 import com.example.chessanalysis.ui.ChessBoardView
 import java.io.FileInputStream
 import org.junit.Assert.assertNotNull
@@ -35,7 +36,17 @@ class AnalysisReviewDeviceTest {
                 onMain { completed = activity.analysisController.lastReview != null }
                 completed
             }
-            onMain { assertNotNull(activity.analysisController.lastReview) }
+            await("persisted review snapshot") {
+                GameHistoryManager.loadAll(activity).lastOrNull()?.review != null
+            }
+            onMain {
+                assertNotNull(activity.analysisController.lastReview)
+                val saved = GameHistoryManager.loadAll(activity).last()
+                activity.historyController.loadGame(saved)
+                assertTrue(activity.gameModel.analysisMode)
+                assertTrue(activity.findViewById<android.view.View>(R.id.countsPanel).isShown)
+                assertTrue(activity.findViewById<android.view.View>(R.id.moveListRecycler).isShown)
+            }
         } finally {
             onMain { activity.finish() }
         }

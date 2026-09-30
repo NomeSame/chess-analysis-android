@@ -10,6 +10,8 @@ import com.example.chessanalysis.R
 import com.example.chessanalysis.data.GameHistoryManager
 import com.example.chessanalysis.data.GameRecord
 import com.example.chessanalysis.data.SettingsRepository
+import com.example.chessanalysis.engine.EngineHolder
+import com.example.chessanalysis.engine.GameReviewSnapshotMapper
 import com.example.chessanalysis.model.MoveClass
 import com.example.chessanalysis.state.GameViewModel
 import com.example.chessanalysis.ui.ChessBoardView
@@ -73,11 +75,26 @@ class GameHistoryController(
         gameModel.moveFromHistory.clear()
         gameModel.positionHistory.addAll(rec.fens)
         gameModel.moveFromHistory.addAll(rec.moveFrom)
+        gameModel.currentFen = rec.fens.last()
+        gameModel.viewIndex = 0
         gameModel.gameOverShown = false
         gameModel.currentPgnGame = null
         gameModel.liveSessionActive = false
-        activity.analysisController.enterReviewMode()
-        activity.tvStatus.text = "Loaded game from ${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.getDefault()).format(java.util.Date(rec.timestamp))}"
+        activity.analysisController.lastReview = null
+        val storedReview = rec.review?.let(GameReviewSnapshotMapper::restore)
+        if (storedReview != null) {
+            activity.analysisController.lastReview = storedReview
+            activity.analysisController.enterAnalysisView()
+        } else {
+            activity.analysisController.enterReviewMode()
+            if (rec.accuracy != null && rec.counts != null && EngineHolder.ready) {
+                // Older history entries predate per-ply snapshots. Analyze once, then autoSaveGame()
+                // upgrades the matching record so subsequent opens are immediate.
+                activity.analysisController.startAnalysis()
+            } else {
+                activity.tvStatus.text = "Loaded game from ${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.getDefault()).format(java.util.Date(rec.timestamp))}"
+            }
+        }
     }
 
     fun autoSaveGame() {
@@ -116,7 +133,8 @@ class GameHistoryController(
             accuracy = accuracy,
             counts = counts,
             whiteName = whiteName,
-            blackName = blackName
+            blackName = blackName,
+            review = review?.let(GameReviewSnapshotMapper::snapshot)
         )
         if (updated) {
             Snackbar.make(chessBoard, R.string.analysis_updated, Snackbar.LENGTH_SHORT).show()
@@ -130,7 +148,8 @@ class GameHistoryController(
                 accuracy = accuracy,
                 counts = counts,
                 whiteName = whiteName,
-                blackName = blackName
+                blackName = blackName,
+                review = review?.let(GameReviewSnapshotMapper::snapshot)
             )
             android.widget.Toast.makeText(activity, R.string.game_saved, android.widget.Toast.LENGTH_SHORT).show()
         }
