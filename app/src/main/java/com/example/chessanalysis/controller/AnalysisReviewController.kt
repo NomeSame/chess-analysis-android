@@ -93,6 +93,7 @@ class AnalysisReviewController(
     private val autoPlayHandler = android.os.Handler(android.os.Looper.getMainLooper())
     private var autoPlayRunnable: Runnable? = null
     private var moveListAdapter: MoveListAdapter? = null
+    private var gameReviewRunning = false
 
     fun requestAnalysis() {
         if (!EngineHolder.ready || chessBoard.setupMode || activity.puzzleController.isActive) return
@@ -132,6 +133,8 @@ class AnalysisReviewController(
                 activity.runOnUiThread {
                     activity.findViewById<View>(R.id.llAnalysisProgress).visibility = View.GONE
                     if (review == null) {
+                        gameReviewRunning = false
+                        configureAnalysisAction(gameModel.analysisMode)
                         activity.findViewById<TextView>(R.id.tvStatus).text = activity.getString(R.string.ready)
                         Snackbar.make(chessBoard, R.string.import_pgn_error, Snackbar.LENGTH_LONG).show()
                         return@runOnUiThread
@@ -194,7 +197,11 @@ class AnalysisReviewController(
     }
 
     fun startAnalysis() {
+        if (gameReviewRunning || !EngineHolder.ready || gameModel.positionHistory.size < 2) return
+        gameReviewRunning = true
+        configureAnalysisAction(gameModel.analysisMode)
         runGameReview { review ->
+            gameReviewRunning = false
             lastReview = review
             enterAnalysisView()
             activity.historyController.autoSaveGame()
@@ -209,7 +216,7 @@ class AnalysisReviewController(
         gameModel.exploring = false
         gameModel.explorationLine.clear(); gameModel.explorationFrom.clear()
         gameModel.explorationClass.clear(); gameModel.explorationBest.clear()
-        activity.findViewById<View>(R.id.btnReviewAnalyze).visibility = View.GONE
+        configureAnalysisAction(reanalyze = true)
         activity.findViewById<EvalChartView>(R.id.evalChart).apply {
             visibility = View.VISIBLE
             setData(review.evalWhitePov)
@@ -254,8 +261,20 @@ class AnalysisReviewController(
         gameModel.exploring = false
         gameModel.explorationLine.clear(); gameModel.explorationFrom.clear()
         gameModel.explorationClass.clear(); gameModel.explorationBest.clear()
-        activity.findViewById<View>(R.id.btnReviewAnalyze).visibility = View.VISIBLE
+        configureAnalysisAction(reanalyze = false)
         showPosition(0)
+    }
+
+    private fun configureAnalysisAction(reanalyze: Boolean) {
+        activity.findViewById<TextView>(R.id.btnReviewAnalyze).apply {
+            visibility = View.VISIBLE
+            text = if (reanalyze) "↻" else "▶"
+            contentDescription = activity.getString(
+                if (reanalyze) R.string.reanalyze_game else R.string.analyze_game
+            )
+            isEnabled = !gameReviewRunning
+            alpha = if (gameReviewRunning) 0.5f else 1f
+        }
     }
 
     fun exitReviewMode() {
@@ -356,7 +375,11 @@ class AnalysisReviewController(
 
     fun classifyMoveAsync(fenBefore: String, fenAfter: String, exploreIdx: Int = -1) {
         if (!EngineHolder.ready) return
-        analyzer.evaluatePositions(listOf(fenBefore, fenAfter), depth = LiveAnalyzer.LIVE_EVAL_DEPTH, multiPv = 2) { lines, _ ->
+        analyzer.evaluatePositions(
+            listOf(fenBefore, fenAfter),
+            depth = settingsRepo.analysisDepth,
+            multiPv = 2
+        ) { lines, _ ->
             val before = lines.getOrNull(0).orEmpty()
             val best = before.firstOrNull { it.rank == 1 }
             val second = before.firstOrNull { it.rank == 2 }

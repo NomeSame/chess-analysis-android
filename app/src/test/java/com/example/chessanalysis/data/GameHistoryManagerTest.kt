@@ -50,10 +50,26 @@ class GameHistoryManagerTest {
         assertEquals(snapshot(), GameHistoryManager.loadAll(context).single().review)
     }
 
-    private fun snapshot() = GameReviewSnapshot(
-        perPly = listOf(MoveClass.BEST),
+    @Test
+    fun `reanalyzing a game replaces its stored review without creating a duplicate`() {
+        val fens = listOf(start, after)
+        val origins = listOf(null, 6 to 4)
+        GameHistoryManager.saveGame(context, fens, origins, 16, review = snapshot(MoveClass.GOOD))
+        val original = GameHistoryManager.loadAll(context).single()
+
+        GameHistoryManager.updateGame(context, fens, origins, 20, review = snapshot(MoveClass.BEST))
+
+        val records = GameHistoryManager.loadAll(context)
+        assertEquals(1, records.size)
+        assertEquals(original.id, records.single().id)
+        assertEquals(20, records.single().depth)
+        assertEquals(listOf(MoveClass.BEST), records.single().review?.perPly)
+    }
+
+    private fun snapshot(moveClass: MoveClass = MoveClass.BEST) = GameReviewSnapshot(
+        perPly = listOf(moveClass),
         evalWhitePov = listOf(0, 20),
-        counts = mapOf(true to mapOf(MoveClass.BEST to 1), false to emptyMap()),
+        counts = mapOf(true to mapOf(moveClass to 1), false to emptyMap()),
         accuracy = mapOf(true to 99.0, false to 0.0),
         bestMovePerPos = listOf("e2e4", null),
         openingTexts = emptyMap(),

@@ -32,6 +32,28 @@ class OpeningBookTest {
     }
 
     @Test
+    fun queenPawnC6BranchIsBookInBothMoveOrders() {
+        val moveOrders = listOf(
+            listOf("d2d4", "d7d5", "g1f3", "c7c6"),
+            listOf("g1f3", "d7d5", "d2d4", "c7c6")
+        )
+        moveOrders.forEach { path ->
+            (1..path.size).forEach { assertTrue(OpeningBook.isBookPath(path.take(it))) }
+            // The shallow seed does not certify an arbitrary third move as theory.
+            assertFalse(OpeningBook.isBookPath(path + "b1c3"))
+            assertFalse(OpeningBook.isBookPath(path.dropLast(1) + "h7h5"))
+        }
+    }
+
+    @Test
+    fun acceleratedLondonE6IsBookButDoesNotCertifyLaterMoves() {
+        val path = listOf("d2d4", "g8f6", "c1f4", "e7e6")
+        (1..path.size).forEach { assertTrue(OpeningBook.isBookPath(path.take(it))) }
+        assertFalse(OpeningBook.isBookPath(path + "e2e3"))
+        assertFalse(OpeningBook.isBookPath(path.dropLast(1) + "h7h5"))
+    }
+
+    @Test
     fun offbeatDeviationIsNotBook() {
         // 2.h3 deviates from all known lines
         assertFalse(OpeningBook.isBookPath(listOf("e2e4", "e7e5", "h2h3")))

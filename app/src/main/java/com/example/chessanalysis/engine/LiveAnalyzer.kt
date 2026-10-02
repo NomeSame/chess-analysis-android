@@ -37,11 +37,8 @@ class LiveAnalyzer(
     companion object {
         /** At/above this target ELO we use Stockfish's own strength limit; below it, custom weakening. */
         const val WEAK_ELO_MAX = 1350
-        /** Minimum think time per position for a review/move evaluation (Stockfish "give a verdict" budget). */
-        const val EVAL_MOVETIME_MS = 500L
         /** Time the engine spends picking an opponent move (was 1000ms; +30% per request). */
         const val MOVE_MOVETIME_MS = 1300L
-        const val LIVE_EVAL_DEPTH = 14
     }
 
     @Volatile private var targetFen: String? = null
@@ -170,8 +167,14 @@ class LiveAnalyzer(
                     var reachedDepth = 0
                     var nodes = 0L
                     var nps = 0L
+                    // Every FEN must produce the same depth-limited result independently of live
+                    // analysis or positions searched earlier in this review.
+                    engine.clearHash()
                     engine.setPosition(fen)
-                    engine.startSearch(rv.depth, EVAL_MOVETIME_MS)
+                    // A game review must be reproducible at the configured depth. Combining depth
+                    // with a movetime cap stops at whichever limit is reached first and previously
+                    // made a nominal depth-16 review fluctuate around depths 11-14.
+                    engine.startSearch(rv.depth)
                     val bl = TreeMap<Int, PvLine>()
                     while (running) {
                         val resp = engine.getResponse()

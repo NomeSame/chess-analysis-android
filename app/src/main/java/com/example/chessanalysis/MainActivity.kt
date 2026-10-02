@@ -86,7 +86,9 @@ class MainActivity : AppCompatActivity() {
 
         lichessExplorer = LichessExplorer()
         analysisController = AnalysisReviewController(this, gameModel, chessBoard, settingsRepo, analyzer, lichessExplorer)
-        theoryController = TheoryController(this, gameModel, chessBoard, analyzer, lichessExplorer, analysisController)
+        theoryController = TheoryController(
+            this, gameModel, chessBoard, analyzer, settingsRepo, lichessExplorer, analysisController
+        )
         analysisController.theoryController = theoryController
         analysisController.onReviewCompleted = { if (BuildConfig.DEBUG) writeAnalysisLog() }
 

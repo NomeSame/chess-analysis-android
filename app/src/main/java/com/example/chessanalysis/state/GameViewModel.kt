@@ -135,11 +135,9 @@ class GameViewModel : ViewModel() {
         items.add(MoveItem(0, "Start", positionHistory.size <= 1))
         for (i in 1 until positionHistory.size) {
             val moveNum = (i + 1) / 2
-            val isBlack = i % 2 == 0
             val cls = review.perPly.getOrNull(i - 1)
             val dest = GameReviewer.playedUci(positionHistory[i - 1], positionHistory[i])?.takeLast(2) ?: "?"
-            val prefix = if (!isBlack) "$moveNum. " else "… "
-            items.add(MoveItem(i, "$prefix$dest", i == positionHistory.lastIndex, cls))
+            items.add(MoveItem(i, "$moveNum. $dest", i == positionHistory.lastIndex, cls))
         }
         return items
     }

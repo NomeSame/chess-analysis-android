@@ -57,6 +57,9 @@ object OpeningBook {
         "d2d4 d7d5 c1f4 g8f6",             // London
         "d2d4 d7d5 e2e3",
         "d2d4 d7d5 g1f3 g8f6",
+        // Queen's Pawn Game: the c6 branch also occurs through the 1.Nf3 move order.
+        // Lichess D02 theory includes 1.d4 d5 2.Nf3 c6; retain only this shallow prefix.
+        "d2d4 d7d5 g1f3 c7c6",
         // --- 1.d4 Nf6 ---
         "d2d4 g8f6 c2c4 e7e6 b1c3 f8b4",   // Nimzo-Indian
         "d2d4 g8f6 c2c4 e7e6 g1f3 b7b6",   // Queen's Indian
@@ -65,6 +68,7 @@ object OpeningBook {
         "d2d4 g8f6 c2c4 c7c5",             // Benoni
         "d2d4 g8f6 g1f3 g7g6",
         "d2d4 g8f6 c1g5",                  // Trompowsky
+        "d2d4 g8f6 c1f4 e7e6",            // Accelerated London, Indian move order
         // --- 1.d4 other ---
         "d2d4 f7f5",                       // Dutch
         "d2d4 e7e6",
@@ -78,6 +82,7 @@ object OpeningBook {
         "c2c4 g7g6",
         // --- 1.Nf3 ---
         "g1f3 d7d5 d2d4",
+        "g1f3 d7d5 d2d4 c7c6",
         "g1f3 g8f6 c2c4",
         "g1f3 c7c5"
     )

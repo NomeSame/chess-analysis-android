@@ -28,6 +28,7 @@
     <string name="accuracy_fmt">%1$.1f%%</string>
     <string name="analysis_review_fmt">Analyse  %1$d/%2$d</string>
     <string name="analyze_game">Partie analysieren</string>
+    <string name="reanalyze_game">Partie neu analysieren und aktualisieren</string>
     <string name="variation_fmt">Variante  %1$d</string>
     <string name="review_exited">Zurück zur Live-Stellung</string>
     <string name="setup_board">Brett einrichten</string>

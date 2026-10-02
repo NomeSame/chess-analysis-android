@@ -213,10 +213,15 @@ class StockfishEngine {
         sendCommand("setoption name MultiPV value $n")
     }
 
+    /** Remove transposition-table state so a fixed-depth position search is order-independent. */
+    fun clearHash() {
+        sendCommand("setoption name Clear Hash")
+    }
+
     /**
      * Start a depth-limited search without blocking (used by the live analyzer).
      * With [movetimeMs] set, the search also gets a time budget (`go depth D movetime T`): Stockfish
-     * stops at whichever bound it hits first — used to give each per-move review eval a ~0.5s think.
+     * stops at whichever bound it hits first. Game reviews deliberately omit that optional budget.
      */
     fun startSearch(depth: Int, movetimeMs: Long? = null) {
         var cmd = "go depth $depth"

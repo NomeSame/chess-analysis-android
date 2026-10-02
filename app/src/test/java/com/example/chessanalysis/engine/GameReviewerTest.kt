@@ -15,6 +15,26 @@ class GameReviewerTest {
         LiveAnalyzer.PvLine(rank, cp, mate, first, listOfNotNull(first), 22)
 
     @Test
+    fun `offline c6 theory covers two moves per side and stops at deviation`() {
+        val fens = listOf(
+            "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+            "rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b KQkq - 1 1",
+            "rnbqkbnr/ppp1pppp/8/3p4/8/5N2/PPPPPPPP/RNBQKB1R w KQkq d6 0 2",
+            "rnbqkbnr/ppp1pppp/8/3p4/3P4/5N2/PPP1PPPP/RNBQKB1R b KQkq d3 0 2",
+            "rnbqkbnr/pp2pppp/2p5/3p4/3P4/5N2/PPP1PPPP/RNBQKB1R w KQkq - 0 3",
+            "rnbqkbnr/pp2pppp/2p5/3p4/3P4/2N2N2/PPP1PPPP/R1BQKB1R b KQkq - 1 3",
+            "rn1qkbnr/pp2pppp/2p5/3p1b2/3P4/2N2N2/PPP1PPPP/R1BQKB1R w KQkq - 2 4"
+        )
+        val moves = listOf("g1f3", "d7d5", "d2d4", "c7c6", "b1c3", "c8f5", "c1f4")
+        val review = reviewer.review(fens, moves.map { listOf(pv(1, cp = 0, first = it)) })
+        assertEquals(List(4) { MoveClass.BOOK }, review.perPly.take(4))
+        assertTrue(review.perPly.drop(4).none { it == MoveClass.BOOK })
+        assertEquals(2, review.counts.getValue(true)[MoveClass.BOOK])
+        assertEquals(2, review.counts.getValue(false)[MoveClass.BOOK])
+        assertEquals(MoveClass.BOOK, review.measurements[3].moveClass)
+    }
+
+    @Test
     fun `empty game yields empty review`() {
         val r = reviewer.review(emptyList(), emptyList())
         assertTrue(r.perPly.isEmpty())

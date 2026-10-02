@@ -8,6 +8,7 @@ import androidx.appcompat.app.AlertDialog
 import com.example.chessanalysis.MainActivity
 import com.example.chessanalysis.R
 import com.example.chessanalysis.data.LichessExplorer
+import com.example.chessanalysis.data.SettingsRepository
 import com.example.chessanalysis.data.TheoryRepository
 import com.example.chessanalysis.engine.EngineHolder
 import com.example.chessanalysis.engine.GameReviewer
@@ -28,6 +29,7 @@ class TheoryController(
     private val gameModel: GameViewModel,
     private val chessBoard: ChessBoardView,
     private val analyzer: LiveAnalyzer,
+    private val settingsRepo: SettingsRepository,
     private val lichessExplorer: LichessExplorer? = null,
     private val analysisController: AnalysisReviewController
 ) {
@@ -136,7 +138,11 @@ class TheoryController(
         val fenBefore = line.getOrNull(gameModel.viewIndex - 1) ?: return
         val fenAfter = line.getOrNull(gameModel.viewIndex) ?: return
         val token = ++theoryToken
-        analyzer.evaluatePositions(listOf(fenBefore, fenAfter), depth = LiveAnalyzer.LIVE_EVAL_DEPTH, multiPv = 2) { lines, _ ->
+        analyzer.evaluatePositions(
+            listOf(fenBefore, fenAfter),
+            depth = settingsRepo.analysisDepth,
+            multiPv = 2
+        ) { lines, _ ->
             val best = lines.getOrNull(0).orEmpty().firstOrNull { it.rank == 1 }
             val second = lines.getOrNull(0).orEmpty().firstOrNull { it.rank == 2 }
             val a1 = lines.getOrNull(1).orEmpty().firstOrNull { it.rank == 1 }
