@@ -1,68 +1,91 @@
-# ♟️ Chess Analysis
+# Chess Analysis
 
-> **Status: Work in Progress — developed on and off.** The app is fully usable today, but it still grows in bursts: I add and polish features when I have the time, so expect the occasional rough edge between updates.
+Play a game, bring in a PGN from elsewhere, or set up the position you want to understand. Chess Analysis runs Stockfish 18 on your Android phone and lets you step through the moves, try alternatives, and save the result for later.
 
-An **on-device Android chess app** for playing, analyzing, and studying — powered by a full **Stockfish 18** engine that runs entirely on your phone. No account, no server: the engine, the analysis, even the optional AI coach all run locally.
+The aim is to go from "that move was a mistake" to seeing what you could have played instead, without needing a chess account. It is still a work in progress: the engine and review tools are usable, while move classification, screenshot recognition, and the optional coach continue to change.
 
-<!--
-  SCREENSHOTS — biggest single upgrade to this page.
-  Drop 2–3 PNGs into a docs/ folder in the repo, then uncomment:
-  ![Board](docs/board.png)
-  ![Analysis](docs/analysis.png)
-  ![AI Coach](docs/coach.png)
--->
+[Download the APK](https://github.com/NomeSame/chess-analysis-android/releases/latest) - [Browse the source](https://github.com/NomeSame/chess-analysis-android)
 
-## What it does
+## Play, review, come back to it
 
-- **Play vs the engine** — pick a strength (ELO, up to full Stockfish), choose which side the engine plays, or set up any position and *play from here*.
-- **Resume exactly where you left off** — normal games are tracked move by move, saved as an atomic live draft every 20 seconds and on app exit, and restored on the next cold start. Save named PGN snapshots, load them later, or deliberately overwrite an existing slot.
-- **Analyze a full game** — move-by-move review with accuracy %, an evaluation bar, best-move arrows, top-3 candidate bars, and per-move labels (Brilliant, Great, Best, Book, Inaccuracy, Mistake, Blunder…).
-- **AI Coach** — plain-language explanations of your moves. Runs fully on-device (Gemma 3 1B/4B via a bundled llama.cpp runner), through your own OpenAI-compatible API key (e.g. a local LM Studio server), or falls back to free Lichess analysis.
-- **Import any position** — paste a PGN, load a FEN, or **import a screenshot**: the app recognizes the board from an image and learns from your corrections.
-- **Openings & theory** — offline opening book with opening names, plus a *Learn theory* mode showing each side's plans and main continuations.
-- **Puzzles** — Lichess puzzles filtered by rating and theme (mates, forks, pins, sacrifices, endgames…).
-- **Make it yours** — board themes, several piece sets, move sounds, legal-move hints, adjustable analysis depth, English/German UI.
+- **Play against Stockfish.** Choose the engine's side and strength, start a normal game, or arrange a position and play from there. Optional clocks, resignation, and draw detection are included.
+- **Review a whole game.** See an evaluation chart, accuracy for each side, candidate moves, best-move arrows, and labels such as Book, Best, Brilliant, Miss, Mistake, and Blunder. The horizontal move cards show full move numbers and colored quality badges.
+- **Explore another line.** Step back to a position and try a different move. Review, exploration, and theory evaluations use the configured analysis depth.
+- **Keep the analysis.** Saved review entries retain the chart, move classifications, and analysis data. Open an older review and use **&#x21BB;** to analyze it again with the current rules and depth; the existing entry is updated instead of duplicated.
+- **Continue a game later.** A live draft is saved every 20 seconds and when the app leaves the foreground. Named save slots let you keep, resume, overwrite, or delete separate games. PGN export preserves move notation and game metadata.
+- **Bring your own positions.** Import PGN text or files, open a shared PGN from another app, enter a FEN, or use a board screenshot. Screenshot recognition uses templates and can learn from your corrections; check the pieces before continuing.
+- **Study and practice.** Browse opening names and theory, train with Lichess puzzles filtered by rating and theme, and view accuracy trends and move-class distributions from your saved history.
+- **Adjust the board.** Choose board and piece styles, sound themes, legal-move hints, analysis depth, and English or German text.
 
-## How to use it
+## The optional coach
 
-1. **New Game** — tap *New Game* to start from the standard position. Move by tapping/dragging pieces; legal moves are previewed if enabled.
-2. **Play vs the engine** — *Setup Board* → *Play from here* → *VS Engine*, then set the engine's strength and which color it plays.
-3. **Analyze** — during or after a game, tap *Analyze game*. Step through with the review controls; the eval bar, arrows and move labels show what was best and where it went wrong.
-4. **Import** — *Import* → paste a PGN, enter a FEN, or upload a screenshot of a board to bring in a game from elsewhere.
-5. **Coach** — enable *AI Coach* in Settings and pick a backend (on-device model, your own API, or Lichess).
-6. **Puzzles / Theory** — open *Puzzles* to train tactics, or *Learn theory* to study openings.
-7. **Settings** (side drawer) — themes, pieces, sounds, analysis depth, eval/quality display, opponent strength, language.
-8. **Continue / save a game** — on the home screen, use *Save game* to name the current position or overwrite a selected slot; use *Saved games* to resume, delete, or continue from its exact final position.
+The coach adds written explanations beside the engine analysis. You can use:
+
+- **An on-device model:** download Gemma 3 1B or select a compatible GGUF model through the model-folder picker. The llama.cpp runner is included in the current build; model weights are downloaded separately.
+- **Your own API:** supported routes include Anthropic, OpenAI, OpenRouter, Google Gemini, NVIDIA NIM, and a custom OpenAI-compatible endpoint such as LM Studio. Google and NVIDIA key detection checks the provider's model catalogue and builds a fallback route from the available configured models.
+- **The deterministic fallback:** the option labeled Lichess produces comments from the engine and board facts without an LLM.
+
+Model support and memory use depend on the phone and model. Coach explanations can be wrong; use the Stockfish lines to check them. Provider quotas and pricing belong to the provider, so a configured fallback does not guarantee free or available access.
+
+## A quick first run
+
+1. Start **New Game**, or use **Import** for a PGN, FEN, or screenshot.
+2. To play against the engine, open **Setup Board - Play from here - VS Engine** and choose its side and strength.
+3. Select **Analyze game**, then step through the moves. Tap a move card to return to its position and inspect the alternatives.
+4. Open a saved review and select **&#x21BB;** when you want to refresh its analysis. Higher depths take longer.
+5. Use **Save game** for a named playing slot and **Saved games** to continue it. Analyzed games also appear in the review history.
+6. Open the settings drawer for appearance, language, engine settings, and the optional coach.
+
+## What stays on your phone
+
+Stockfish searches, game storage, and on-device coach inference run locally. There is no app account to create. The app can connect to Lichess for opening and puzzle data, to a model host for downloads, and to your selected API endpoint for coaching. API coaching sends the supplied position context to that endpoint.
+
+API keys are stored in encrypted app preferences. Games and settings are stored in the app's private storage. Share/export actions create files you can send yourself.
+
+## Limits worth knowing
+
+- Move labels are this app's own classification, not a promise to reproduce Chess.com's labels. Engine depth, evaluation differences, and the classification rules can change the result. Calibration is ongoing.
+- Reviews now search to the selected depth rather than stopping every position after a short time budget, and clear the engine hash between positions. This reduces one source of run-to-run variation but makes deeper reviews slower.
+- Screenshot import is template-based. The TensorFlow Lite integration exists, but no trained piece-recognition model is shipped.
+- Continuous analysis and local language models use CPU, battery, and memory. The displayed opponent ELO is a strength setting, not a measured rating.
 
 ## Build it yourself
 
-Requirements: a recent Android Studio, an **arm64-v8a** device or emulator, Android 7.0+ (minSdk 24). An internet connection is needed on the first build.
+The app targets **Android 7.0+** and currently builds for **arm64-v8a**. Use JDK 17 and an Android SDK with API 34, NDK, and CMake 3.22.1. Android Studio can install the required native build tools. The first build needs internet access.
 
-```bash
+On Windows / PowerShell:
+
+```powershell
 git clone https://github.com/NomeSame/chess-analysis-android.git
 cd chess-analysis-android
-./gradlew assembleDebug
+.\gradlew.bat assembleDebug testDebugUnitTest
 ```
 
-- The **Stockfish 18 big NNUE network** is downloaded automatically at build time into `app/src/main/res/raw`.
-- The on-device **AI Coach (llama.cpp)** is **off by default** for faster builds. Enable it with `-PaiCoachLlama=true` (or set it in `gradle.properties`); CMake then clones the pinned llama.cpp tag.
-- The built APK lands in `app/build/outputs/apk/`.
+On macOS / Linux, use `./gradlew` for the same tasks.
 
-## How this was built
+- The build downloads Stockfish's large NNUE network into `app/src/main/res/raw`; the small network is already in the repository.
+- `gradle.properties` currently enables the on-device coach with `aiCoachLlama=true`. CMake fetches the pinned llama.cpp tag **b5050**. For a faster build without that runner, add `-PaiCoachLlama=false`.
+- Debug APK: `app/build/outputs/apk/debug/app-debug.apk`. `assembleRelease` produces a release APK; sign it with your own key before distributing it.
+- With a connected device, `connectedDebugAndroidTest` runs the Android tests. Use a disposable test installation: saved-game tests create and clear their fixtures.
 
-I work idea-first: **I owned the concept, the architecture direction, the product decisions, and the testing** — deciding what to build, how it should feel, and pushing on it until bugs were fixed and features actually held up. **The code itself was written by an AI assistant (Claude) under that direction.**
+## How I work on it
 
-I'm putting this front and center on purpose. In an open-source repo the commit history says so anyway, and I'd rather be straight about where the value sits: in the judgment, not the typing.
+I decide what the app should do, work through the behavior, and use AI coding assistants to implement it. A recent example: saved reviews could be opened but not refreshed after the move-rating rules changed. The reanalysis action now reruns Stockfish and replaces the old review without creating another history entry.
 
-## Tech
+The source is here so you can inspect those decisions, reproduce the build, or change them. Tests cover chess rules, imports, save/restore behavior, and classification boundaries; device tests exercise the board, native engine, and review flow.
 
-Kotlin (UI) · C++ (Stockfish 18 engine + llama.cpp, via NDK/CMake JNI) · Python (tooling) · TensorFlow Lite (screenshot piece recognition) · runs on-device.
+## License and credits
 
-## License & credits
+The project is published under **GPL-3.0-or-later**; see [LICENSE](LICENSE). Third-party components and downloaded models retain their own licenses and terms.
 
-Licensed under **GPL-3.0-or-later** — because this app includes **Stockfish**, which is GPLv3, any distributed work that bundles it must carry the same license.
+- **Stockfish 18:** chess engine and NNUE networks.
+- **llama.cpp:** optional local language-model runner, MIT licensed.
+- **Gemma 3:** separately downloaded Google model, subject to the Gemma Terms of Use.
+- **Lichess:** opening and puzzle data.
 
-- **Stockfish 18** — chess engine, GPLv3 · [stockfishchess.org](https://stockfishchess.org)
-- **llama.cpp** — on-device LLM runner, MIT
-- **Gemma 3** — Google, under the Gemma Terms of Use
-- **Lichess** — puzzle & opening data
+<!-- Screenshot candidates, once current captures are available:
+1. Board and engine play - docs/board.png
+2. Saved game review and reanalysis - docs/analysis.png
+3. Coach settings and explanations - docs/coach.png
+No screenshot files are claimed or linked until they exist.
+-->
