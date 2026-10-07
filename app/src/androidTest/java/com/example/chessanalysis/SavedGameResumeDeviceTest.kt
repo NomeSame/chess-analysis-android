@@ -51,7 +51,7 @@ class SavedGameResumeDeviceTest {
      */
     private fun launch(): MainActivity {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
-        val component = "${ApplicationProvider.getApplicationContext<Context>().packageName}/.MainActivity"
+        val component = "${ApplicationProvider.getApplicationContext<Context>().packageName}/${MainActivity::class.java.name}"
         val output = instrumentation.uiAutomation.executeShellCommand("am start -W -n $component")
             .use { descriptor -> FileInputStream(descriptor.fileDescriptor).bufferedReader().use { it.readText() } }
         assertTrue("Shell could not start MainActivity: $output", output.contains("Status: ok"))

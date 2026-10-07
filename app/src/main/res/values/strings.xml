@@ -35,7 +35,7 @@
     <string name="play_from_here">Play from here</string>
 
     <!-- Play-from-here dialog -->
-    <string name="engine_strength_fmt">Engine strength: %1$d</string>
+    <string name="engine_strength_fmt">Engine strength: %1$s</string>
     <string name="engine_plays">Engine plays</string>
     <string name="next_to_move">Next to move</string>
     <string name="vs_engine">VS Engine</string>

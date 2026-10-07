@@ -31,7 +31,8 @@ class AnalysisReviewDeviceTest {
                 assertTrue("PGN moves were not imported", activity.gameModel.positionHistory.size >= 5)
                 activity.analysisController.startAnalysis()
             }
-            await("PGN review completion", timeoutMs = 20_000) {
+            // Depth-bound reviews no longer stop after 500 ms per position.
+            await("PGN review completion", timeoutMs = 120_000) {
                 var completed = false
                 onMain { completed = activity.analysisController.lastReview != null }
                 completed
@@ -41,6 +42,10 @@ class AnalysisReviewDeviceTest {
             }
             onMain {
                 assertNotNull(activity.analysisController.lastReview)
+                val timings = activity.analysisController.lastPosTimings
+                assertNotNull("Review must expose completed native searches", timings)
+                assertTrue("Review must reach its requested depth", timings!!.isNotEmpty() &&
+                    timings.all { it.reachedDepth >= it.requestedDepth })
                 val saved = GameHistoryManager.loadAll(activity).last()
                 activity.historyController.loadGame(saved)
                 assertTrue(activity.gameModel.analysisMode)
@@ -77,7 +82,7 @@ class AnalysisReviewDeviceTest {
 
     private fun launch(): MainActivity {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
-        val component = "${ApplicationProvider.getApplicationContext<Context>().packageName}/.MainActivity"
+        val component = "${ApplicationProvider.getApplicationContext<Context>().packageName}/${MainActivity::class.java.name}"
         val output = instrumentation.uiAutomation.executeShellCommand("am start -W -n $component")
             .use { FileInputStream(it.fileDescriptor).bufferedReader().use { reader -> reader.readText() } }
         assertTrue("Shell could not start MainActivity: $output", output.contains("Status: ok"))

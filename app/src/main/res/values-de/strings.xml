@@ -35,7 +35,7 @@
     <string name="play_from_here">Von hier spielen</string>
 
     <!-- Play-from-here dialog -->
-    <string name="engine_strength_fmt">Engine-Stärke: %1$d</string>
+    <string name="engine_strength_fmt">Engine-Stärke: %1$s</string>
     <string name="engine_plays">Engine spielt</string>
     <string name="next_to_move">Am Zug</string>
     <string name="vs_engine">Gegen Engine</string>
@@ -309,4 +309,7 @@
     <string name="saved_game_blocked">Speichern ist in diesem Modus deaktiviert.</string>
     <string name="saved_game_load_blocked">Laden ist während eines Rätsels deaktiviert.</string>
     <string name="saved_game_row_fmt">%1$s · %2$d Züge</string>
+    <string name="analysis_updated">Analyse aktualisiert</string>
+    <string name="flip_board">&#x21BB; Brett drehen</string>
+    <string name="clock_enabled">Uhr</string>
 </resources>

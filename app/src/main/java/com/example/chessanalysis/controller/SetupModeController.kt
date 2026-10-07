@@ -45,7 +45,7 @@ class SetupModeController(
             max = (StockfishEngine.MAX_ELO - StockfishEngine.MIN_ELO) / 50
             progress = (gameModel.gameElo - StockfishEngine.MIN_ELO) / 50
         }
-        fun render() { label.text = activity.getString(R.string.engine_strength_fmt, SettingsRepository.displayElo(StockfishEngine.MIN_ELO + seek.progress * 50)) }
+        fun render() { label.text = activity.getString(R.string.engine_strength_fmt, SettingsRepository.eloLabel(StockfishEngine.MIN_ELO + seek.progress * 50)) }
         render()
         seek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(sb: SeekBar?, p: Int, fromUser: Boolean) = render()

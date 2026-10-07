@@ -231,7 +231,7 @@ class StockfishEngine {
 
     fun shutdown() {
         if (initialized) {
-            sendCommand("quit")
+            // nativeShutdown owns the single quit command and waits for the native worker.
             nativeShutdown()
             initialized = false
         }

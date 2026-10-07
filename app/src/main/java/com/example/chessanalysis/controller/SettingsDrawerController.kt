@@ -9,6 +9,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SwitchCompat
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
+import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import com.example.chessanalysis.MainActivity
@@ -67,7 +68,7 @@ class SettingsDrawerController(
     fun setupSettingsDrawer() {
         val lp = activity.settingsDrawer.layoutParams as DrawerLayout.LayoutParams
         lp.width = activity.resources.displayMetrics.widthPixels * 2 / 3
-        lp.gravity = Gravity.END
+        lp.gravity = GravityCompat.END
         activity.settingsDrawer.layoutParams = lp
 
         setupLanguageToggle()

@@ -266,6 +266,8 @@ class MainActivity : AppCompatActivity() {
         liveGameSaveController.close()
         soundManager.release()
         if (isFinishing) {
+            // The response consumer must stop before the engine can be initialized again.
+            analyzer.stop()
             engine.shutdown()
             EngineHolder.ready = false
         }

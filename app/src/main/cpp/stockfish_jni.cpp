@@ -35,6 +35,11 @@ static std::streambuf* g_origCout = nullptr;
 struct InBuf : std::streambuf {
     std::string currentCmd;
 
+    void reset() {
+        currentCmd.clear();
+        setg(nullptr, nullptr, nullptr);
+    }
+
     int underflow() override {
         if (gptr() < egptr())
             return traits_type::to_int_type(*gptr());
@@ -115,6 +120,20 @@ static void uciThread() {
 extern "C" JNIEXPORT void JNICALL
 Java_com_example_chessanalysis_engine_StockfishEngine_nativeInit(JNIEnv*, jobject) {
     if (g_running) return;
+    // A stopped UCI session must not leave commands, responses or EOF state for its successor.
+    {
+        std::lock_guard lock(g_cmdMtx);
+        std::queue<std::string>().swap(g_cmdQueue);
+    }
+    {
+        std::lock_guard lock(g_respMtx);
+        std::queue<std::string>().swap(g_respQueue);
+    }
+    g_inBuf.reset();
+    g_outBuf.buf.clear();
+    g_lastScore = 0;
+    std::cin.clear();
+    std::cout.clear();
     g_running = true;
     g_origCin  = std::cin.rdbuf();
     g_origCout = std::cout.rdbuf();
